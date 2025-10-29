@@ -11,31 +11,19 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <csignal>
 #include "Client.hpp"
 
 class Server {
 	private:
-		int						_listenFd;	 // listening socket
-		std::vector<int>		_listenFds; // support multiple ports
-
-		int						_pollFd;	 // epoll/kqueue/poll handle
-		std::map<int, Client*>	clients;	// fd → Client object
-
+		std::vector<int>	_listenFds;
+		std::map<int, Client*>	_clients;
 	public:
-		// Constructors / destructors
-		Server();
-		~Server();
-
-		// Core setup
-		void					initSocket(int port); // create / bind / listen
-		void					initPoller();	// poll
-		void					run();	 // main event loop
-
-	private:
-		// Internal helpers
-		void					handleNewConnection();	// accept new client
-		void					handleClientRead(int clientFd);	// read from client
-		void					handleClientWrite(int clientFd);	// write to client
-		void					closeClient(int clientFd);	// clean up client
-		bool					isListeningSocket(int fd) const; // check if fd is a listening socket
+		void	run();
+		void	initSocket(int port);
+		short	determineClientEvents(Client *clt);
+		void	checkTimeouts();
+		bool	isListeningSocket(int fd) const;
+		void	handleNewConnection(int fd);
+		void	handelClientRead(int fd);
 };
