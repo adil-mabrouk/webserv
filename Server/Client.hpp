@@ -15,6 +15,7 @@ class Client {
 		void	setState(State state);
 		bool	readRequest();
 		void	processRequest();
+		bool	writeResponse();
 	private:
 		int		_fd;
 		State	_state;

@@ -113,7 +113,6 @@ void	Server::handleClientRead(int clientFd)
 		std::cout << "Request complete from fd = " << clientFd << "\n";
 		client->processRequest();
 	}
-
 }
 
 void	Server::run()
@@ -172,8 +171,8 @@ void	Server::run()
 				}
 				if (revents & POLLIN)
 					handleClientRead(fd);
-				// if (revents & POLLOUT)
-				// 	handleClientWrite(fd);
+				if (revents & POLLOUT)
+					handleClientWrite(fd);
 			}
 		}
 	}

@@ -27,4 +27,5 @@ class Server {
 		void	handleNewConnection(int fd);
 		void	handleClientRead(int fd);
 		void	closeClient(int fd);
+		void	handleClientWrite(int fd);
 };
