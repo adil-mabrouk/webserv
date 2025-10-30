@@ -89,13 +89,30 @@ void	Server::handleNewConnection(int fd)
 	std::cout << "New client connected fd = " << clientFd << ")\n";
 }
 
-void	Server::handelClientRead(int fd)
+void	Server::closeClient(int fd)
 {
-	Client	*client = _clients[fd];
+	std::map<int, Client*>::iterator	it = _clients.find(fd);
+	if (it == _clients.end())
+		return ;
+	std::cout << "closing client fd = " << fd << "\n";
+	delete it->second;
+	_clients.erase(it);
+	close(fd);
+}
+
+void	Server::handleClientRead(int clientFd)
+{
+	Client	*client = _clients[clientFd];
 	if (!client)
 		return ;
 	bool	complete = client->readRequest();
 	if (client->getState() == Client::DONE)
+		return ;
+	if (complete)
+	{
+		std::cout << "Request complete from fd = " << clientFd << "\n";
+		client->processRequest();
+	}
 
 }
 
@@ -154,9 +171,9 @@ void	Server::run()
 					continue ;
 				}
 				if (revents & POLLIN)
-					handelClientRead(fd);
-				if (revents & POLLOUT)
-					handelClientWrite(fd);
+					handleClientRead(fd);
+				// if (revents & POLLOUT)
+				// 	handleClientWrite(fd);
 			}
 		}
 	}

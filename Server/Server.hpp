@@ -25,5 +25,6 @@ class Server {
 		void	checkTimeouts();
 		bool	isListeningSocket(int fd) const;
 		void	handleNewConnection(int fd);
-		void	handelClientRead(int fd);
+		void	handleClientRead(int fd);
+		void	closeClient(int fd);
 };
