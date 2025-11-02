@@ -1,12 +1,13 @@
 #include "Server.hpp"
 
-// static void signalHandler(int signo)
-// {
-// 	std::cout << "Shutting down server (signal " << signo << ")" << std::endl;
-// 	std::exit(0);
-// }
+static bool g_running = true;
 
-Server::Server() {}
+static void signalHandler(int signo)
+{
+    std::cout << "\nReceived signal " << signo << ", shutting down...\n";
+    g_running = false;
+}
+
 
 Server::Server() {}
 
@@ -27,7 +28,7 @@ void	Server::initSocket(int port)
 		throwError(listenFd, "setsockopt() failed: ");
 	
 	int f = fcntl(listenFd, F_GETFL, 0);
-	if (f < 0);
+	if (f < 0)
 		throwError(listenFd, "fcntl(F_GETFL) failed: ");
 
 	if (fcntl(listenFd, F_SETFL, f | O_NONBLOCK) < 0)
@@ -39,6 +40,9 @@ void	Server::initSocket(int port)
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons(port);
 
+	if (bind(listenFd, (struct sockaddr*)&address, sizeof(address)) < 0)
+		throwError(listenFd, "bind() failed: ");
+	
 	if (listen(listenFd, SOMAXCONN) < 0)
 		throwError(listenFd, "listen() failed: ");
 
@@ -48,13 +52,18 @@ void	Server::initSocket(int port)
 
 short	Server::determineClientEvents(Client* clt)
 {
-	
+	short	events = 0;
+	if (clt->getState() == Client::READING)
+		events |= POLLIN;
+	else if (clt->getState() == Client::WRITING)
+		events |= POLLOUT;
+	return events;
 }
 
-void	checkTimeouts()
-{
+// void	checkTimeouts()
+// {
 
-}
+// }
 
 bool	Server::isListeningSocket(int fd) const
 {
@@ -115,13 +124,33 @@ void	Server::handleClientRead(int clientFd)
 	}
 }
 
+void	Server::handleClientWrite(int clientFd)
+{
+	Client	*client = _clients[clientFd];
+	if (!client)
+		return ;
+	bool	complete = client->writeResponse();
+	if (complete)
+	{
+		std::cout << "Response sent to Fd = " << clientFd << "\n";
+		if (client->shouldkeepAlive())
+		{
+			client->resetForNextRequest();
+		}
+		else
+		{
+			closeClient(clientFd);
+		}
+	}
+}
+
 void	Server::run()
 {
-	int port = 8080;
+	int port = 8880;
 	initSocket(port);
-	// signal(SIGINT, signalHandler);   // Ctrl+C
-	// signal(SIGTERM, signalHandler);  // kill command
-	while (true)
+	signal(SIGINT, signalHandler);   // Ctrl+C
+	signal(SIGTERM, signalHandler);  // kill command
+	while (g_running)
 	{
 		std::vector<struct pollfd>	pollFds;
 		for (size_t i = 0; i < _listenFds.size(); i++)
@@ -148,11 +177,11 @@ void	Server::run()
 			std::cerr << "poll() error: " << strerror(errno) << "\n";
 			break ;
 		}
-		if (activity == 0)
-		{
-			checkTimeouts();
-			continue ;
-		}
+		// if (activity == 0)
+		// {
+		// 	checkTimeouts();
+		// 	continue ;
+		// }
 		for (size_t i = 0; i < pollFds.size(); i++)
 		{
 			if (pollFds[i].revents == 0)
@@ -160,8 +189,10 @@ void	Server::run()
 			int fd = pollFds[i].fd;
 			short revents = pollFds[i].revents;
 			if (isListeningSocket(fd))
+			{
 				if (revents & POLLIN)
 					handleNewConnection(fd);
+			}
 			else
 			{
 				if (revents & (POLLERR | POLLHUP | POLLNVAL))
@@ -175,5 +206,28 @@ void	Server::run()
 					handleClientWrite(fd);
 			}
 		}
+		std::vector<int>	clientsToClose;
+		for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+		{
+			if (it->second->getState() == Client::DONE)
+				clientsToClose.push_back(it->first);
+		}
+		for (size_t i = 0; i < clientsToClose.size(); i++)
+			closeClient(clientsToClose[i]);
 	}
+	std::cout << "\n\nCleaning up ...";
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		std::cout << "Closing client fd = " << it->first << "\n";
+		close(it->first);
+		delete it->second;
+	}
+	_clients.clear();
+	for (size_t i = 0; i < _listenFds.size(); i++)
+	{
+		std::cout << "Closing listening socket fd = " << _listenFds[i] << "\n";
+		close(_listenFds[i]);
+	}
+	_listenFds.clear();
+	std::cout << "Cleanup completed" << "\n";
 }

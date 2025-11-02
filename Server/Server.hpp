@@ -12,20 +12,24 @@
 #include <iostream>
 #include <sstream>
 #include <csignal>
+#include <cerrno>
 #include "Client.hpp"
+
+class Client;
 
 class Server {
 	private:
 		std::vector<int>	_listenFds;
 		std::map<int, Client*>	_clients;
 	public:
+		Server();
 		void	run();
 		void	initSocket(int port);
 		short	determineClientEvents(Client *clt);
-		void	checkTimeouts();
+		// void	checkTimeouts();
 		bool	isListeningSocket(int fd) const;
 		void	handleNewConnection(int fd);
-		void	handleClientRead(int fd);
-		void	closeClient(int fd);
-		void	handleClientWrite(int fd);
+		void	handleClientRead(int ClientFd);
+		void	closeClient(int clientFd);
+		void	handleClientWrite(int clientFd);
 };
