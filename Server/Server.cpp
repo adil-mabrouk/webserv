@@ -21,8 +21,7 @@ void	Server::initSocket(int port)
 {
 	int	listenFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (listenFd < 0)
-		throwError(listenFd, "socket() failed: ");
-
+	throw std::runtime_error("socket() failed: " + std::string(strerror(errno)));
 	int opt = 1;
 	if (setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 		throwError(listenFd, "setsockopt() failed: ");
@@ -81,6 +80,7 @@ void	Server::handleNewConnection(int fd)
 	socklen_t			addrLen = sizeof(clientAddr);
 
 	int	clientFd = accept(fd, (struct sockaddr*)&clientAddr, &addrLen);
+	std::cout << "================================fd accepted: " << clientFd << std::endl;
 	if (clientFd < 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK)
@@ -104,9 +104,9 @@ void	Server::closeClient(int fd)
 	if (it == _clients.end())
 		return ;
 	std::cout << "closing client fd = " << fd << "\n";
-	delete it->second;
-	_clients.erase(it);
-	close(fd);
+	// delete it->second;
+	// _clients.erase(it);
+	// close(fd);
 }
 
 void	Server::handleClientRead(int clientFd)
@@ -134,20 +134,19 @@ void	Server::handleClientWrite(int clientFd)
 	{
 		std::cout << "Response sent to Fd = " << clientFd << "\n";
 		if (client->shouldkeepAlive())
-		{
 			client->resetForNextRequest();
-		}
-		else
-		{
-			closeClient(clientFd);
-		}
+		// else
+		// 	closeClient(clientFd);
 	}
 }
 
 void	Server::run()
 {
-	int port = 8880;
-	initSocket(port);
+	_ports.push_back(9091);
+	// _ports.push_back(9000);
+	// _ports.push_back(4000);
+	for (size_t i = 0; i < _ports.size(); i++)
+		initSocket(_ports[i]);
 	signal(SIGINT, signalHandler);   // Ctrl+C
 	signal(SIGTERM, signalHandler);  // kill command
 	while (g_running)
@@ -218,9 +217,9 @@ void	Server::run()
 	std::cout << "\n\nCleaning up ...";
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 	{
-		std::cout << "Closing client fd = " << it->first << "\n";
-		close(it->first);
-		delete it->second;
+		// std::cout << "Closing client fd = " << it->first << "\n";
+		// close(it->first);
+		// delete it->second;
 	}
 	_clients.clear();
 	for (size_t i = 0; i < _listenFds.size(); i++)

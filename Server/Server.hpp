@@ -19,6 +19,7 @@ class Client;
 
 class Server {
 	private:
+		std::vector<int>	_ports;
 		std::vector<int>	_listenFds;
 		std::map<int, Client*>	_clients;
 	public:
