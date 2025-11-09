@@ -8,7 +8,7 @@ Client::Client(int fd)
 	_state = READING;
 }
 
-int	Client::getState()
+int	Client::getState() const
 {
 	return _state;
 }
@@ -25,8 +25,6 @@ bool	Client::readRequest()
 
 	if (bytesRead < 0)
 	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return false;
 		std::cerr << "read() error: " << strerror(errno) << "\n";
 		setState(DONE);
 		return false;
@@ -34,7 +32,7 @@ bool	Client::readRequest()
 	else if (bytesRead == 0)
 	{
 		std::cout << "Client disconnected fd = " << _fd << "\n";
-		_state = DONE;
+		setState(DONE);
 		return false;
 	}
 	else
@@ -52,8 +50,6 @@ bool	Client::writeResponse()
 	ssize_t		bytesWriten = write(_fd, data, remain);
 	if (bytesWriten < 0)
 	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return false;
 		std::cerr << "write() error: " << strerror(errno) << "\n";
 		setState(DONE);
 		return false;
@@ -64,11 +60,6 @@ bool	Client::writeResponse()
 		setState(DONE);
 		return true;
 	}
-	return false;
-}
-
-bool	Client::shouldkeepAlive()
-{
 	return false;
 }
 

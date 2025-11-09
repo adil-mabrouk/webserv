@@ -80,11 +80,9 @@ void	Server::handleNewConnection(int fd)
 	socklen_t			addrLen = sizeof(clientAddr);
 
 	int	clientFd = accept(fd, (struct sockaddr*)&clientAddr, &addrLen);
-	std::cout << "================================fd accepted: " << clientFd << std::endl;
+	// std::cout << "================================fd accepted: " << clientFd << std::endl;
 	if (clientFd < 0)
 	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return ;
 		std::cerr << "accept() error: " << strerror(errno) << std::endl;
         return;
 	}
@@ -95,7 +93,7 @@ void	Server::handleNewConnection(int fd)
 	// fcntl(clientFd, F_SETFD, FD_CLOEXEC);
 	Client	*client = new Client(clientFd);
 	_clients[clientFd] = client;
-	std::cout << "New client connected fd = " << clientFd << ")\n";
+	// std::cout << "New client connected fd = " << clientFd << ")\n";
 }
 
 void	Server::closeClient(int fd)
@@ -103,7 +101,7 @@ void	Server::closeClient(int fd)
 	std::map<int, Client*>::iterator	it = _clients.find(fd);
 	if (it == _clients.end())
 		return ;
-	std::cout << "closing client fd = " << fd << "\n";
+	// std::cout << "closing client fd = " << fd << "\n";
 	// delete it->second;
 	// _clients.erase(it);
 	// close(fd);
@@ -119,7 +117,7 @@ void	Server::handleClientRead(int clientFd)
 		return ;
 	if (complete)
 	{
-		std::cout << "Request complete from fd = " << clientFd << "\n";
+		// std::cout << "Request complete from fd = " << clientFd << "\n";
 		client->processRequest();
 	}
 }
@@ -132,49 +130,52 @@ void	Server::handleClientWrite(int clientFd)
 	bool	complete = client->writeResponse();
 	if (complete)
 	{
-		std::cout << "Response sent to Fd = " << clientFd << "\n";
-		if (client->shouldkeepAlive())
-			client->resetForNextRequest();
-		// else
-		// 	closeClient(clientFd);
+		// std::cout << "Response sent to Fd = " << clientFd << "\n";
+		// closeClient(clientFd);
 	}
 }
 
+/*
+This function implements a non-blocking, single-threaded event loop that:
+- Manages multiple listening sockets (ports)
+- Accepts new client connections
+- Handles client read/write operations
+- Cleans up finished connections
+*/
+
 void	Server::run()
 {
-	_ports.push_back(9091);
+	_ports.push_back(9090); // TODO: Replace with config file parsing
 	// _ports.push_back(9000);
 	// _ports.push_back(4000);
 	for (size_t i = 0; i < _ports.size(); i++)
-		initSocket(_ports[i]);
+		initSocket(_ports[i]); // Creates non-blocking listening socket
 	signal(SIGINT, signalHandler);   // Ctrl+C
 	signal(SIGTERM, signalHandler);  // kill command
-	while (g_running)
+	while (g_running) // main event loop
 	{
-		std::vector<struct pollfd>	pollFds;
-		for (size_t i = 0; i < _listenFds.size(); i++)
+		std::vector<struct pollfd>	pollFds; // Array of pollfd structures for poll()
+		for (size_t i = 0; i < _listenFds.size(); i++) // Add all listening sockets
 		{
-			struct pollfd pfd;
+			struct pollfd pfd; //The struct pollfd is a data structure used to monitor file descriptors for I/O events in the poll() system call
 			pfd.fd = _listenFds[i];
-			pfd.events = POLLIN;
+			pfd.events = POLLIN; // We are interested in read events (incoming connections)
 			pfd.revents = 0;
 			pollFds.push_back(pfd);
 		}
-		for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+		for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++) // Add all client sockets
 		{
 			struct pollfd	pfd;
 			pfd.fd = it->first;
-			pfd.events = determineClientEvents(it->second);
+			pfd.events = determineClientEvents(it->second); // Determine if we want to read or write
 			pfd.revents = 0;
 			pollFds.push_back(pfd);
 		}
-		int activity = poll(&pollFds[0], pollFds.size(), 1000);
+		int activity = poll(&pollFds[0], pollFds.size(), 1000); // waits for one of a set of file descriptors to become ready to perform I/O.
 		if (activity < 0)
 		{
-			if (errno == EINTR)
-				continue ;
 			std::cerr << "poll() error: " << strerror(errno) << "\n";
-			break ;
+			continue;
 		}
 		// if (activity == 0)
 		// {
@@ -194,18 +195,13 @@ void	Server::run()
 			}
 			else
 			{
-				if (revents & (POLLERR | POLLHUP | POLLNVAL))
-				{
-					closeClient(fd);
-					continue ;
-				}
 				if (revents & POLLIN)
 					handleClientRead(fd);
 				if (revents & POLLOUT)
 					handleClientWrite(fd);
 			}
 		}
-		std::vector<int>	clientsToClose;
+		std::vector<int>	clientsToClose; // Collect clients to close after iteration
 		for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 		{
 			if (it->second->getState() == Client::DONE)
@@ -214,12 +210,13 @@ void	Server::run()
 		for (size_t i = 0; i < clientsToClose.size(); i++)
 			closeClient(clientsToClose[i]);
 	}
+	// cleanup on shutdown and close all connections
 	std::cout << "\n\nCleaning up ...";
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 	{
-		// std::cout << "Closing client fd = " << it->first << "\n";
-		// close(it->first);
-		// delete it->second;
+		std::cout << "Closing client fd = " << it->first << "\n";
+		close(it->first);
+		delete it->second;
 	}
 	_clients.clear();
 	for (size_t i = 0; i < _listenFds.size(); i++)
