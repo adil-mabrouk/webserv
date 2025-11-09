@@ -37,7 +37,7 @@ bool	Client::readRequest()
 	}
 	else
 	{
-		std::cout << "Read " << bytesRead << " bytes from client fd = " << _fd << "\n";
+		// std::cout << "Read " << bytesRead << " bytes from client fd = " << _fd << "\n";
 		setState(PROCESSING);
 		return true;
 	}
