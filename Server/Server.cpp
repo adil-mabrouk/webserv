@@ -4,17 +4,39 @@ static bool g_running = true;
 
 static void signalHandler(int signo)
 {
-    std::cout << "\nReceived signal " << signo << ", shutting down...\n";
-    g_running = false;
+	std::cout << "\nReceived signal " << signo << ", shutting down...\n";
+	g_running = false;
 }
 
 
-Server::Server() {}
+Server::Server() : _timeoutSeconds(60) {}
 
 static void	throwError(int fd, std::string error)
 {
 	close(fd);
 	throw std::runtime_error(error + strerror(errno));
+}
+
+// void	Server::setTimeoutSeconds(int seconds) {
+// 	_timeoutSeconds = seconds;
+// }
+
+// int Server::getTimeoutSeconds() const {
+// 	return _timeoutSeconds;
+// }
+
+void	Server::checkTimeouts() {
+	std::vector<int>	toClose;
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+		if (it->second->isTimedOut(_timeoutSeconds)) {
+			std::cout << "Client timeout: fd=" << it->first 
+					  << " (idle for " << _timeoutSeconds << "s)\n";
+					  toClose.push_back(it->first);
+		}
+	}
+	for (size_t i = 0; i < toClose.size(); i++) {
+		closeClient(toClose[i]);
+	}
 }
 
 void	Server::initSocket(int port)
@@ -84,7 +106,7 @@ void	Server::handleNewConnection(int fd)
 	if (clientFd < 0)
 	{
 		std::cerr << "accept() error: " << strerror(errno) << std::endl;
-        return;
+		return;
 	}
 
 	int f = fcntl(clientFd, F_GETFL, 0);
@@ -102,9 +124,9 @@ void	Server::closeClient(int fd)
 	if (it == _clients.end())
 		return ;
 	// std::cout << "closing client fd = " << fd << "\n";
-	// delete it->second;
-	// _clients.erase(it);
-	// close(fd);
+	delete it->second;
+	_clients.erase(it);
+	close(fd);
 }
 
 void	Server::handleClientRead(int clientFd)
@@ -131,7 +153,7 @@ void	Server::handleClientWrite(int clientFd)
 	if (complete)
 	{
 		// std::cout << "Response sent to Fd = " << clientFd << "\n";
-		// closeClient(clientFd);
+		closeClient(clientFd);
 	}
 }
 
@@ -177,15 +199,15 @@ void	Server::run()
 			std::cerr << "poll() error: " << strerror(errno) << "\n";
 			continue;
 		}
-		// if (activity == 0)
-		// {
-		// 	checkTimeouts();
-		// 	continue ;
-		// }
+		if (activity == 0)
+		{
+			checkTimeouts();
+			continue ;
+		}
 		for (size_t i = 0; i < pollFds.size(); i++)
 		{
 			if (pollFds[i].revents == 0)
-				continue ;
+				continue ; 
 			int fd = pollFds[i].fd;
 			short revents = pollFds[i].revents;
 			if (isListeningSocket(fd))

@@ -1,11 +1,26 @@
 #include "Client.hpp"
 
 Client::Client(int fd)
+	: _fd(fd),
+	  _state(READING),
+	  _resBuff(""),
+	  _byteSent(0),
+	  _lastActivity(time(NULL))
 {
-	_fd = fd;
-	_resBuff = "";
-	_byteSent = 0;
-	_state = READING;
+}
+
+void	Client::updateActivity() {
+	_lastActivity = time(NULL);
+}
+
+bool	Client::isTimedOut(int timeoutSeconds) const {
+	time_t	now = time(NULL);
+	time_t	elapsed = now - _lastActivity;
+	return elapsed > timeoutSeconds;
+}
+
+time_t	Client::getLastActivity() const {
+	return _lastActivity;
 }
 
 int	Client::getState() const
@@ -37,6 +52,7 @@ bool	Client::readRequest()
 	}
 	else
 	{
+		updateActivity();
 		// std::cout << "Read " << bytesRead << " bytes from client fd = " << _fd << "\n";
 		setState(PROCESSING);
 		return true;
@@ -55,6 +71,7 @@ bool	Client::writeResponse()
 		return false;
 	}
 	_byteSent += bytesWriten;
+	updateActivity();
 	if (_byteSent >= _resBuff.size())
 	{
 		setState(DONE);
@@ -63,16 +80,17 @@ bool	Client::writeResponse()
 	return false;
 }
 
-void	Client::resetForNextRequest()
-{
-	_resBuff.clear();
-	_byteSent = 0;
-	_state = READING;
-}
+// void	Client::resetForNextRequest() // for keep alive
+// {
+// 	_resBuff.clear();
+// 	_byteSent = 0;
+// 	_state = READING;
+// 	updateActivity();
+// }
 
 void	Client::processRequest()
 {
-	_resBuff = "HTTP/1.1 200 OK\r\n"
+	_resBuff = "HTTP/2 200 OK\r\n"
 			   "Content-Length: 13\r\n"
 			   "Connection: close\r\n"
 			   "\r\n"
