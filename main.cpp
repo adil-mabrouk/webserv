@@ -1,7 +1,69 @@
-#include <iostream>
-#include <string>
+#include "Server/Server.hpp"
+#include "Configuration/config.hpp"
 
-int main() {
-	std::cout << std::string(2, 'f') << std::endl;
+// volatile sig_atomic_t g_running = 1;
+
+// void signalHandler(int signum)
+// {
+// 	(void)signum;
+// 	std::cout << "\n[SIGNAL] Shutdown requested" << std::endl;
+// 	g_running = 0;
+// }
+
+int main(int ac, char** av)
+{
+	(void)ac;
+	// std::cout << "╔══════════════════════════════════╗" << std::endl;
+	// std::cout << "║     Webserv HTTP Server          ║" << std::endl;
+	// std::cout << "║     C++98 Implementation         ║" << std::endl;
+	// std::cout << "╚══════════════════════════════════╝" << std::endl;
+	// std::cout << std::endl;
+
+	// try
+	// {
+	// 	Server server;
+
+	// 	// Run server
+	// 	server.run();
+		
+	// 	std::cout << "\n" << std::string(40, '=') << std::endl;
+	// 	std::cout << "[STATUS] Server shutdown complete" << std::endl;
+	// }
+	// catch (const std::runtime_error& e)
+	// {
+	// 	std::cerr << "\n[FATAL] Runtime error: " << e.what() << std::endl;
+	// 	return 1;
+	// }
+	// catch (const std::exception& e)
+	// {
+	// 	std::cerr << "\n[FATAL] Exception: " << e.what() << std::endl;
+	// 	return 1;
+	// }
+	// catch (...)
+	// {
+	// 	std::cerr << "\n[FATAL] Unknown error occurred" << std::endl;
+	// 	return 1;
+	// }
+
+	try {
+		ConfigParser parser(av[1]);
+		std::vector<ServerConfig> servers = parser.parser();
+		for (size_t i = 0; i < servers.size(); ++i) {
+			std::cout << "Server " << i + 1 << ":\n";
+			std::cout << "  Server Name: " << servers[i].server_name << "\n";
+			std::cout << "  Listen: " << servers[i].host << ":" << servers[i].port << "\n";
+			std::cout << "  Max Body Size: " << servers[i].max_body_size << "\n";
+			std::cout << "  Error Pages:\n";
+			for (std::map<int, std::string>::const_iterator it = servers[i].error_pages.begin(); it != servers[i].error_pages.end(); ++it) {
+				std::cout << "    " << it->first << " -> " << it->second << "\n";
+			}
+			std::cout << std::endl;
+		}
+	} catch (const std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return 1;
+	}
+
+
 	return 0;
 }

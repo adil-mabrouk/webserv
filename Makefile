@@ -1,7 +1,7 @@
-NAME = server
+NAME = webserv
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
-SRC = Server/Server.cpp Server/Client.cpp Server/main.cpp
+SRC = Server/Server.cpp Server/Client.cpp Configuration/config.cpp main.cpp
 
 OBJ = $(SRC:.cpp=.o)
 
@@ -10,7 +10,7 @@ all: $(NAME)
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) -o $(NAME) $(OBJ)
 
-%.o: %.cpp Server/Server.hpp Server/Client.hpp
+%.o: %.cpp Server/Server.hpp Server/Client.hpp Configuration/config.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
