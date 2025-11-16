@@ -6,14 +6,15 @@
 #include <string>
 #include <sstream>
 #include <limits>
+#include <algorithm>
+#include <map>
 // #include <stdexcept>
 // #include <cctype>
-#include <map>
 
 struct LocationConfig {
 	std::string								path;
 	std::string								root;
-	std::string								index;
+	std::vector<std::string>				index;
 	bool									autoindex;
 	std::vector<std::string>				methods;
 	std::string								redirect;
@@ -25,10 +26,10 @@ struct LocationConfig {
 
 struct ServerConfig {
 	std::string 							server_name;
-	int 									port;
-	std::string								host;
+	std::pair<std::string, int>				listenList;
 	std::map<int, std::string>				error_pages;
 	std::map<std::string, LocationConfig>	locations;
+	std::string								root; // added for server root directive
 	size_t									max_body_size;
 };
 
@@ -44,6 +45,5 @@ class ConfigParser {
 		void								parseListenDirective(const std::vector<std::string> &tokens, size_t &index, ServerConfig &servConf);
 		void								parseServerNameDirective(const std::vector<std::string> &tokens, size_t &index, ServerConfig &servConf);
 		void								parseClientMaxBody(const std::vector<std::string> &tokens, size_t &index, ServerConfig &servConf);
-		// size_t								convertToBytes(std::string unit);
 		void								parseErrorPage(const std::vector<std::string> &tokens, size_t &index, ServerConfig &servConf);
 };

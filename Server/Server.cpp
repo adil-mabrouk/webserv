@@ -25,10 +25,12 @@ static void	throwError(int fd, std::string error)
 // 	return _timeoutSeconds;
 // }
 
-void	Server::checkTimeouts() {
+void	Server::checkTimeouts()
+{
 	std::vector<int>	toClose;
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++) {
-		if (it->second->isTimedOut(_timeoutSeconds)) {
+		if (it->second->isTimedOut(_timeoutSeconds))
+		{
 			std::cout << "Client timeout: fd=" << it->first 
 					  << " (idle for " << _timeoutSeconds << "s)\n";
 					  toClose.push_back(it->first);
@@ -80,11 +82,6 @@ short	Server::determineClientEvents(Client* clt)
 		events |= POLLOUT;
 	return events;
 }
-
-// void	checkTimeouts()
-// {
-
-// }
 
 bool	Server::isListeningSocket(int fd) const
 {

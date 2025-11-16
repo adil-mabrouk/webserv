@@ -48,18 +48,21 @@ int main(int ac, char** av)
 	try {
 		ConfigParser parser(av[1]);
 		std::vector<ServerConfig> servers = parser.parser();
-		for (size_t i = 0; i < servers.size(); ++i) {
+		for (size_t i = 0; i < servers.size(); ++i)
+		{
 			std::cout << "Server " << i + 1 << ":\n";
 			std::cout << "  Server Name: " << servers[i].server_name << "\n";
-			std::cout << "  Listen: " << servers[i].host << ":" << servers[i].port << "\n";
+			std::cout << "  Listen: " << servers[i].listenList.first << ":" << servers[i].listenList.second << "\n";
 			std::cout << "  Max Body Size: " << servers[i].max_body_size << "\n";
 			std::cout << "  Error Pages:\n";
-			for (std::map<int, std::string>::const_iterator it = servers[i].error_pages.begin(); it != servers[i].error_pages.end(); ++it) {
+			for (std::map<int, std::string>::const_iterator it = servers[i].error_pages.begin(); it != servers[i].error_pages.end(); ++it)
+{
 				std::cout << "    " << it->first << " -> " << it->second << "\n";
 			}
 			std::cout << std::endl;
 		}
-	} catch (const std::exception& e) {
+	} catch (const std::exception& e)
+{
 		std::cerr << "Error: " << e.what() << std::endl;
 		return 1;
 	}
