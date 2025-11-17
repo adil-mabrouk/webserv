@@ -182,6 +182,16 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 				throw std::runtime_error("Expected ';' after cgi_extension directive");
 			++index; // Skip ";"
 		}
+		else if (tokens[index] == "cgi_path")
+		{
+			++index;
+			if (index >= tokens.size())
+				throw std::runtime_error("Expected value after cgi_path directive");
+			locConfig.cgi_path = tokens[index++];
+			if (tokens[index] != ";")
+				throw std::runtime_error("Expected ';' after cgi_path directive");
+			index++;
+		}
 		else
 			throw std::runtime_error("Unknown directive inside location block: " + tokens[index]);
 	}
