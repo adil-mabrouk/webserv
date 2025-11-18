@@ -35,49 +35,43 @@ void	Client::setState(State state)
 
 bool	Client::readRequest()
 {
-	char	buffer[1024];
-	ssize_t	bytesRead = read(_fd, buffer, sizeof(buffer));
+	char buffer[4096];
 
-	if (bytesRead < 0)
+	while (true)
 	{
-		std::cerr << "read() error: " << strerror(errno) << "\n";
-		setState(DONE);
-		return false;
-	}
-	else if (bytesRead == 0)
-	{
-		std::cout << "Client disconnected fd = " << _fd << "\n";
-		setState(DONE);
-		return false;
-	}
-	else
-	{
-		updateActivity();
-		// std::cout << "Read " << bytesRead << " bytes from client fd = " << _fd << "\n";
-		setState(PROCESSING);
-		return true;
+		ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
+		if (bytesRead < 0)
+		{
+			std::cout << "recv() error: " << strerror(errno) << "\n";
+			return false;
+		}
+		if (bytesRead == 0)
+		{
+			std::cout << "Client disconnected\n";
+			return false;
+		}
+		_resBuff.append(buffer, bytesRead);
+		if (_resBuff.find("\r\n\r\n") != std::string::npos)
+		{
+			setState(READ_HEADER);
+			updateActivity();
+			return true;
+		}
 	}
 }
 
-bool	Client::writeResponse()
+void	Client::processRequest()
 {
-	size_t		remain = _resBuff.size() - _byteSent;
-	const char*	data = _resBuff.c_str() + _byteSent;
-	ssize_t		bytesWriten = write(_fd, data, remain);
-	if (bytesWriten < 0)
-	{
-		std::cerr << "write() error: " << strerror(errno) << "\n";
-		setState(DONE);
-		return false;
-	}
-	_byteSent += bytesWriten;
+	std::string httpResponse =
+		"HTTP/1.1 200 OK\r\n"
+		"Content-Length: 13\r\n"
+		"Content-Type: text/plain\r\n"
+		"\r\n"
+		"Hello, World!";
+	_resBuff = httpResponse;
+	_byteSent = 0;
+	setState(WRITING);
 	updateActivity();
-	if (_byteSent >= _resBuff.size())
-	{
-		setState(DONE);
-		return true;
-	}
-	return false;
 }
 
 // void	Client::resetForNextRequest() // for keep alive
@@ -87,13 +81,3 @@ bool	Client::writeResponse()
 // 	_state = READING;
 // 	updateActivity();
 // }
-
-void	Client::processRequest()
-{
-	_resBuff = "HTTP/2 200 OK\r\n"
-			   "Content-Length: 13\r\n"
-			   "Connection: close\r\n"
-			   "\r\n"
-			   "Hello, World!";
-	setState(WRITING);
-}

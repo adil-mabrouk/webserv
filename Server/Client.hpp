@@ -5,7 +5,7 @@
 class Client {
 	public:
 
-		enum State	{ READING, WRITING, PROCESSING, DONE };
+		enum State	{ READING, READ_HEADER, WRITING, PROCESSING, DONE };
 
 		Client(int fd);
 		int			getState() const;
