@@ -186,11 +186,6 @@ void	Server::run()
 			std::cerr << "poll() error: " << strerror(errno) << "\n";
 			continue;
 		}
-		// if (activity == 0)
-		// {
-		// 	checkTimeouts();
-		// 	continue ;
-		// }
 		for (size_t i = 0; i < pollFds.size(); i++)
 		{
 			if (pollFds[i].revents == 0)
