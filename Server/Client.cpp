@@ -1,26 +1,12 @@
 #include "Client.hpp"
 
-Client::Client(int fd)
+Client::Client(int fd, ServerConfig *config)
 	: _fd(fd),
 	  _state(READING),
 	  _resBuff(""),
-	  _byteSent(0),
-	  _lastActivity(time(NULL))
+	  _byteSent(0)
 {
-}
-
-void	Client::updateActivity() {
-	_lastActivity = time(NULL);
-}
-
-bool	Client::isTimedOut(int timeoutSeconds) const {
-	time_t	now = time(NULL);
-	time_t	elapsed = now - _lastActivity;
-	return elapsed > timeoutSeconds;
-}
-
-time_t	Client::getLastActivity() const {
-	return _lastActivity;
+	(void)config;
 }
 
 int	Client::getState() const
@@ -54,7 +40,6 @@ bool	Client::readRequest()
 		if (_resBuff.find("\r\n\r\n") != std::string::npos)
 		{
 			setState(READ_HEADER);
-			updateActivity();
 			return true;
 		}
 	}
@@ -71,13 +56,20 @@ void	Client::processRequest()
 	_resBuff = httpResponse;
 	_byteSent = 0;
 	setState(WRITING);
-	updateActivity();
 }
 
-// void	Client::resetForNextRequest() // for keep alive
-// {
-// 	_resBuff.clear();
-// 	_byteSent = 0;
-// 	_state = READING;
-// 	updateActivity();
-// }
+bool	Client::writeResponse()
+{
+	while (_byteSent < _resBuff.size())
+	{
+		ssize_t bytesSent = send(_fd, _resBuff.c_str() + _byteSent, _resBuff.size() - _byteSent, 0);
+		if (bytesSent < 0)
+		{
+			std::cout << "send() error: " << strerror(errno) << "\n";
+			return false;
+		}
+		_byteSent += bytesSent;
+	}
+	setState(DONE);
+	return true;
+}

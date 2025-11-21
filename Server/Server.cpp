@@ -9,7 +9,15 @@ static void signalHandler(int signo)
 }
 
 
-Server::Server() : _timeoutSeconds(60) {}
+Server::Server(const std::vector<ServerConfig> &configs) : _serverConfigs(configs) {
+	for (size_t i = 0; i < _serverConfigs.size(); i++) {
+		for (size_t j = 0; j < _serverConfigs[i].listenList.size(); j++) {
+			std::string host = _serverConfigs[i].listenList[j].first;
+			int port = _serverConfigs[i].listenList[j].second;
+			initSocket(host, port, i);
+		}
+	}
+}
 
 static void	throwError(int fd, std::string error)
 {
@@ -17,31 +25,7 @@ static void	throwError(int fd, std::string error)
 	throw std::runtime_error(error + strerror(errno));
 }
 
-// void	Server::setTimeoutSeconds(int seconds) {
-// 	_timeoutSeconds = seconds;
-// }
-
-// int Server::getTimeoutSeconds() const {
-// 	return _timeoutSeconds;
-// }
-
-void	Server::checkTimeouts()
-{
-	std::vector<int>	toClose;
-	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++) {
-		if (it->second->isTimedOut(_timeoutSeconds))
-		{
-			std::cout << "Client timeout: fd=" << it->first 
-					  << " (idle for " << _timeoutSeconds << "s)\n";
-					  toClose.push_back(it->first);
-		}
-	}
-	for (size_t i = 0; i < toClose.size(); i++) {
-		closeClient(toClose[i]);
-	}
-}
-
-void	Server::initSocket(int port)
+void	Server::initSocket(std::string host, int port, size_t configIndex)
 {
 	int	listenFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (listenFd < 0)
@@ -71,6 +55,9 @@ void	Server::initSocket(int port)
 
 	_listenFds.push_back(listenFd);
 	std::cout << "Server listening on port " << port << std::endl;
+	
+	_fdToConfigIndex[listenFd] = configIndex;
+	std::cout << "Server listening on " << host << ":" << port << std::endl;
 }
 
 short	Server::determineClientEvents(Client* clt)
@@ -93,6 +80,13 @@ bool	Server::isListeningSocket(int fd) const
 	return false;
 }
 
+ServerConfig	*Server::getConfigForListenFd(int fd) {
+	std::map<int, size_t>::iterator it = _fdToConfigIndex.find(fd);
+	if (it != _fdToConfigIndex.end())
+			return &_serverConfigs[it->second];
+	return NULL;
+}
+
 void	Server::handleNewConnection(int fd)
 {
 	struct sockaddr_in	clientAddr;
@@ -109,8 +103,9 @@ void	Server::handleNewConnection(int fd)
 	int f = fcntl(clientFd, F_GETFL, 0);
 	if (f < 0 || fcntl(clientFd, F_SETFL, f | O_NONBLOCK) < 0)
 		throwError(clientFd, "Failed to set non-blocking: ");
+	ServerConfig	*config = getConfigForListenFd(fd);
 	// fcntl(clientFd, F_SETFD, FD_CLOEXEC);
-	Client	*client = new Client(clientFd);
+	Client	*client = new Client(clientFd, config);
 	_clients[clientFd] = client;
 	// std::cout << "New client connected fd = " << clientFd << ")\n";
 }
@@ -164,11 +159,6 @@ This function implements a non-blocking, single-threaded event loop that:
 
 void	Server::run()
 {
-	_ports.push_back(9090); // TODO: Replace with config file parsing
-	// _ports.push_back(9000);
-	// _ports.push_back(4000);
-	for (size_t i = 0; i < _ports.size(); i++)
-		initSocket(_ports[i]); // Creates non-blocking listening socket
 	signal(SIGINT, signalHandler);   // Ctrl+C
 	signal(SIGTERM, signalHandler);  // kill command
 	while (g_running) // main event loop
@@ -196,11 +186,11 @@ void	Server::run()
 			std::cerr << "poll() error: " << strerror(errno) << "\n";
 			continue;
 		}
-		if (activity == 0)
-		{
-			checkTimeouts();
-			continue ;
-		}
+		// if (activity == 0)
+		// {
+		// 	checkTimeouts();
+		// 	continue ;
+		// }
 		for (size_t i = 0; i < pollFds.size(); i++)
 		{
 			if (pollFds[i].revents == 0)

@@ -244,24 +244,26 @@ void	ConfigParser::parseListenDirective(const std::vector<std::string>& tokens, 
 
 	++index; // Skip ";"
 
+	std::pair<std::string, int> listenPair;
 	size_t colonPos = listenValue.find(':');
 	if (colonPos != std::string::npos)
 	{
-		serverConfig.listenList.first = listenValue.substr(0, colonPos); // first is IP
-		if (!isValidIpAddress(serverConfig.listenList.first))
+		listenPair.first = listenValue.substr(0, colonPos); // first is IP
+		if (!isValidIpAddress(listenPair.first))
 			throw std::runtime_error("Invalid ip address in listen directive");
 		std::istringstream	ss(listenValue.substr(colonPos + 1));
-		ss >> serverConfig.listenList.second; // second is port
-		if (ss.fail() || !ss.eof() || serverConfig.listenList.second <= 0 || serverConfig.listenList.second > 65535)
+		ss >> listenPair.second; // second is port
+		if (ss.fail() || !ss.eof() || listenPair.second <= 0 || listenPair.second > 65535)
 			throw std::runtime_error("Invalid port in listen directive");
 	}
 	else
 	{
 		std::istringstream	ss(listenValue);
-		ss >> serverConfig.listenList.second;
-		if (ss.fail() || serverConfig.listenList.second <= 0 || serverConfig.listenList.second > 65535)
+		ss >> listenPair.second;
+		if (ss.fail() || listenPair.second <= 0 || listenPair.second > 65535)
 			throw std::runtime_error("Invalid port number in listen directive");
 	}
+	serverConfig.listenList.push_back(listenPair);
 }
 
 static size_t	convertToBytes(std::string &unit)
@@ -390,16 +392,16 @@ ServerConfig	ConfigParser::parseServerBlock(const std::vector<std::string> &toke
 			parseClientMaxBody(tokens, index, serverConfig);
 		else if (tokens[index] == "error_page")
 			parseErrorPage(tokens, index, serverConfig);
-		// else if (tokens[index] == "root")
-		// {
-		// 	++index; // Skip "root"
-		// 	if (index >= tokens.size())
-		// 		throw std::runtime_error("Expected value after root directive");
-		// 	serverConfig.root = tokens[index++];
-		// 	if (tokens[index] != ";")
-		// 		throw std::runtime_error("Expected ';' after root directive");
-		// 	++index; // Skip ";"
-		// }
+		else if (tokens[index] == "root")
+		{
+			++index; // Skip "root"
+			if (index >= tokens.size())
+				throw std::runtime_error("Expected value after root directive");
+			serverConfig.root = tokens[index++];
+			if (tokens[index] != ";")
+				throw std::runtime_error("Expected ';' after root directive");
+			++index; // Skip ";"
+		}
 		else
 			throw std::runtime_error("Unknown directive inside server block: " + tokens[index]);
 	}
