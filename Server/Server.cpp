@@ -44,7 +44,7 @@ void	Server::initSocket(std::string host, int port, size_t configIndex)
 	struct sockaddr_in address;
 	std::memset(&address, 0, sizeof(address));
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_addr.s_addr = inet_addr(host.c_str());
 	address.sin_port = htons(port);
 
 	if (bind(listenFd, (struct sockaddr*)&address, sizeof(address)) < 0)
@@ -54,7 +54,7 @@ void	Server::initSocket(std::string host, int port, size_t configIndex)
 		throwError(listenFd, "listen() failed: ");
 
 	_listenFds.push_back(listenFd);
-	std::cout << "Server listening on port " << port << std::endl;
+	// std::cout << "Server listening on port " << port << std::endl;
 	
 	_fdToConfigIndex[listenFd] = configIndex;
 	std::cout << "Server listening on " << host << ":" << port << std::endl;
@@ -132,7 +132,7 @@ void	Server::handleClientRead(int clientFd)
 	if (complete)
 	{
 		// std::cout << "Request complete from fd = " << clientFd << "\n";
-		client->processRequest();
+		// client->processRequest();
 	}
 }
 

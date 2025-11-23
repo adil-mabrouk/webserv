@@ -243,8 +243,8 @@ void	ConfigParser::parseListenDirective(const std::vector<std::string>& tokens, 
 		throw std::runtime_error("Expected ';' after listen directive");
 
 	++index; // Skip ";"
-
 	std::pair<std::string, int> listenPair;
+	listenPair.first = "0.0.0.0"; // Default IP
 	size_t colonPos = listenValue.find(':');
 	if (colonPos != std::string::npos)
 	{

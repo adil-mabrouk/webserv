@@ -33,10 +33,11 @@ bool	Client::readRequest()
 		}
 		if (bytesRead == 0)
 		{
-			std::cout << "Client disconnected\n";
+			// std::cout << "Client disconnected\n";
 			return false;
 		}
 		_resBuff.append(buffer, bytesRead);
+		// std::cout << _resBuff;
 		if (_resBuff.find("\r\n\r\n") != std::string::npos)
 		{
 			setState(READ_HEADER);

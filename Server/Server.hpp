@@ -14,6 +14,7 @@
 #include <csignal>
 #include <cerrno>
 #include "Client.hpp"
+#include <arpa/inet.h>
 #include "../Configuration/config.hpp"
 
 class Client;
