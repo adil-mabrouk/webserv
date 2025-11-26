@@ -312,7 +312,8 @@ void	RequestLine::parse(string str)
 	if (it != str.end())
 		throw std::runtime_error("http version parsing error");
 	string http_version(it_tmp, it);
-	if (http_version.compare("HTTP/1.0"))
+	std::cout << "|" << http_version << "|\n";
+	if (http_version.compare("HTTP/1.1"))
 		throw std::runtime_error("http version parsing error");
 }
 

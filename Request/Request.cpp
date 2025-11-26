@@ -5,16 +5,17 @@ void	Request::request_parsing(string request)
 	string::iterator	it;
 	string::iterator	it_tmp;
 
-	it = find(request.begin(), request.end(), '\n');
+	it = find(request.begin(), request.end(), '\r');
 	if (it == request.end())
 		throw std::runtime_error("request line error");
 	request_line.parse(string(request.begin(), it));
-	while (*it == '\n')
+	it++;
+	while (*it == '\r')
 	{
 		// if (*(it + 1) == '\n')
 			// break;
 		it_tmp = it + 1;
-		it = find(it_tmp, request.end(), '\n');
+		it = find(it_tmp, request.end(), '\r');
 		if (it == request.end())
 		{
 			request_header.parse(string(it_tmp, it));
@@ -22,6 +23,7 @@ void	Request::request_parsing(string request)
 		}
 			// throw std::runtime_error("request header error");
 		request_header.parse(string(it_tmp, it));
+		it++;
 	}
 	request_exec();
 }
