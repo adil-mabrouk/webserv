@@ -1,0 +1,24 @@
+exist `/
+	file `/
+		access `/
+			200
+		access X
+			403
+	file X
+		dir `/
+			dir + index_file `/
+				access `/
+					200
+				access X
+					403
+			dir + index_file X
+				access `/
+					autoindex `/
+						200
+					autoindex X
+						403
+				access X
+					403
+		dir X
+exist X
+	404

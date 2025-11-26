@@ -1,0 +1,5 @@
+DELETE /home/abdelmajid_admin/webserv/tests/a.out HTTP/1.0
+Host: localhost:7010
+User-Agent: curl/8.5.0
+Accept: */*
+
