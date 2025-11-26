@@ -21,7 +21,7 @@ private:
 	Response		response;
 public:
 	void request_parsing(string);
-	void request_exec();
+	string request_exec();
 };
 
 #endif

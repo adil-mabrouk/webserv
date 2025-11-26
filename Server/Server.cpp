@@ -132,7 +132,7 @@ void	Server::handleClientRead(int clientFd)
 	if (complete)
 	{
 		// std::cout << "Request complete from fd = " << clientFd << "\n";
-		// client->processRequest();
+		client->processRequest();
 	}
 }
 

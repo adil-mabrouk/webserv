@@ -2,6 +2,7 @@
 
 #include "Server.hpp"
 #include "../Configuration/config.hpp"
+#include "../Request/Request.hpp"
 
 class Client {
 	public:
@@ -17,9 +18,10 @@ class Client {
 		// ServerConfig	*getServerConfig() const;
 
 	private:
+		Request			requestHandle;
 		ServerConfig	*_serverConfig;
-		int			_fd;
-		State		_state;
-		std::string	_resBuff;
-		size_t		_byteSent;
+		int				_fd;
+		State			_state;
+		std::string		_resBuff;
+		size_t			_byteSent;
 };

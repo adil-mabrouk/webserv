@@ -48,12 +48,11 @@ bool	Client::readRequest()
 
 void	Client::processRequest()
 {
-	std::string httpResponse =
-		"HTTP/1.1 200 OK\r\n"
-		"Content-Length: 13\r\n"
-		"Content-Type: text/plain\r\n"
-		"\r\n"
-		"Hello, World!";
+	// std::cout << "here 11\n";
+	requestHandle.request_parsing(_resBuff);
+
+	std::string httpResponse = requestHandle.request_exec();
+	std::cout << "||" << httpResponse << "||\n";
 	_resBuff = httpResponse;
 	_byteSent = 0;
 	setState(WRITING);

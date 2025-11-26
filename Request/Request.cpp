@@ -25,30 +25,45 @@ void	Request::request_parsing(string request)
 		request_header.parse(string(it_tmp, it));
 		it++;
 	}
-	request_exec();
+	// request_exec();
 }
 
-void	Request::request_exec()
+string	Request::request_exec()
 {
+	string res;
 	try
 	{
+		
 		if (!request_line.getMethod().compare("DELETE"))
 			response.DELETEResource(request_line.getURI());
 		else if (!request_line.getMethod().compare("GET"))
-			response.GETResource(request_line.getURI());
+			response.GETResource("/home/amabrouk/Desktop/webserv");
 
-		cout << "HTTP/1.0 "
-			<< response.getStatusCode() << ' '
-			<< response.getReasonPhrase() << "\r\n";
+		std::ostringstream os;
+
+		os << response.getStatusCode();
+		res.append("HTTP/1.1 ").append(os.str())
+			.append(" ").append(response.getReasonPhrase()).append("\r\n");
 		vector< pair<string, string> > headers = response.getHeaders();
 		for (vector< pair<string, string> >::iterator it = headers.begin();
 			it != headers.end(); it++)
-			cout << it->first << it->second << '\n';
-		cout << "\r\n";
-		cout << response.getBody() << "\r\n\r\n";
+			res.append(it->first).append(it->second).append("\r\n");
+		res.append("\r\n");
+		res.append(response.getBody());
+
+		// cout << "HTTP/1.0 "
+		// 	<< response.getStatusCode() << ' '
+		// 	<< response.getReasonPhrase() << "\r\n";
+		// headers = response.getHeaders();
+		// for (vector< pair<string, string> >::iterator it = headers.begin();
+		// 	it != headers.end(); it++)
+		// 	cout << it->first << it->second << '\n';
+		// cout << "\r\n";
+		// cout << response.getBody() << "\r\n\r\n";
 	}
 	catch (std::exception &e)
 	{
 		cout << "Exception: " << e.what() << '\n';
 	}
+	return res;
 }

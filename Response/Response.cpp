@@ -7,7 +7,7 @@
 Response::Response()
 {
 	autoindex = true;
-	root_path = "/home/abdelmajid_admin/data";
+	root_path = "/home/amabrouk/Desktop/webserv";
 	index_file = "index.html";
 }
 
