@@ -37,10 +37,19 @@ bool	Client::readRequest()
 			return false;
 		}
 		_resBuff.append(buffer, bytesRead);
-		// std::cout << _resBuff;
 		if (_resBuff.find("\r\n\r\n") != std::string::npos)
 		{
 			setState(READ_HEADER);
+			// cout << _resBuff << '\n';
+			// for (string::iterator it = _resBuff.begin(); it != _resBuff.end(); it++)
+			// {
+			// 	if (*it == '\n')
+			// 		cout << "\\n";
+			// 	else if (*it == '\r')
+			// 		cout << "\\r";
+			// 	else
+			// 		cout << *it;
+			// }
 			return true;
 		}
 	}
@@ -48,11 +57,9 @@ bool	Client::readRequest()
 
 void	Client::processRequest()
 {
-	// std::cout << "here 11\n";
 	requestHandle.request_parsing(_resBuff);
 
 	std::string httpResponse = requestHandle.request_exec();
-	std::cout << "||" << httpResponse << "||\n";
 	_resBuff = httpResponse;
 	_byteSent = 0;
 	setState(WRITING);

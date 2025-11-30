@@ -1,43 +1,39 @@
 #include "Request.hpp"
+#include <string>
 
 void	Request::request_parsing(string request)
 {
-	string::iterator	it;
-	string::iterator	it_tmp;
+	size_t	crlf_index;
+	size_t	index_tmp;
 
-	it = find(request.begin(), request.end(), '\r');
-	if (it == request.end())
-		throw std::runtime_error("request line error");
-	request_line.parse(string(request.begin(), it));
-	it++;
-	while (*it == '\r')
+	crlf_index = request.find("\r\n", 0);
+	if (crlf_index == string::npos)
+		throw std::runtime_error("request line syntax error");
+	request_line.parse(string(request.begin(), request.begin() + crlf_index));
+	crlf_index += 2;
+	index_tmp = 0;
+	while (crlf_index != index_tmp)
 	{
-		// if (*(it + 1) == '\n')
-			// break;
-		it_tmp = it + 1;
-		it = find(it_tmp, request.end(), '\r');
-		if (it == request.end())
-		{
-			request_header.parse(string(it_tmp, it));
-			break ;
-		}
-			// throw std::runtime_error("request header error");
-		request_header.parse(string(it_tmp, it));
-		it++;
+		index_tmp = request.find("\r\n", crlf_index);
+		if (index_tmp == string::npos)
+			throw std::runtime_error("request headers syntax error");
+		request_header.parse(string(request.begin() + crlf_index,
+							  request.begin() + index_tmp));
+		crlf_index = index_tmp + 2;
+		index_tmp = request.find("\r\n", crlf_index);
 	}
-	// request_exec();
 }
 
 string	Request::request_exec()
 {
-	string res;
+	string	res;
+
 	try
 	{
-		
 		if (!request_line.getMethod().compare("DELETE"))
 			response.DELETEResource(request_line.getURI());
 		else if (!request_line.getMethod().compare("GET"))
-			response.GETResource("/home/amabrouk/Desktop/webserv");
+			response.GETResource(request_line.getURI());
 
 		std::ostringstream os;
 

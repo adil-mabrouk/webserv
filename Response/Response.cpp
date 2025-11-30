@@ -7,32 +7,32 @@
 Response::Response()
 {
 	autoindex = true;
-	root_path = "/home/amabrouk/Desktop/webserv";
+	root_path = "/home/aachalla/webserv";
 	index_file = "index.html";
 }
 
 void	Response::statusCode401()
 {
-	pair<string, string>			tmp_headers[4];
+	pair<string, string>	tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
 	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
-	tmp_headers[3] = make_pair("Content-Length: ", "184");
+	tmp_headers[3] = make_pair("Content-Length: ", "166");
 	status_code = 401, reason_phrase.assign("Unauthorized");
 	headers.assign(tmp_headers, tmp_headers + 4);
 	body.assign("<html>\n\
-			<head><title>401 Authorization Required</title></head>\n\
-			<body>\n\
-			<center><h1>401 Authorization Required</h1></center>\n\
-			<hr><center>Webserv</center>\n\
-			</body>\n\
-			</html>");
+<head><title>401 Authorization Required</title></head>\n\
+<body>\n\
+<center><h1>401 Authorization Required</h1></center>\n\
+<hr><center>Webserv</center>\n\
+</body>\n\
+</html>");
 }
 
 void	Response::statusCode403()
 {
-	pair<string, string>			tmp_headers[4];
+	pair<string, string>	tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
 	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
@@ -40,12 +40,18 @@ void	Response::statusCode403()
 	tmp_headers[3] = make_pair("Content-Length: ", "140");
 	status_code = 403, reason_phrase.assign("Forbidden");
 	headers.assign(tmp_headers, tmp_headers + 4);
-	body.assign("<html>\n<head><title>403 Forbidden</title></head>\n<body>\n<center><h1>403 Forbidden</h1></center>\n<hr><center>Webserv</center>\n</body>\n</html>");
+	body.assign("<html>\n\
+<head><title>403 Forbidden</title></head>\n\
+<body>\n\
+<center><h1>403 Forbidden</h1></center>\n\
+<hr><center>Webserv</center>\n\
+</body>\n\
+</html>");
 }
 
 void	Response::statusCode404()
 {
-	pair<string, string>			tmp_headers[4];
+	pair<string, string>	tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
 	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
@@ -53,7 +59,13 @@ void	Response::statusCode404()
 	tmp_headers[3] = make_pair("Content-Length: ", "140");
 	status_code = 404, reason_phrase.assign("Not Found");
 	headers.assign(tmp_headers, tmp_headers + 4);
-	body.assign("<html>\n<head><title>404 Not Found</title></head>\n<body>\n<center><h1>404 Not Found</h1></center>\n<hr><center>Webserv</center>\n</body>\n</html>");
+	body.assign("<html>\n\
+<head><title>404 Not Found</title></head>\n\
+<body>\n\
+<center><h1>404 Not Found</h1></center>\n\
+<hr><center>Webserv</center>\n\
+</body>\n\
+</html>");
 }
 
 void	Response::statusCode500()
@@ -67,12 +79,12 @@ void	Response::statusCode500()
 	status_code = 500, reason_phrase.assign("Internal Server Error");
 	headers.assign(tmp_headers, tmp_headers + 4);
 	body.assign("<html>\n\
-			<head><title>500 Internal Server Error</title></head>\n\
-			<body>\n\
-			<center><h1>500 Internal Server Error</h1></center>\n\
-			<hr><center>Webserv</center>\n\
-			</body>\n\
-			</html>");
+<head><title>500 Internal Server Error</title></head>\n\
+<body>\n\
+<center><h1>500 Internal Server Error</h1></center>\n\
+<hr><center>Webserv</center>\n\
+</body>\n\
+</html>");
 }
 
 string	Response::fillDate(time_t time1)
@@ -119,15 +131,15 @@ string	Response::fillDate(time_t time1)
 	return (date);
 }
 
-void	Response::fillDirBody(DIR* dir)
+void	Response::fillDirBody(string path, DIR* dir)
 {
 	dirent*	directory;
 
 	errno = 0;
 	directory = readdir(dir);
 	body.assign("<html>\n<head><title>Indexof ")
-		.append(root_path).append("</title></head>\n<body>\n<h1>Index of ")
-		.append(root_path).append("</h1><hr><pre><a href=\"../\">../</a>\n");
+		.append(path).append("</title></head>\n<body>\n<h1>Index of ")
+		.append(path).append("</h1><hr><pre><a href=\"../\">../</a>\n");
 	while (directory)
 	{
 		if (!strcmp(directory->d_name, ".")
@@ -202,7 +214,7 @@ void	Response::GETDir(string path)
 						headers.push_back(make_pair("Server: ", "webserv"));
 						headers.push_back(make_pair("Date: ", fillDate(time(NULL))));
 						headers.push_back(make_pair("Content-Type: ", "text/html"));
-						fillDirBody(dir);
+						fillDirBody(path, dir);
 					}
 					catch (std::exception& e)
 					{
@@ -227,7 +239,6 @@ void	Response::GETDir(string path)
 	}
 }
 
-// move the open to the parameter
 void	Response::GETFile(string path, int fd, struct stat *st)
 {
 	if (fd == -1)
@@ -265,6 +276,7 @@ void	Response::GETResource(string path)
 {
 	struct stat	st;
 
+	path = root_path + path;
  	if (!stat(path.c_str(), &st))
 	{
 		if (S_ISREG(st.st_mode))
@@ -285,6 +297,7 @@ void	Response::DELETEResource(string path)
 	struct stat	st;
 
 // open the path first
+	path = root_path + path;
 	if (stat(path.c_str(), &st))
 		statusCode404();
 	else

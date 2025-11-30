@@ -12,7 +12,7 @@
 #include <ctime>
 #include <sstream>
 #include <fcntl.h>
-#include <errno.h>
+//#include <errno.h>
 #include <dirent.h>
 
 using std::string;
@@ -45,7 +45,7 @@ public:
 	string	fillContentType(string);
 	string	fillLastModified(string);
 	void	fillFileBody(int);
-	void	fillDirBody(DIR*);
+	void	fillDirBody(string, DIR*);
 
 	void	statusCode401();
 	void	statusCode403();

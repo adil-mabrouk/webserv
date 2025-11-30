@@ -296,7 +296,6 @@ void	RequestLine::parse(string str)
 		&& method.compare("POST")
 		&& method.compare("DELETE"))
 		throw std::runtime_error("method parsing error");
-	// std::cout << method << ' ';
 
 	it_tmp = it + 1;
 	it = find(it_tmp, str.end(), ' ');
@@ -305,14 +304,14 @@ void	RequestLine::parse(string str)
 	uri.assign(it_tmp, it);
 	if(!uri_parser.isURI(uri))
 		throw std::runtime_error("uri parsing error");
-	// std::cout << uri << '\n';
 
 	it_tmp = it + 1;
 	it = find(it_tmp, str.end(), ' ');
 	if (it != str.end())
 		throw std::runtime_error("http version parsing error");
 	string http_version(it_tmp, it);
-	if (http_version.compare("HTTP/1.1"))
+	if (http_version.compare("HTTP/1.0")
+		&& http_version.compare("HTTP/1.1"))
 		throw std::runtime_error("http version parsing error");
 }
 

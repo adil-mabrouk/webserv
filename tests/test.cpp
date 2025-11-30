@@ -21,16 +21,16 @@ using std::pair;
 using std::make_pair;
 using std::vector;
 
-int	main()
+int	main(int ac, char *av[])
 {
-	string body;
+	string	body;
 
 	body.assign("<html>\n\
-			<head><title>401 Authorization Required</title></head>\n\
-			<body>\n\
-			<center><h1>401 Authorization Required</h1></center>\n\
-			<hr><center>Webserv</center>\n\
-			</body>\n\
-			</html>");
+<head><title>401 Authorization Required</title></head>\n\
+<body>\n\
+<center><h1>401 Authorization Required</h1></center>\n\
+<hr><center>Webserv</center>\n\
+</body>\n\
+</html>");
 	cout << body.size() << '\n';
 }

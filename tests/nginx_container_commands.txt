@@ -1,0 +1,89 @@
+    1  clear
+    2  nginx -t
+    3  systemctl status nginx
+    4  systemctl restart nginx
+    5  systemctl status nginx
+    6  cat /etc/nginx/nginx.conf 
+    7  ls /var/www/html/
+    8  curl --http1.0 -v -F "/var/www/html/index.nginx-debian.html" http://localhost:2010
+    9  man curl
+   10  curl --http1.0 -v -X POST http://localhost:2010
+   11  man curl
+   12  curl --http1.0 -v -X POST --data "post data" http://localhost:2010
+   13  curl --http1.0 -v --data "post data" http://localhost:2010
+   14  curl --http1.0 -v -H "Content-Type=text/plain" --data "post data" http://localhost:2010
+   15  curl --http1.0 -v -H "Content-Type: text/plain" --data "post data" http://localhost:2010
+   16  curl --http1.0 -v -H "Content-Type: text/plain" http://localhost:2010
+   17  curl --http1.0 -v http://localhost:2010 -d "key=value"
+   18  curl --http1.0 -v -F "dsfsdf" http://localhost:2010 -d "key=value"
+   19  curl -v --http1.0 -X POST      -H "Content-Type: application/json"      -d '{"hello":"world"}'      http://localhost:2010
+   20  curl -v --http1.0 -H "Content-Type: application/json" -d '{"hello":"world"}' http://localhost:2010
+   21  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   22  echo "123" file
+   23  echo "123" > file
+   24  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   25  echo "1234" > file
+   26  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   27  curl -v --http1.0 -d @file http://localhost:2010
+   28  curl -v --http1.0 -H "Content-Type: text/plain" -d @file http://localhost:2010
+   29  clear
+   30  curl -v --http1.0 -d @file http://localhost:2010
+   31  curl -v --http1.0 -d @file --data-binary @file http://localhost:2010
+   32  ls
+   33  ls -l file
+   34  cat file
+   35  mv file file.txt
+   36  curl -v --http1.0 -d @file.txt http://localhost:2010
+   37  curl -v --http1.0 -d @file.txt --trace-ascii http://localhost:2010
+   38  curl --help
+   39  curl -v --http1.0 -T file.txt http://localhost:2010
+   40  clear
+   41  ld
+   42  ls
+   43  vim debug.txt 
+   44  ls -a
+   45  ls -aR | grep history
+   46  find / --name ".bash_history"
+   47  find / -name ".bash_history"
+   48  ;d
+   49  ls
+   50  vim root/.bash_history 
+   51  curl --http1.0 -v -F "file=@file.json" --trace-ascii debug.txt 
+   52  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   53  systemctl status nginx
+   54  systemctl start nginx
+   55  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   56  vim debug.txt 
+   57  curl --http1.0 -v -F "file=@file.json" -X POST http://localhost:2010  --trace-ascii debug.txt
+   58  vim debug.txt 
+   59  vim /etc/nginx/mime.types 
+   60  curl --http1.0 -v -F "file=@file.json" -H "Content-Type: application/json" http://localhost:2010 --trace-ascii debug.txt
+   61  vim /etc/nginx/mime.types 
+   62  vim debug.txt 
+   63  curl --http1.0 -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   64  vim debug.txt 
+   65  curl --http1.0 -v -X POST --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   66  vim debug.txt 
+   67  curl -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   68  vim debug.txt 
+   69  curl -v --data-binary @file.json http://localhost:2010
+   70  mv file.json file.txt
+   71  curl -v --data-binary @file.json http://localhost:2010
+   72  curl -v --data-binary @file.txt http://localhost:2010
+   73  ls -l file.txt 
+   74  curl --trace - -v --data-binary @file.txt http://localhost:2010
+   75  cat file.txt 
+   76  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt 
+   77  vim debug.txt 
+   78  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   79  curl -v -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   80  curl -v -X POST -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   81  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   82  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   83  ls
+   84  curl -v --data @52.png http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   85  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   86  vim root/.bash_history 
+   87  echo $0
+   88  history 
+   89  history > nginx_container_commands.txt
