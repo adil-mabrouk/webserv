@@ -24,4 +24,6 @@ class Client {
 		State			_state;
 		std::string		_resBuff;
 		size_t			_byteSent;
+		size_t			_headerEndPos;
+		size_t			_contentLength;
 };

@@ -4,7 +4,9 @@ Client::Client(int fd, ServerConfig *config)
 	: _fd(fd),
 	  _state(READING),
 	  _resBuff(""),
-	  _byteSent(0)
+	  _byteSent(0),
+	  _headerEndPos(0),
+	  _contentLength(0) // Remove Later (Hardcoded)
 {
 	(void)config;
 }
@@ -23,36 +25,46 @@ bool	Client::readRequest()
 {
 	char buffer[4096];
 
-	while (true)
+	ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
+	if (bytesRead <= 0)
 	{
-		ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
 		if (bytesRead < 0)
-		{
 			std::cout << "recv() error: " << strerror(errno) << "\n";
-			return false;
-		}
-		if (bytesRead == 0)
-		{
-			// std::cout << "Client disconnected\n";
-			return false;
-		}
-		_resBuff.append(buffer, bytesRead);
-		if (_resBuff.find("\r\n\r\n") != std::string::npos)
+		setState(DONE);
+		return false;
+	}
+	_resBuff.append(buffer, bytesRead);
+	if (getState() == READING)
+	{
+		_headerEndPos = _resBuff.find("\r\n\r\n");
+		if (_headerEndPos != std::string::npos)
 		{
 			setState(READ_HEADER);
-			// cout << _resBuff << '\n';
-			// for (string::iterator it = _resBuff.begin(); it != _resBuff.end(); it++)
-			// {
-			// 	if (*it == '\n')
-			// 		cout << "\\n";
-			// 	else if (*it == '\r')
-			// 		cout << "\\r";
-			// 	else
-			// 		cout << *it;
-			// }
+			// parse "Content-Length:"
+			std::string headers = _resBuff.substr(0, _headerEndPos);
+			size_t clPos = headers.find("Content-Length:");
+			if (clPos != std::string::npos)
+			{
+				size_t start = clPos + strlen("Content-Length:");
+				size_t end = headers.find("\r\n", start);
+				std::string clValue = headers.substr(start, end - start);
+				_contentLength = std::stoul(clValue);
+			}
+			else
+				_contentLength = 0;
+		}
+	}
+	if (getState() == READ_HEADER)
+	{
+		size_t bodyStart = _headerEndPos + 4;
+		size_t currentBodySize = _resBuff.size() - bodyStart;
+		if (currentBodySize >= _contentLength)
+		{
+			_resBuff = _resBuff.substr(0, bodyStart + _contentLength);
 			return true;
 		}
 	}
+	return false;
 }
 
 void	Client::processRequest()
