@@ -27,6 +27,7 @@ public:
 	bool	isGeneralHeader(string);
 	bool	isRequestHeader(string);
 	bool	isEntityHeader(string);
+	const map<const string, const string>&	getHeaders() const;
 	// bool isAutorization(string);
 	// bool isFrom(string);
 	// bool isIfModSin(string);

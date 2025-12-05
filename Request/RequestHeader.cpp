@@ -39,6 +39,11 @@ void	RequestHeader::parse(string str)
 	// std::cout << header_name << ": " << string(it, str.end()) << '\n';
 }
 
+const map<const string, const string>&	RequestHeader::getHeaders() const
+{
+	return (header_data);
+}
+
 bool	RequestHeader::isGeneralHeader(string str)
 {
 	return (!str.compare("Date") || !str.compare("Pragma"));
