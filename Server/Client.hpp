@@ -3,6 +3,7 @@
 #include "Server.hpp"
 #include "../Configuration/config.hpp"
 #include "../Request/Request.hpp"
+#include <ctime>
 
 class Client {
 	public:
@@ -15,6 +16,7 @@ class Client {
 		bool		readRequest(); // Returns true if request is complete
 		void		processRequest(); // Process the request and prepare the response
 		bool		writeResponse(); // Returns true if response is fully sent
+		time_t		getLastActivityTime() const;
 		// ServerConfig	*getServerConfig() const;
 
 	private:
@@ -26,4 +28,5 @@ class Client {
 		size_t			_byteSent;
 		size_t			_headerEndPos;
 		size_t			_contentLength;
+		time_t			_lastActivityTime;
 };

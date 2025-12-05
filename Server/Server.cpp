@@ -1,5 +1,7 @@
 #include "Server.hpp"
 
+#define TIMEOUT_SECOND 10
+
 static bool g_running = true;
 
 static void signalHandler(int signo)
@@ -205,14 +207,23 @@ void	Server::run()
 					handleClientWrite(fd);
 			}
 		}
+		time_t now = time(NULL);
+		std::vector<int>	timedOutClients;
 		std::vector<int>	clientsToClose; // Collect clients to close after iteration
 		for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 		{
+			if (difftime(now, it->second->getLastActivityTime()) > TIMEOUT_SECOND)
+				timedOutClients.push_back(it->first);
 			if (it->second->getState() == Client::DONE)
 				clientsToClose.push_back(it->first);
 		}
 		for (size_t i = 0; i < clientsToClose.size(); i++)
 			closeClient(clientsToClose[i]);
+		for (size_t i = 0; i < timedOutClients.size(); i++)
+		{
+			closeClient(timedOutClients[i]);
+			std::cout << "fd = " << timedOutClients[i] << "Reason: Timeout\n";
+		}
 	}
 	// cleanup on shutdown and close all connections
 	std::cout << "\n\nCleaning up ...";

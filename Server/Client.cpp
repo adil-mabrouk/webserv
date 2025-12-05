@@ -6,7 +6,8 @@ Client::Client(int fd, ServerConfig *config)
 	  _resBuff(""),
 	  _byteSent(0),
 	  _headerEndPos(0),
-	  _contentLength(0) // Remove Later (Hardcoded)
+	  _contentLength(0), // Remove Later (Hardcoded)
+	  _lastActivityTime(time(NULL))
 {
 	(void)config;
 }
@@ -21,6 +22,11 @@ void	Client::setState(State state)
 	_state = state;
 }
 
+time_t	Client::getLastActivityTime() const
+{
+	return _lastActivityTime;
+}
+
 bool	Client::readRequest()
 {
 	char buffer[4096];
@@ -33,6 +39,7 @@ bool	Client::readRequest()
 		setState(DONE);
 		return false;
 	}
+	_lastActivityTime = time(NULL);
 	_resBuff.append(buffer, bytesRead);
 	if (getState() == READING)
 	{
