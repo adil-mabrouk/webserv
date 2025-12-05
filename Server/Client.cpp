@@ -39,29 +39,28 @@ bool	Client::readRequest()
 		_headerEndPos = _resBuff.find("\r\n\r\n");
 		if (_headerEndPos != std::string::npos)
 		{
-			setState(READ_HEADER);
-			// parse "Content-Length:"
-			std::string headers = _resBuff.substr(0, _headerEndPos);
-			size_t clPos = headers.find("Content-Length:");
-			if (clPos != std::string::npos)
+			requestHandle.request_parsing(_resBuff);
+			if (requestHandle.request_line.getMethod() == "POST")
 			{
-				size_t start = clPos + strlen("Content-Length:");
-				size_t end = headers.find("\r\n", start);
-				std::string clValue = headers.substr(start, end - start);
-				_contentLength = std::stoul(clValue);
+				requestHandle.request_header.parse(string(_resBuff.begin(), _resBuff.begin() + _headerEndPos));
+				for (std::map<const std::string, const std::string>::
+					const_iterator	it = requestHandle.request_header.header_data.begin(); 
+					it != requestHandle.request_header.header_data.end(); it++)
+					{
+						if (it->first == "Content-Length")
+							_contentLength = std::strtol(it->second.c_str(), NULL, 10);
+					}
+				// setState(READ_HEADER);
+				size_t bodyStart = _headerEndPos + 4;
+				size_t currentBodySize = _resBuff.size() - bodyStart;
+				if (currentBodySize >= _contentLength)
+				{
+					_resBuff = _resBuff.substr(0, bodyStart + _contentLength);
+					return true;
+				}
 			}
-			else
-				_contentLength = 0;
-		}
-	}
-	if (getState() == READ_HEADER)
-	{
-		size_t bodyStart = _headerEndPos + 4;
-		size_t currentBodySize = _resBuff.size() - bodyStart;
-		if (currentBodySize >= _contentLength)
-		{
-			_resBuff = _resBuff.substr(0, bodyStart + _contentLength);
-			return true;
+			else // No body Expected (GET || DELETE)
+				return true;
 		}
 	}
 	return false;

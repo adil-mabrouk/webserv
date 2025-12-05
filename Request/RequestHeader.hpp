@@ -18,10 +18,10 @@ class	RequestHeader
 private:
 	// typedef	void (*parse)(string);
 	// map<const string, parse>		hf_data_parse;
-	map<const string, const string>	header_data;
 public:
 	// RequestHeader();
-
+	
+	map<const string, const string>	header_data;
 	void	parse(string);
 
 	bool	isGeneralHeader(string);

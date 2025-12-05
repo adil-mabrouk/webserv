@@ -16,10 +16,10 @@ using std::cerr;
 class Request
 {
 private:
+public:
+	Response		response;
 	RequestLine		request_line;
 	RequestHeader	request_header;
-	Response		response;
-public:
 	void request_parsing(string);
 	string request_exec();
 };
