@@ -3,6 +3,8 @@
 #include "Server.hpp"
 #include "../Configuration/config.hpp"
 #include "../Request/Request.hpp"
+#include "../Response/Response.hpp"
+#include <cstdlib>
 
 class Client {
 	public:

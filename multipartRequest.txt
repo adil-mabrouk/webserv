@@ -1,0 +1,38 @@
+POST /upload HTTP/1.1
+Content-Length: 733
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary92nhoBlDqngaZcAY
+
+------WebKitFormBoundary92nhoBlDqngaZcAY
+Content-Disposition: form-data; name="file"; filename="nginx.conf"
+Content-Type: application/octet-stream
+
+events
+{}
+
+http
+{
+include /etc/nginx/mime.types;
+access_log /var/log/nginx/access.log;
+error_log /var/log/nginx/error.log;
+
+include /etc/nginx/mime.types;
+server
+{
+listen  2010;
+root    /var/www/html;
+autoindex on;
+index page.html;
+}
+}
+
+------WebKitFormBoundary92nhoBlDqngaZcAY
+Content-Disposition: form-data; name="text"
+
+just a normal text
+------WebKitFormBoundary92nhoBlDqngaZcAY
+Content-Disposition: form-data; name="file"; filename="phpScript.php"
+Content-Type: application/x-php
+
+<?php echo "Hello World!";?>
+
+------WebKitFormBoundary92nhoBlDqngaZcAY--

@@ -283,7 +283,7 @@ inline bool URIParser::isNational(char c)
 		&& !isSafe(c) && !isUnsafe(c));
 }
 
-// don't forget /r/n
+// don't forget \r\n
 void	RequestLine::parse(string str)
 {
 	string::iterator	it, it_tmp;
@@ -308,11 +308,11 @@ void	RequestLine::parse(string str)
 	it_tmp = it + 1;
 	it = find(it_tmp, str.end(), ' ');
 	if (it != str.end())
-		throw std::runtime_error("http version parsing error");
+		throw std::runtime_error("http version parsing error 1");
 	string http_version(it_tmp, it);
 	if (http_version.compare("HTTP/1.0")
 		&& http_version.compare("HTTP/1.1"))
-		throw std::runtime_error("http version parsing error");
+		throw std::runtime_error("http version parsing error 2");
 }
 
 string	RequestLine::getMethod() const

@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <fstream>
 #include <sys/stat.h>
 #include <iostream>
 #include <unistd.h>
@@ -23,12 +25,12 @@ using std::vector;
 
 int	main(int ac, char *av[])
 {
-	string	body;
+	string body;
 
 	body.assign("<html>\n\
-<head><title>401 Authorization Required</title></head>\n\
+<head><title>401 Bad Request</title></head>\n\
 <body>\n\
-<center><h1>401 Authorization Required</h1></center>\n\
+<center><h1>401 Bad Request</h1></center>\n\
 <hr><center>Webserv</center>\n\
 </body>\n\
 </html>");

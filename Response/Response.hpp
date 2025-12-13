@@ -1,7 +1,9 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
+#include "../Request/Request.hpp"
 #include <sys/stat.h>
+#include <sys/socket.h>
 #include <unistd.h>
 #include <string>
 #include <iostream>
@@ -12,7 +14,7 @@
 #include <ctime>
 #include <sstream>
 #include <fcntl.h>
-//#include <errno.h>
+#include <cerrno>
 #include <dirent.h>
 
 using std::string;
@@ -26,6 +28,8 @@ using std::time;
 using std::time_t;
 using std::ostringstream;
 
+class	Request;
+
 // still need to canonicalize the path
 class	Response
 {
@@ -34,19 +38,21 @@ private:
 	string							root_path;
 	string							index_file;
 
+	Request							request;
 	int								status_code;
 	string							reason_phrase;
 	vector< pair<string, string> >	headers;
 	string							body;
 public:
-	Response();
+	Response(const Request&);
 
 	string	fillDate(time_t);
-	string	fillContentType(string);
+	string	fillContentType(string, int);
 	string	fillLastModified(string);
 	void	fillFileBody(int);
 	void	fillDirBody(string, DIR*);
 
+	void	statusCode400();
 	void	statusCode401();
 	void	statusCode403();
 	void	statusCode404();
@@ -54,9 +60,12 @@ public:
 
 	void	GETDir(string);
 	void	GETFile(string, int, struct stat*);
-	void	GETResource(string);
-	void	DELETEResource(string);
+	void	GETResource();
+	void	DELETEResource();
+	void	POSTResource(int, string);
+	void	post(int, string, string, long long);
 
+	const string									getResponse() const;
 	int										getStatusCode() const;
 	const string							getReasonPhrase() const;
 	const vector< pair<string, string> >	getHeaders() const;

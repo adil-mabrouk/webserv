@@ -1,14 +1,34 @@
 #include "Response.hpp"
+#include <cstdlib>
 #include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
 #include <stdexcept>
 
-Response::Response()
+Response::Response(const Request& request) : request(request)
 {
 	autoindex = true;
 	root_path = "/home/aachalla/webserv";
 	index_file = "index.html";
+}
+
+void	Response::statusCode400()
+{
+	pair<string, string>	tmp_headers[4];
+
+	tmp_headers[0] = make_pair("Server: ", "webserv");
+	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
+	tmp_headers[3] = make_pair("Content-Length: ", "144");
+	status_code = 401, reason_phrase.assign("Bad Request");
+	headers.assign(tmp_headers, tmp_headers + 4);
+	body.assign("<html>\n\
+<head><title>401 Bad Request</title></head>\n\
+<body>\n\
+<center><h1>401 Bad Request</h1></center>\n\
+<hr><center>Webserv</center>\n\
+</body>\n\
+</html>");
 }
 
 void	Response::statusCode401()
@@ -164,10 +184,11 @@ void	Response::fillDirBody(string path, DIR* dir)
 
 void	Response::fillFileBody(int fd)
 {
+	char	*end;
 	char	*buff;
-	int		file_size;
+	size_t	file_size;
 
-	file_size = std::stoi((headers.end() - 2)->second);
+	file_size = std::strtol((headers.end() - 2)->second.c_str(), &end, 0);
 	buff = new char[file_size + 1];
 	try
 	{
@@ -254,10 +275,18 @@ void	Response::GETFile(string path, int fd, struct stat *st)
 
 		try
 		{
+			size_t	index;
+			string	extension;
+
 			status_code = 200, reason_phrase.assign("OK");
 			headers.push_back(make_pair("Server: ", "webserv"));
 			headers.push_back(make_pair("Date: ", fillDate(time(NULL))));
-			headers.push_back(make_pair("Content-Type: ", fillContentType(path)));
+			index = path.find(".");
+			if (index == string::npos)
+				headers.push_back(make_pair("Content-Type: ", "text/plain"));
+			else
+				headers.push_back(make_pair("Content-Type: ",
+								fillContentType(string(path.begin() + index + 1, path.end()), 0)));
 			oss << st->st_size;
 			headers.push_back(make_pair("Content-Length: ", oss.str()));
 			headers.push_back(make_pair("Last-Modified: ", fillDate(st->st_mtim.tv_sec)));
@@ -272,11 +301,12 @@ void	Response::GETFile(string path, int fd, struct stat *st)
 	}
 }
 
-void	Response::GETResource(string path)
+void	Response::GETResource()
 {
 	struct stat	st;
+	string		path;
 
-	path = root_path + path;
+	path = root_path + request.request_line.getURI();
  	if (!stat(path.c_str(), &st))
 	{
 		if (S_ISREG(st.st_mode))
@@ -292,12 +322,13 @@ void	Response::GETResource(string path)
 }
 
 // must verify if the program has the right to delete the resource?
-void	Response::DELETEResource(string path)
+void	Response::DELETEResource()
 {
 	struct stat	st;
+	string		path;
 
 // open the path first
-	path = root_path + path;
+	path = root_path + request.request_line.getURI();
 	if (stat(path.c_str(), &st))
 		statusCode404();
 	else
@@ -332,6 +363,72 @@ void	Response::DELETEResource(string path)
 	}
 }
 
+void	Response::post(int socket_fd, string body, string content_type, long long content_length)
+{
+	string				file_name;
+	string::iterator	it_extension;
+	ostringstream		oss;
+	int					fd;
+
+	std::srand(std::time(NULL));
+	oss << std::rand();
+	fd = open(("upload_" + oss.str()
+		   + "." + fillContentType(content_type, 1)).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd == -1)
+		statusCode500();
+	else
+	{
+		if (-1 == write(fd, &body[0], request.body.size()))
+			statusCode500();
+		else
+		{
+			char		buffer[2048];
+			long long	count;
+			long long	tmp_count;
+
+			write(fd, &body[0], body.size());
+			if (static_cast<long long>(body.size()) < content_length)
+			{
+				content_length -= body.size();
+				count = 0;
+				while (count < content_length)
+				{
+					tmp_count = recv(socket_fd, buffer, sizeof(buffer), 0);
+					if (-1 == tmp_count)
+						std::cerr << "error after reading " << count << "\n", exit(1); // error
+					// std::cout << tmp_count << " readed\n";
+					if (tmp_count + count > content_length)
+						write (fd, buffer, tmp_count + count - ((tmp_count + count) - content_length));
+					else
+						write (fd, buffer, tmp_count);
+					count += tmp_count;
+				}
+			}
+			status_code = 201, reason_phrase.assign("Created");
+		}
+		close(fd);
+	}
+
+}
+
+void	Response::POSTResource(int socket_fd, string body)
+{
+	map<const string, const string>::const_iterator	it_content_type;
+	long long								content_length;
+	char*											end;
+
+	content_length =
+		std::strtoll(request.request_header.getHeaderData().find("Content-Length")->second.c_str(),
+			  &end, 0);
+	it_content_type = request.request_header.getHeaderData().find("Content-Type");
+	if (it_content_type->second == "multipart/form-data")
+		statusCode400();
+	else if (it_content_type->second == "x-www-form-urlencoded")
+		;
+	else
+		post(socket_fd, body, it_content_type->second, content_length);
+}
+
 int	Response::getStatusCode() const
 {
 	return (status_code);
@@ -352,133 +449,141 @@ const string	Response::getBody() const
 	return (body);
 }
 
-string	Response::fillContentType(string path)
+const string	Response::getResponse() const
 {
-	map<string, string>				content_types;
-	map<string, string>::iterator	it_types;
-	string							extension;
-	string::reverse_iterator		it_extension;
+	ostringstream	os;
+	string			response;
 
-    content_types.insert(make_pair("html", "text/html"));
-    content_types.insert(make_pair("htm", "text/html"));
-    content_types.insert(make_pair("text/html", "shtml;"));
-    content_types.insert(make_pair("css", "text/css"));
-    content_types.insert(make_pair("xml", "text/xml"));
-    content_types.insert(make_pair("gif", "image/gif"));
-    content_types.insert(make_pair("jpeg", "image/jpeg"));
-    content_types.insert(make_pair("jpg", "image/jpeg"));
-	content_types.insert(make_pair("js", "application/javascript"));
-	content_types.insert(make_pair("atom", "application/atom+xml"));
-	content_types.insert(make_pair("rss", "application/rss+xml"));
-	content_types.insert(make_pair("mml", "text/mathml"));
-	content_types.insert(make_pair("txt", "text/plain"));
-	content_types.insert(make_pair("jad", "text/vnd.sun.j2me.app-descriptor"));
-	content_types.insert(make_pair("wml", "text/vnd.wap.wml"));
-	content_types.insert(make_pair("htc", "text/x-component"));
-	content_types.insert(make_pair("avif", "image/avif"));
-	content_types.insert(make_pair("png", "image/png"));
-	content_types.insert(make_pair("svg", "image/svg+xml"));
-	content_types.insert(make_pair("svgz", "image/svg+xml"));
-	content_types.insert(make_pair("tif", "image/tiff"));
-	content_types.insert(make_pair("tiff", "image/tiff"));
-	content_types.insert(make_pair("wbmp", "image/vnd.wap.wbmp"));
-	content_types.insert(make_pair("webp", "image/webp"));
-	content_types.insert(make_pair("ico", "image/x-icon"));
-	content_types.insert(make_pair("jng", "image/x-jng"));
-	content_types.insert(make_pair("bmp", "image/x-ms-bmp"));
-	content_types.insert(make_pair("woff", "font/woff"));
-	content_types.insert(make_pair("woff2", "font/woff2"));
-	content_types.insert(make_pair("jar", "application/java-archive"));
-	content_types.insert(make_pair("war", "application/java-archive"));
-	content_types.insert(make_pair("ear", "application/java-archive"));
-	content_types.insert(make_pair("json", "application/json"));
-	content_types.insert(make_pair("hqx", "application/mac-binhex40"));
-	content_types.insert(make_pair("doc", "application/msword"));
-	content_types.insert(make_pair("pdf", "application/pdf"));
-	content_types.insert(make_pair("ps", "application/postscript"));
-	content_types.insert(make_pair("eps", "application/postscript"));
-	content_types.insert(make_pair("ai", "application/postscript"));
-	content_types.insert(make_pair("rtf", "application/rtf"));
-	content_types.insert(make_pair("m3u8", "application/vnd.apple.mpegurl"));
-	content_types.insert(make_pair("kml", "application/vnd.google-earth.kml+xml"));
-	content_types.insert(make_pair("kmz", "application/vnd.google-earth.kmz"));
-	content_types.insert(make_pair("xls", "application/vnd.ms-excel"));
-	content_types.insert(make_pair("eot", "application/vnd.ms-fontobject"));
-	content_types.insert(make_pair("ppt", "application/vnd.ms-powerpoint"));
-	content_types.insert(make_pair("odg", "application/vnd.oasis.opendocument.graphics"));
-	content_types.insert(make_pair("odp", "application/vnd.oasis.opendocument.presentation"));
-	content_types.insert(make_pair("ods", "application/vnd.oasis.opendocument.spreadsheet"));
-	content_types.insert(make_pair("odt", "application/vnd.oasis.opendocument.text"));
-	content_types.insert(make_pair("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"));
-	content_types.insert(make_pair("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-	content_types.insert(make_pair("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
-	content_types.insert(make_pair("wmlc", "application/vnd.wap.wmlc"));
-	content_types.insert(make_pair("wasm", "application/wasm"));
-	content_types.insert(make_pair("7z", "application/x-7z-compressed"));
-	content_types.insert(make_pair("cco", "application/x-cocoa"));
-	content_types.insert(make_pair("jardiff", "application/x-java-archive-diff"));
-	content_types.insert(make_pair("jnlp", "application/x-java-jnlp-file"));
-	content_types.insert(make_pair("run", "application/x-makeself"));
-	content_types.insert(make_pair("pl", "application/x-perl"));
-	content_types.insert(make_pair("pm", "application/x-perl"));
-	content_types.insert(make_pair("prc", "application/x-pilot"));
-	content_types.insert(make_pair("pdb", "application/x-pilot"));
-	content_types.insert(make_pair("rar", "application/x-rar-compressed"));
-	content_types.insert(make_pair("rpm", "application/x-redhat-package-manager"));
-	content_types.insert(make_pair("sea", "application/x-sea"));
-	content_types.insert(make_pair("swf", "application/x-shockwave-flash"));
-	content_types.insert(make_pair("sit", "application/x-stuffit"));
-	content_types.insert(make_pair("tcl", "application/x-tcl"));
-	content_types.insert(make_pair("tk", "application/x-tcl"));
-	content_types.insert(make_pair("der", "application/x-x509-ca-cert"));
-	content_types.insert(make_pair("pem", "application/x-x509-ca-cert"));
-	content_types.insert(make_pair("crt", "application/x-x509-ca-cert"));
-	content_types.insert(make_pair("xpi", "application/x-xpinstall"));
-	content_types.insert(make_pair("xhtml", "application/xhtml+xml"));
-	content_types.insert(make_pair("xspf", "application/xspf+xml"));
-	content_types.insert(make_pair("zip", "application/zip"));
-	content_types.insert(make_pair("bin", "application/octet-stream"));
-	content_types.insert(make_pair("exe", "application/octet-stream"));
-	content_types.insert(make_pair("dll", "application/octet-stream"));
-	content_types.insert(make_pair("deb", "application/octet-stream"));
-	content_types.insert(make_pair("dmg", "application/octet-stream"));
-	content_types.insert(make_pair("iso", "application/octet-stream"));
-	content_types.insert(make_pair("img", "application/octet-stream"));
-	content_types.insert(make_pair("msi", "application/octet-stream"));
-	content_types.insert(make_pair("msp", "application/octet-stream"));
-	content_types.insert(make_pair("msm", "application/octet-stream"));
-	content_types.insert(make_pair("mid", "audio/midi"));
-	content_types.insert(make_pair("midi", "audio/midi"));
-	content_types.insert(make_pair("kar", "audio/midi"));
-	content_types.insert(make_pair("mp3", "audio/mpeg"));
-	content_types.insert(make_pair("ogg", "audio/ogg"));
-	content_types.insert(make_pair("m4a", "audio/x-m4a"));
-	content_types.insert(make_pair("ra", "audio/x-realaudio"));
-	content_types.insert(make_pair("3gpp", "video/3gpp"));
-	content_types.insert(make_pair("3gp", "video/3gpp"));
-	content_types.insert(make_pair("ts", "video/mp2t"));
-	content_types.insert(make_pair("mp4", "video/mp4"));
-	content_types.insert(make_pair("mpeg", "video/mpeg"));
-	content_types.insert(make_pair("mpg", "video/mpeg"));
-	content_types.insert(make_pair("ogv", "video/ogg"));
-	content_types.insert(make_pair("mov", "video/quicktime"));
-	content_types.insert(make_pair("webm", "video/webm"));
-	content_types.insert(make_pair("flv", "video/x-flv"));
-	content_types.insert(make_pair("m4v", "video/x-m4v"));
-	content_types.insert(make_pair("mkv", "video/x-matroska"));
-	content_types.insert(make_pair("mng", "video/x-mng"));
-	content_types.insert(make_pair("asx", "video/x-ms-asf"));
-	content_types.insert(make_pair("asf", "video/x-ms-asf"));
-	content_types.insert(make_pair("wmv", "video/x-ms-wmv"));
-	content_types.insert(make_pair("avi", "video/x-msvideo"));
-	it_extension = find(path.rbegin(), path.rend(), '.');
-	if (it_extension == path.rend())
-		return ("text/plain");
-	extension.assign(it_extension.base(), path.end());
-	it_types = content_types.find(extension);
-	if (it_types != content_types.end())
-		return (it_types->second);
-	else
-		return ("text/plain");
+	os << status_code;
+	response.append("HTTP/1.1 ").append(os.str())
+		.append(" ").append(reason_phrase).append("\r\n");
+	for (vector< pair<string, string> >::const_iterator it = headers.begin();
+		it != headers.end(); it++)
+		response.append(it->first).append(it->second).append("\r\n");
+	response.append("\r\n").append(body);
+	return (response);
+}
+
+string	Response::fillContentType(string content_type, int flag)
+{
+	pair<string, string>			mime_types[112] =
+		{make_pair("html", "text/html"), 
+			make_pair("htm", "text/html"), 
+			make_pair("text/html", "shtml;"), 
+			make_pair("css", "text/css"), 
+			make_pair("xml", "text/xml"), 
+			make_pair("gif", "image/gif"), 
+			make_pair("jpeg", "image/jpeg"), 
+			make_pair("jpg", "image/jpeg"), 
+			make_pair("js", "application/javascript"), 
+			make_pair("atom", "application/atom+xml"), 
+			make_pair("rss", "application/rss+xml"), 
+			make_pair("mml", "text/mathml"), 
+			make_pair("txt", "text/plain"), 
+			make_pair("jad", "text/vnd.sun.j2me.app-descriptor"), 
+			make_pair("wml", "text/vnd.wap.wml"), 
+			make_pair("htc", "text/x-component"), 
+			make_pair("avif", "image/avif"), 
+			make_pair("png", "image/png"), 
+			make_pair("svg", "image/svg+xml"), 
+			make_pair("svgz", "image/svg+xml"), 
+			make_pair("tif", "image/tiff"), 
+			make_pair("tiff", "image/tiff"), 
+			make_pair("wbmp", "image/vnd.wap.wbmp"), 
+			make_pair("webp", "image/webp"), 
+			make_pair("ico", "image/x-icon"), 
+			make_pair("jng", "image/x-jng"), 
+			make_pair("bmp", "image/x-ms-bmp"), 
+			make_pair("woff", "font/woff"), 
+			make_pair("woff2", "font/woff2"), 
+			make_pair("jar", "application/java-archive"), 
+			make_pair("war", "application/java-archive"), 
+			make_pair("ear", "application/java-archive"), 
+			make_pair("json", "application/json"), 
+			make_pair("hqx", "application/mac-binhex40"), 
+			make_pair("doc", "application/msword"), 
+			make_pair("pdf", "application/pdf"), 
+			make_pair("ps", "application/postscript"), 
+			make_pair("eps", "application/postscript"), 
+			make_pair("ai", "application/postscript"), 
+			make_pair("rtf", "application/rtf"), 
+			make_pair("m3u8", "application/vnd.apple.mpegurl"), 
+			make_pair("kml", "application/vnd.google-earth.kml+xml"), 
+			make_pair("kmz", "application/vnd.google-earth.kmz"), 
+			make_pair("xls", "application/vnd.ms-excel"), 
+			make_pair("eot", "application/vnd.ms-fontobject"), 
+			make_pair("ppt", "application/vnd.ms-powerpoint"), 
+			make_pair("odg", "application/vnd.oasis.opendocument.graphics"), 
+			make_pair("odp", "application/vnd.oasis.opendocument.presentation"), 
+			make_pair("ods", "application/vnd.oasis.opendocument.spreadsheet"), 
+			make_pair("odt", "application/vnd.oasis.opendocument.text"), 
+			make_pair("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"), 
+			make_pair("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"), 
+			make_pair("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"), 
+			make_pair("wmlc", "application/vnd.wap.wmlc"), 
+			make_pair("wasm", "application/wasm"), 
+			make_pair("7z", "application/x-7z-compressed"), 
+			make_pair("cco", "application/x-cocoa"), 
+			make_pair("jardiff", "application/x-java-archive-diff"), 
+			make_pair("jnlp", "application/x-java-jnlp-file"), 
+			make_pair("run", "application/x-makeself"), 
+			make_pair("pl", "application/x-perl"), 
+			make_pair("pm", "application/x-perl"), 
+			make_pair("prc", "application/x-pilot"), 
+			make_pair("pdb", "application/x-pilot"), 
+			make_pair("rar", "application/x-rar-compressed"), 
+			make_pair("rpm", "application/x-redhat-package-manager"), 
+			make_pair("sea", "application/x-sea"), 
+			make_pair("swf", "application/x-shockwave-flash"), 
+			make_pair("sit", "application/x-stuffit"), 
+			make_pair("tcl", "application/x-tcl"), 
+			make_pair("tk", "application/x-tcl"), 
+			make_pair("der", "application/x-x509-ca-cert"), 
+			make_pair("pem", "application/x-x509-ca-cert"), 
+			make_pair("crt", "application/x-x509-ca-cert"), 
+			make_pair("xpi", "application/x-xpinstall"), 
+			make_pair("xhtml", "application/xhtml+xml"), 
+			make_pair("xspf", "application/xspf+xml"), 
+			make_pair("zip", "application/zip"), 
+			make_pair("bin", "application/octet-stream"), 
+			make_pair("exe", "application/octet-stream"), 
+			make_pair("dll", "application/octet-stream"), 
+			make_pair("deb", "application/octet-stream"), 
+			make_pair("dmg", "application/octet-stream"), 
+			make_pair("iso", "application/octet-stream"), 
+			make_pair("img", "application/octet-stream"), 
+			make_pair("msi", "application/octet-stream"), 
+			make_pair("msp", "application/octet-stream"), 
+			make_pair("msm", "application/octet-stream"), 
+			make_pair("mid", "audio/midi"), 
+			make_pair("midi", "audio/midi"), 
+			make_pair("kar", "audio/midi"), 
+			make_pair("mp3", "audio/mpeg"), 
+			make_pair("ogg", "audio/ogg"), 
+			make_pair("m4a", "audio/x-m4a"), 
+			make_pair("ra", "audio/x-realaudio"), 
+			make_pair("3gpp", "video/3gpp"), 
+			make_pair("3gp", "video/3gpp"), 
+			make_pair("ts", "video/mp2t"), 
+			make_pair("mp4", "video/mp4"), 
+			make_pair("mpeg", "video/mpeg"), 
+			make_pair("mpg", "video/mpeg"), 
+			make_pair("ogv", "video/ogg"), 
+			make_pair("mov", "video/quicktime"), 
+			make_pair("webm", "video/webm"), 
+			make_pair("flv", "video/x-flv"), 
+			make_pair("m4v", "video/x-m4v"), 
+			make_pair("mkv", "video/x-matroska"), 
+			make_pair("mng", "video/x-mng"), 
+			make_pair("asx", "video/x-ms-asf"), 
+			make_pair("asf", "video/x-ms-asf"), 
+			make_pair("wmv", "video/x-ms-wmv"), 
+			make_pair("avi", "video/x-msvideo")};
+	for (int index = 0; index < 112; index++)
+		if (!flag && content_type == mime_types[index].first)
+			return (mime_types[index].second);
+		else if (flag && content_type == mime_types[index].second)
+			return (mime_types[index].first);
+	return ((!flag) ? "text/plain" : "txt");
 }
 

@@ -1,0 +1,36 @@
+POST / HTTP/1.0\r\n
+Host: localhost:9999\r\n
+User-Agent: curl/7.81.0\r\n
+Accept: */*\r\n
+Content-Length: 552\r\n
+Content-Type: multipart/form-data; boundary=------------------------ddd9397aa75cb906\r\n
+\r\n
+--------------------------ddd9397aa75cb906\r\n
+Content-Disposition: form-data; name="file"; filename="nginx.conf"\r\n
+Content-Type: application/octet-stream\r\n
+\r\n
+events
+{}
+
+http
+{
+include /etc/nginx/mime.types;
+access_log /var/log/nginx/access.log;
+error_log /var/log/nginx/error.log;
+
+include /etc/nginx/mime.types;
+
+server
+{
+listen   2010;
+root    /var/www/html;
+autoindex on;
+index page.html;
+}
+}
+\r\n
+--------------------------ddd9397aa75cb906\r\n
+Content-Disposition: form-data; name="mssg"\r\n
+\r\n
+normaltext\r\n
+--------------------------ddd9397aa75cb906--\r\n

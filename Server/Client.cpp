@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include <sstream>
 
 Client::Client(int fd, ServerConfig *config)
 	: _fd(fd),
@@ -21,8 +22,13 @@ void	Client::setState(State state)
 
 bool	Client::readRequest()
 {
-	char buffer[4096];
+	char				buffer[4096];
+	bool				request_line_flag;
+	bool				request_headers_flag;
+	size_t				crlf_index;
 
+	request_line_flag = false;
+	request_headers_flag = false;
 	while (true)
 	{
 		ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
@@ -32,35 +38,57 @@ bool	Client::readRequest()
 			return false;
 		}
 		if (bytesRead == 0)
-		{
-			// std::cout << "Client disconnected\n";
 			return false;
-		}
+
+		// cout << buffer << '\n';
 		_resBuff.append(buffer, bytesRead);
-		if (_resBuff.find("\r\n\r\n") != std::string::npos)
+		if (!request_line_flag)
 		{
-			setState(READ_HEADER);
-			// cout << _resBuff << '\n';
-			// for (string::iterator it = _resBuff.begin(); it != _resBuff.end(); it++)
-			// {
-			// 	if (*it == '\n')
-			// 		cout << "\\n";
-			// 	else if (*it == '\r')
-			// 		cout << "\\r";
-			// 	else
-			// 		cout << *it;
-			// }
-			return true;
+			crlf_index = _resBuff.find("\r\n");
+			if (crlf_index != string::npos)
+			{
+				requestHandle.request_line.parse(string(_resBuff.begin(),
+											_resBuff.begin() + crlf_index));
+				_resBuff.assign(_resBuff.begin() + crlf_index + 2, _resBuff.end());
+				request_line_flag = true;
+			}
+		}
+		if (!request_headers_flag)
+		{
+			crlf_index = _resBuff.find("\r\n\r\n");
+			if (crlf_index != string::npos)
+			{
+				requestHandle.request_header.parse(string(_resBuff.begin(),
+											_resBuff.begin() + crlf_index + 2));
+				if (requestHandle.request_line.getMethod() == "POST")
+				{
+					Response	response(requestHandle);
+
+					if (requestHandle.request_header.getHeaderData().find("Content-Length") ==
+						requestHandle.request_header.getHeaderData().end() ||
+						requestHandle.request_header.getHeaderData().find("Content-Type") ==
+						requestHandle.request_header.getHeaderData().end())
+						cerr << "1\n", exit (1);
+					response.POSTResource(_fd, string(_resBuff.begin() + crlf_index + 4, 
+									  _resBuff.end()));
+					_resBuff = response.getResponse();
+				}
+				request_headers_flag = true;
+			}
+			return (true);
 		}
 	}
 }
 
 void	Client::processRequest()
 {
-	requestHandle.request_parsing(_resBuff);
+	if (requestHandle.request_line.getMethod() != "POST")
+	{
+		requestHandle.requestParsing(_resBuff);
 
-	std::string httpResponse = requestHandle.request_exec();
-	_resBuff = httpResponse;
+		std::string httpResponse = requestHandle.requestExec();
+		_resBuff = httpResponse;
+	}
 	_byteSent = 0;
 	setState(WRITING);
 }

@@ -53,8 +53,8 @@ public:
 class	RequestLine
 {
 private:
-	string	method;
-	string	uri;
+	string		method;
+	string		uri;
 	URIParser	uri_parser;
 public:
 	void	parse(string);

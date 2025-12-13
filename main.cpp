@@ -1,3 +1,4 @@
+#include "Request/Request.hpp"
 #include "Server/Server.hpp"
 #include "Configuration/config.hpp"
 

@@ -3,7 +3,7 @@
 
 #include "RequestLine.hpp"
 #include "RequestHeader.hpp"
-#include "../Response/Response.hpp"
+#include "RequestBody.hpp"
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -15,13 +15,15 @@ using std::cerr;
 
 class Request
 {
-private:
+public:
 	RequestLine		request_line;
 	RequestHeader	request_header;
-	Response		response;
-public:
-	void request_parsing(string);
-	string request_exec();
+	// RequestBody		request_body;
+	string			body;
+// separate the response object from the request
+
+	void requestParsing(string);
+	string requestExec();
 };
 
 #endif
