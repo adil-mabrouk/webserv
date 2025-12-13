@@ -22,15 +22,11 @@ void	Client::setState(State state)
 
 bool	Client::readRequest()
 {
-	char				buffer[4096];
-	bool				request_line_flag;
-	bool				request_headers_flag;
+	char				buffer[4113394];
 	size_t				crlf_index;
 
-	request_line_flag = false;
-	request_headers_flag = false;
-	while (true)
-	{
+	// while (true)
+	// {
 		ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
 		if (bytesRead < 0)
 		{
@@ -42,7 +38,7 @@ bool	Client::readRequest()
 
 		// cout << buffer << '\n';
 		_resBuff.append(buffer, bytesRead);
-		if (!request_line_flag)
+		if (getState() == READING)
 		{
 			crlf_index = _resBuff.find("\r\n");
 			if (crlf_index != string::npos)
@@ -50,34 +46,26 @@ bool	Client::readRequest()
 				requestHandle.request_line.parse(string(_resBuff.begin(),
 											_resBuff.begin() + crlf_index));
 				_resBuff.assign(_resBuff.begin() + crlf_index + 2, _resBuff.end());
-				request_line_flag = true;
+				setState(READ_HEADER);
 			}
 		}
-		if (!request_headers_flag)
+		if (getState() == READ_HEADER)
 		{
 			crlf_index = _resBuff.find("\r\n\r\n");
 			if (crlf_index != string::npos)
 			{
 				requestHandle.request_header.parse(string(_resBuff.begin(),
 											_resBuff.begin() + crlf_index + 2));
-				if (requestHandle.request_line.getMethod() == "POST")
-				{
-					Response	response(requestHandle);
-
-					if (requestHandle.request_header.getHeaderData().find("Content-Length") ==
-						requestHandle.request_header.getHeaderData().end() ||
-						requestHandle.request_header.getHeaderData().find("Content-Type") ==
-						requestHandle.request_header.getHeaderData().end())
-						cerr << "1\n", exit (1);
-					response.POSTResource(_fd, string(_resBuff.begin() + crlf_index + 4, 
-									  _resBuff.end()));
-					_resBuff = response.getResponse();
-				}
-				request_headers_flag = true;
+				requestHandle.body = string(_resBuff.begin() + crlf_index + 4, 
+									 _resBuff.end());
+				setState(READ_BODY);
 			}
-			return (true);
+			else
+				requestHandle.request_header.parse(string(_resBuff.begin(),
+											_resBuff.end()));
 		}
-	}
+	return (true);
+	// }
 }
 
 void	Client::processRequest()
@@ -87,17 +75,32 @@ void	Client::processRequest()
 		requestHandle.requestParsing(_resBuff);
 
 		std::string httpResponse = requestHandle.requestExec();
-		_resBuff = httpResponse;
+		_resRes += httpResponse;
+	}
+	else
+	{
+		if (requestHandle.request_line.getMethod() == "POST" && getState() == READ_BODY)
+		{
+			Response	response(requestHandle);
+
+			if (requestHandle.request_header.getHeaderData().find("Content-Length") ==
+				requestHandle.request_header.getHeaderData().end() ||
+				requestHandle.request_header.getHeaderData().find("Content-Type") ==
+				requestHandle.request_header.getHeaderData().end())
+				cerr << "1\n", exit (1);
+			response.POSTResource(_fd, requestHandle.body);
+			_resRes = response.getResponse();
+		}
 	}
 	_byteSent = 0;
-	setState(WRITING);
+// 	setState(WRITING);
 }
 
 bool	Client::writeResponse()
 {
-	while (_byteSent < _resBuff.size())
+	while (_byteSent < _resRes.size())
 	{
-		ssize_t bytesSent = send(_fd, _resBuff.c_str() + _byteSent, _resBuff.size() - _byteSent, 0);
+		ssize_t bytesSent = send(_fd, _resRes.c_str() + _byteSent, _resRes.size() - _byteSent, 0);
 		if (bytesSent < 0)
 		{
 			std::cout << "send() error: " << strerror(errno) << "\n";

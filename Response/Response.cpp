@@ -369,11 +369,16 @@ void	Response::post(int socket_fd, string body, string content_type, long long c
 	string::iterator	it_extension;
 	ostringstream		oss;
 	int					fd;
+	static int			creation;
 
 	std::srand(std::time(NULL));
 	oss << std::rand();
-	fd = open(("upload_" + oss.str()
-		   + "." + fillContentType(content_type, 1)).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (!creation)
+	{
+		fd = open(("upload_" + oss.str()
+			+ "." + fillContentType(content_type, 1)).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		creation = 1;
+	}
 	if (fd == -1)
 		statusCode500();
 	else
@@ -382,31 +387,31 @@ void	Response::post(int socket_fd, string body, string content_type, long long c
 			statusCode500();
 		else
 		{
-			char		buffer[2048];
-			long long	count;
+			char		buffer[4113394];
 			long long	tmp_count;
 
 			write(fd, &body[0], body.size());
 			if (static_cast<long long>(body.size()) < content_length)
 			{
 				content_length -= body.size();
-				count = 0;
-				while (count < content_length)
-				{
+				// while (count < content_length)
+				// {
 					tmp_count = recv(socket_fd, buffer, sizeof(buffer), 0);
-					if (-1 == tmp_count)
-						std::cerr << "error after reading " << count << "\n", exit(1); // error
+					cout << "writing " << tmp_count << " bytes\n";
+					write(socket_fd, buffer, tmp_count);
+					// if (-1 == tmp_count)
+					// 	std::cerr << "error after reading " << count << "\n", exit(1); // error
 					// std::cout << tmp_count << " readed\n";
-					if (tmp_count + count > content_length)
-						write (fd, buffer, tmp_count + count - ((tmp_count + count) - content_length));
-					else
-						write (fd, buffer, tmp_count);
-					count += tmp_count;
-				}
+					// if (tmp_count + count > content_length)
+					// 	write (fd, buffer, tmp_count + count - ((tmp_count + count) - content_length));
+					// else
+					// 	write (fd, buffer, tmp_count);
+					// count += tmp_count;
+				// }
 			}
 			status_code = 201, reason_phrase.assign("Created");
 		}
-		close(fd);
+		// close(fd);
 	}
 
 }

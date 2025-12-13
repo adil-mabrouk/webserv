@@ -9,7 +9,7 @@
 class Client {
 	public:
 
-		enum State	{ READING, READ_HEADER, WRITING, PROCESSING, DONE };
+		enum State	{ READING, READ_REQUET_LINE, READ_HEADER, READ_BODY, WRITING, PROCESSING, DONE };
 
 		Client(int fd, ServerConfig *config);
 		int			getState() const;
@@ -25,5 +25,6 @@ class Client {
 		int				_fd;
 		State			_state;
 		std::string		_resBuff;
+		std::string		_resRes;
 		size_t			_byteSent;
 };

@@ -123,10 +123,15 @@ void	Server::closeClient(int fd)
 
 void	Server::handleClientRead(int clientFd)
 {
+	cout << "Reading . . .\n";
 	Client	*client = _clients[clientFd];
 	if (!client)
 		return ;
 	bool	complete = client->readRequest();
+	if (client->getState() == Client::DONE)
+		cout << "State: DONE\n";
+	else
+		cout << "State: NOT DONE\n";
 	if (client->getState() == Client::DONE)
 		return ;
 	if (complete)
@@ -134,19 +139,23 @@ void	Server::handleClientRead(int clientFd)
 		// std::cout << "Request complete from fd = " << clientFd << "\n";
 		client->processRequest();
 	}
+	cout << "Reading end . . .\n";
 }
 
 void	Server::handleClientWrite(int clientFd)
 {
+	cout << "Writing. . .\n";
 	Client	*client = _clients[clientFd];
 	if (!client)
 		return ;
+	client->setState(Client::WRITING);
 	bool	complete = client->writeResponse();
 	if (complete)
 	{
 		// std::cout << "Response sent to Fd = " << clientFd << "\n";
 		closeClient(clientFd);
 	}
+	cout << "Writing end . . .\n";
 }
 
 /*
@@ -160,7 +169,7 @@ This function implements a non-blocking, single-threaded event loop that:
 void	Server::run()
 {
 	signal(SIGINT, signalHandler);   // Ctrl+C
-	signal(SIGTERM, signalHandler);  // kill command
+	// signal(SIGTERM, signalHandler);  // kill command
 	while (g_running) // main event loop
 	{
 		std::vector<struct pollfd>	pollFds; // Array of pollfd structures for poll()
@@ -190,10 +199,18 @@ void	Server::run()
 		{
 			if (pollFds[i].revents == 0)
 				continue ; 
+			cout << "\n\nwebserv handling\n";
 			int fd = pollFds[i].fd;
 			short revents = pollFds[i].revents;
+			if (revents & POLLIN && !isListeningSocket(fd))
+				cout << "Poll => reading\n";
+			else if (revents & POLLOUT)
+				cout << "Poll => writing\n";
+			else
+				cout << "Poll => else\n";
 			if (isListeningSocket(fd))
 			{
+				cout << "Creating new connection\n";
 				if (revents & POLLIN)
 					handleNewConnection(fd);
 			}
