@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-#define TIMEOUT_SECOND 10
+#define TIMEOUT_SECOND 30
 
 static bool g_running = true;
 

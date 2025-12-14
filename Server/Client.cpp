@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include "../cgi/cgi.hpp"
 
 Client::Client(int fd, ServerConfig *config)
 	: _fd(fd),
@@ -83,8 +84,16 @@ void	Client::processRequest()
 {
 	requestHandle.request_parsing(_resBuff);
 
-	std::string httpResponse = requestHandle.request_exec();
-	_resBuff = httpResponse;
+	// std::string httpResponse = requestHandle.request_exec();
+	// _resBuff = httpResponse;
+	// _byteSent = 0;
+	
+	CGI cgi;
+    cgi.setScriptPath("/home/amabrouk/Desktop/webserv/test.php");
+    cgi.setMethod("GET");
+    cgi.setQueryString("name=Alice");
+	_resBuff = cgi.execute();
+	std::cout << "CGI Response:\n" << _resBuff << "\n";
 	_byteSent = 0;
 	setState(WRITING);
 }
