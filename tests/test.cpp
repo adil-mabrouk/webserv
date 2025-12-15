@@ -28,9 +28,9 @@ int	main(int ac, char *av[])
 	string body;
 
 	body.assign("<html>\n\
-<head><title>401 Bad Request</title></head>\n\
+<head><title>501 Not Implemented</title></head>\n\
 <body>\n\
-<center><h1>401 Bad Request</h1></center>\n\
+<center><h1>501 Not Implemented</h1></center>\n\
 <hr><center>Webserv</center>\n\
 </body>\n\
 </html>");

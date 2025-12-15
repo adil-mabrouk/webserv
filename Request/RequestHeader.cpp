@@ -1,24 +1,5 @@
 #include "RequestHeader.hpp"
 
-//RequestHeader::RequestHeader()
-//{
-	//hf_data_parse.insert("Authorization", isAuthorization);
-	//hf_data_parse.insert("FROM", isFrom);
-	//hf_data_parse.insert("If-Modified-Since", isIfModSin);
-	//hf_data_parse.insert("Referer", isReferer);
-	//hf_data_parse.insert("User-Agent", isUserAgent);
-	//hf_data_parse.insert("Accept", isAccept);
-	//hf_data_parse.insert("Accept-Charset", isAccCha);
-	//hf_data_parse.insert("Accept-Encoding", isAccEnc);
-	//hf_data_parse.insert("Accept-Language", isAccLan);
-	//hf_data_parse.insert("Content-Language", isConLan);
-	//hf_data_parse.insert("Link", isLink);
-	//hf_data_parse.insert("MIME-Version", isMIMEVersion);
-	//hf_data_parse.insert("Retry-After", isRetryAfter);
-	//hf_data_parse.insert("Title", isTitle);
-	//hf_data_parse.insert("URI", isURI);
-//}
-
 // revise this parsing
 void	RequestHeader::parse(string str)
 {

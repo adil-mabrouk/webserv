@@ -1,9 +1,8 @@
 #include "Response.hpp"
 #include <cstdlib>
-#include <cstring>
-#include <dirent.h>
-#include <fcntl.h>
-#include <stdexcept>
+
+
+Response::Response() {}
 
 Response::Response(const Request& request) : request(request)
 {
@@ -20,12 +19,12 @@ void	Response::statusCode400()
 	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
 	tmp_headers[3] = make_pair("Content-Length: ", "144");
-	status_code = 401, reason_phrase.assign("Bad Request");
+	status_code = 400, reason_phrase.assign("Bad Request");
 	headers.assign(tmp_headers, tmp_headers + 4);
 	body.assign("<html>\n\
-<head><title>401 Bad Request</title></head>\n\
+<head><title>400 Bad Request</title></head>\n\
 <body>\n\
-<center><h1>401 Bad Request</h1></center>\n\
+<center><h1>400 Bad Request</h1></center>\n\
 <hr><center>Webserv</center>\n\
 </body>\n\
 </html>");
@@ -102,6 +101,25 @@ void	Response::statusCode500()
 <head><title>500 Internal Server Error</title></head>\n\
 <body>\n\
 <center><h1>500 Internal Server Error</h1></center>\n\
+<hr><center>Webserv</center>\n\
+</body>\n\
+</html>");
+}
+
+void	Response::statusCode501()
+{
+	pair<string, string>			tmp_headers[4];
+
+	tmp_headers[0] = make_pair("Server: ", "webserv");
+	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
+	tmp_headers[3] = make_pair("Content-Length: ", "152");
+	status_code = 501, reason_phrase.assign("Not Implemented");
+	headers.assign(tmp_headers, tmp_headers + 4);
+	body.assign("<html>\n\
+<head><title>501 Not Implemented</title></head>\n\
+<body>\n\
+<center><h1>501 Not Implemented</h1></center>\n\
 <hr><center>Webserv</center>\n\
 </body>\n\
 </html>");
@@ -363,76 +381,76 @@ void	Response::DELETEResource()
 	}
 }
 
-void	Response::post(int socket_fd, string body, string content_type, long long content_length)
-{
-	string				file_name;
-	string::iterator	it_extension;
-	ostringstream		oss;
-	int					fd;
-	static int			creation;
-
-	std::srand(std::time(NULL));
-	oss << std::rand();
-	if (!creation)
-	{
-		fd = open(("upload_" + oss.str()
-			+ "." + fillContentType(content_type, 1)).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		creation = 1;
-	}
-	if (fd == -1)
-		statusCode500();
-	else
-	{
-		if (-1 == write(fd, &body[0], request.body.size()))
-			statusCode500();
-		else
-		{
-			char		buffer[4113394];
-			long long	tmp_count;
-
-			write(fd, &body[0], body.size());
-			if (static_cast<long long>(body.size()) < content_length)
-			{
-				content_length -= body.size();
-				// while (count < content_length)
-				// {
-					tmp_count = recv(socket_fd, buffer, sizeof(buffer), 0);
-					cout << "writing " << tmp_count << " bytes\n";
-					write(socket_fd, buffer, tmp_count);
-					// if (-1 == tmp_count)
-					// 	std::cerr << "error after reading " << count << "\n", exit(1); // error
-					// std::cout << tmp_count << " readed\n";
-					// if (tmp_count + count > content_length)
-					// 	write (fd, buffer, tmp_count + count - ((tmp_count + count) - content_length));
-					// else
-					// 	write (fd, buffer, tmp_count);
-					// count += tmp_count;
-				// }
-			}
-			status_code = 201, reason_phrase.assign("Created");
-		}
-		// close(fd);
-	}
-
-}
-
-void	Response::POSTResource(int socket_fd, string body)
-{
-	map<const string, const string>::const_iterator	it_content_type;
-	long long								content_length;
-	char*											end;
-
-	content_length =
-		std::strtoll(request.request_header.getHeaderData().find("Content-Length")->second.c_str(),
-			  &end, 0);
-	it_content_type = request.request_header.getHeaderData().find("Content-Type");
-	if (it_content_type->second == "multipart/form-data")
-		statusCode400();
-	else if (it_content_type->second == "x-www-form-urlencoded")
-		;
-	else
-		post(socket_fd, body, it_content_type->second, content_length);
-}
+// void	Response::post(int socket_fd, string body, string content_type, long long content_length)
+// {
+// 	string				file_name;
+// 	string::iterator	it_extension;
+// 	ostringstream		oss;
+// 	static int					fd;
+// 	static int			creation;
+// 
+// 	std::srand(std::time(NULL));
+// 	oss << std::rand();
+// 	if (!creation)
+// 	{
+// 		fd = open(("upload_" + oss.str()
+// 			+ "." + fillContentType(content_type, 1)).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+// 		creation = 1;
+// 	}
+// 	if (fd == -1)
+// 		statusCode500();
+// 	else
+// 	{
+// 		if (-1 == write(fd, &body[0], request.body.size()))
+// 			statusCode500();
+// 		else
+// 		{
+// 			char		buffer[4113394];
+// 			long long	tmp_count;
+// 
+// 			write(fd, &body[0], body.size());
+// 			if (static_cast<long long>(body.size()) < content_length)
+// 			{
+// 				content_length -= body.size();
+// 				// while (count < content_length)
+// 				// {
+// 					tmp_count = recv(socket_fd, buffer, sizeof(buffer), 0);
+// 					cout << "recv " << tmp_count << " bytes\n";
+// 					write(socket_fd, buffer, tmp_count);
+// 					// if (-1 == tmp_count)
+// 					// 	std::cerr << "error after reading " << count << "\n", exit(1); // error
+// 					// std::cout << tmp_count << " readed\n";
+// 					// if (tmp_count + count > content_length)
+// 					// 	write (fd, buffer, tmp_count + count - ((tmp_count + count) - content_length));
+// 					// else
+// 					// 	write (fd, buffer, tmp_count);
+// 					// count += tmp_count;
+// 				// }
+// 			}
+// 			status_code = 201, reason_phrase.assign("Created");
+// 		}
+// 		// close(fd);
+// 	}
+// 
+// }
+// 
+// void	Response::POSTResource(int socket_fd, string body)
+// {
+// 	map<const string, const string>::const_iterator	it_content_type;
+// 	long long								content_length;
+// 	char*											end;
+// 
+// 	content_length =
+// 		std::strtoll(request.request_header.getHeaderData().find("Content-Length")->second.c_str(),
+// 			  &end, 0);
+// 	it_content_type = request.request_header.getHeaderData().find("Content-Type");
+// 	if (it_content_type->second == "multipart/form-data")
+// 		statusCode400();
+// 	else if (it_content_type->second == "x-www-form-urlencoded")
+// 		;
+// 	else
+// 		post(socket_fd, body, it_content_type->second, content_length);
+// }
 
 int	Response::getStatusCode() const
 {

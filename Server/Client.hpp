@@ -17,14 +17,18 @@ class Client {
 		bool		readRequest(); // Returns true if request is complete
 		void		processRequest(); // Process the request and prepare the response
 		bool		writeResponse(); // Returns true if response is fully sent
+		void		postInit();
+		~Client();
 		// ServerConfig	*getServerConfig() const;
 
+		std::string		_resRes;
 	private:
 		Request			requestHandle;
 		ServerConfig	*_serverConfig;
 		int				_fd;
 		State			_state;
 		std::string		_resBuff;
-		std::string		_resRes;
 		size_t			_byteSent;
+		std::ofstream*	upload_file;
+		long long		content_length;
 };

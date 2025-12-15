@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -44,10 +45,11 @@ private:
 	vector< pair<string, string> >	headers;
 	string							body;
 public:
+	Response();
 	Response(const Request&);
 
 	string	fillDate(time_t);
-	string	fillContentType(string, int);
+	static string	fillContentType(string, int);
 	string	fillLastModified(string);
 	void	fillFileBody(int);
 	void	fillDirBody(string, DIR*);
@@ -57,15 +59,14 @@ public:
 	void	statusCode403();
 	void	statusCode404();
 	void	statusCode500();
+	void	statusCode501();
 
 	void	GETDir(string);
 	void	GETFile(string, int, struct stat*);
 	void	GETResource();
 	void	DELETEResource();
-	void	POSTResource(int, string);
-	void	post(int, string, string, long long);
 
-	const string									getResponse() const;
+	const string							getResponse() const;
 	int										getStatusCode() const;
 	const string							getReasonPhrase() const;
 	const vector< pair<string, string> >	getHeaders() const;

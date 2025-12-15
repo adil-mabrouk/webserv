@@ -3,9 +3,8 @@
 
 #include "RequestLine.hpp"
 #include "RequestHeader.hpp"
-#include "RequestBody.hpp"
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include <string>
 
 using std::string;
@@ -18,11 +17,7 @@ class Request
 public:
 	RequestLine		request_line;
 	RequestHeader	request_header;
-	// RequestBody		request_body;
-	string			body;
-// separate the response object from the request
 
-	void requestParsing(string);
 	string requestExec();
 };
 

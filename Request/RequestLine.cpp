@@ -1,13 +1,15 @@
 #include "RequestLine.hpp"
+#include "../Response/Response.hpp"
 
 bool URIParser::isURI(string str)
 {
 	string::iterator	it;
 
 	it = find(str.begin(), str.end(), '#');
-	return ((isAbsoluteURI(string(str.begin(), it))
-				|| isRelativeURI(string(str.begin(), it)))
-				&& (it == str.end()
+	if (!isAbsoluteURI(string(str.begin(), it)) && !isRelativeURI(string(str.begin(), it)))
+		return (0);
+	cout << "+ + + +\n";
+	return ((it == str.end()
 					|| isFragment(string(it + 1, str.end()))));
 }
 
@@ -283,36 +285,33 @@ inline bool URIParser::isNational(char c)
 		&& !isSafe(c) && !isUnsafe(c));
 }
 
-// don't forget \r\n
 void	RequestLine::parse(string str)
 {
-	string::iterator	it, it_tmp;
+	size_t	index;
+	size_t	index_2;
 
-	it = find(str.begin(), str.end(), ' ');
-	if (it == str.end())
+	index = str.find(' ', 0);
+	if (index == string::npos)
 		throw std::runtime_error("method parsing error");
-	method.assign(str.begin(), it);
+	method.assign(str.begin(), str.begin() + index);
+	if (!method.size())
+		throw (400);
 	if (method.compare("GET")
 		&& method.compare("POST")
 		&& method.compare("DELETE"))
-		throw std::runtime_error("method parsing error");
+		throw (501);
 
-	it_tmp = it + 1;
-	it = find(it_tmp, str.end(), ' ');
-	if (it == str.end())
-		throw std::runtime_error("uri parsing error");
-	uri.assign(it_tmp, it);
+	index_2 = str.find(' ', index + 1);
+	if (index_2 == string::npos)
+		throw (400);
+	uri.assign(str.begin() + index + 1, str.begin() + index_2);
 	if(!uri_parser.isURI(uri))
-		throw std::runtime_error("uri parsing error");
+		throw (400);
 
-	it_tmp = it + 1;
-	it = find(it_tmp, str.end(), ' ');
-	if (it != str.end())
-		throw std::runtime_error("http version parsing error 1");
-	string http_version(it_tmp, it);
+	string http_version(str.begin() + index_2 + 1, str.end());
 	if (http_version.compare("HTTP/1.0")
 		&& http_version.compare("HTTP/1.1"))
-		throw std::runtime_error("http version parsing error 2");
+		throw (400);
 }
 
 string	RequestLine::getMethod() const

@@ -63,10 +63,10 @@ void	Server::initSocket(std::string host, int port, size_t configIndex)
 short	Server::determineClientEvents(Client* clt)
 {
 	short	events = 0;
-	if (clt->getState() == Client::READING)
-		events |= POLLIN;
-	else if (clt->getState() == Client::WRITING)
+	if (clt->getState() == Client::WRITING)
 		events |= POLLOUT;
+	else
+		events |= POLLIN;
 	return events;
 }
 
@@ -123,15 +123,36 @@ void	Server::closeClient(int fd)
 
 void	Server::handleClientRead(int clientFd)
 {
-	cout << "Reading . . .\n";
+	// cout << "Reading . . .\n";
 	Client	*client = _clients[clientFd];
 	if (!client)
 		return ;
 	bool	complete = client->readRequest();
-	if (client->getState() == Client::DONE)
-		cout << "State: DONE\n";
-	else
-		cout << "State: NOT DONE\n";
+	// cout << "State: ";
+	// switch (client->getState())
+	// {
+	// 	enum State	{ READING, READ_REQUET_LINE, READ_HEADER, READ_BODY, WRITING, PROCESSING, DONE };
+	// 	case Client::DONE:
+	// 		cout << "DONE\n";
+	// 		break;
+	// 	case Client::READ_REQUET_LINE:
+	// 		cout << "READ_REQUET_LINE\n";
+	// 		break;
+	// 	case Client::READ_HEADER:
+	// 		cout << "READ_HEADER\n";
+	// 		break;
+	// 	case Client::READ_BODY:
+	// 		cout << "READ_BODY\n";
+	// 		break;
+	// 	case Client::WRITING:
+	// 		cout << "WRITING\n";
+	// 		break;
+	// 	case Client::READING:
+	// 		cout << "READING\n";
+	// 		break;
+	// 	default:
+	// 		cout << "OTHER\n";
+	// }
 	if (client->getState() == Client::DONE)
 		return ;
 	if (complete)
@@ -139,12 +160,11 @@ void	Server::handleClientRead(int clientFd)
 		// std::cout << "Request complete from fd = " << clientFd << "\n";
 		client->processRequest();
 	}
-	cout << "Reading end . . .\n";
 }
 
 void	Server::handleClientWrite(int clientFd)
 {
-	cout << "Writing. . .\n";
+	// cout << "Writing. . .\n";
 	Client	*client = _clients[clientFd];
 	if (!client)
 		return ;
@@ -155,7 +175,7 @@ void	Server::handleClientWrite(int clientFd)
 		// std::cout << "Response sent to Fd = " << clientFd << "\n";
 		closeClient(clientFd);
 	}
-	cout << "Writing end . . .\n";
+	// cout << "Writing end . . .\n";
 }
 
 /*
@@ -168,6 +188,8 @@ This function implements a non-blocking, single-threaded event loop that:
 
 void	Server::run()
 {
+	int	activity;
+
 	signal(SIGINT, signalHandler);   // Ctrl+C
 	// signal(SIGTERM, signalHandler);  // kill command
 	while (g_running) // main event loop
@@ -189,35 +211,50 @@ void	Server::run()
 			pfd.revents = 0;
 			pollFds.push_back(pfd);
 		}
-		int activity = poll(&pollFds[0], pollFds.size(), 1000); // waits for one of a set of file descriptors to become ready to perform I/O.
+		activity = poll(&pollFds[0], pollFds.size(), 1000); // waits for one of a set of file descriptors to become ready to perform I/O.
 		if (activity < 0)
 		{
 			std::cerr << "poll() error: " << strerror(errno) << "\n";
 			continue;
 		}
+
 		for (size_t i = 0; i < pollFds.size(); i++)
 		{
-			if (pollFds[i].revents == 0)
-				continue ; 
-			cout << "\n\nwebserv handling\n";
 			int fd = pollFds[i].fd;
 			short revents = pollFds[i].revents;
-			if (revents & POLLIN && !isListeningSocket(fd))
-				cout << "Poll => reading\n";
-			else if (revents & POLLOUT)
-				cout << "Poll => writing\n";
-			else
-				cout << "Poll => else\n";
+
+			if (pollFds[i].revents == 0 && i)
+				continue ; 
 			if (isListeningSocket(fd))
 			{
-				cout << "Creating new connection\n";
 				if (revents & POLLIN)
 					handleNewConnection(fd);
 			}
 			else
 			{
 				if (revents & POLLIN)
-					handleClientRead(fd);
+				{
+					try
+					{
+						handleClientRead(fd);
+					}
+					catch (int& status)
+					{
+						Response	res;
+
+						switch (status)
+						{
+							case 400:
+								res.statusCode400();
+								break;
+							case 501:
+								res.statusCode501();
+								break;
+						}
+						_clients.find(fd)->second->_resRes = res.getResponse();
+						handleClientWrite(fd);
+					}
+				}
 				if (revents & POLLOUT)
 					handleClientWrite(fd);
 			}
