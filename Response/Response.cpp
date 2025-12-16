@@ -7,7 +7,7 @@ Response::Response() {}
 Response::Response(const Request& request) : request(request)
 {
 	autoindex = true;
-	root_path = "/home/aachalla/webserv";
+	root_path = "/home/amabrouk/webserv";
 	index_file = "index.html";
 }
 
