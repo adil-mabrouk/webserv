@@ -28,7 +28,7 @@ struct LocationConfig {
 	RedirectConfig								redirect;
 	std::string									upload_store;
 	bool										allow_upload;
-	CGIConfig									cgi;
+	std::vector<CGIConfig>						cgi;
 };
 
 struct ServerConfig {

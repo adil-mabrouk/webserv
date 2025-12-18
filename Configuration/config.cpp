@@ -105,6 +105,7 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 		}
 		else if (tokens[index] == "index")
 		{
+			locConfig.index.clear();
 			++index; // Skip "index"
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after index directive");
@@ -190,8 +191,12 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 			++index; // Skip "cgi_extension"
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after cgi_extension directive");
-			locConfig.cgi.extension = tokens[index++];
-			locConfig.cgi.path = tokens[index++];
+			std::string extension = tokens[index++];
+			std::string path = tokens[index++];
+			CGIConfig cgiConfig;
+			cgiConfig.extension = extension;
+			cgiConfig.path = path;
+			locConfig.cgi.push_back(cgiConfig);
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after cgi_extension directive");
 			++index; // Skip ";"

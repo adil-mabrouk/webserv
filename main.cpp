@@ -109,10 +109,13 @@ int main(int ac, char** av)
 					std::cout << "      Upload Store: " << it->second.upload_store << "\n";
 					std::cout << "      Allow Upload: " << (it->second.allow_upload ? "on" : "off") << "\n";
 				}
-				if (!it->second.cgi.extension.empty() && !it->second.cgi.path.empty())
+				if (!it->second.cgi.empty())
 				{
-					std::cout << "      CGI Extension: " << it->second.cgi.extension << "\n";
-					std::cout << "      CGI Path: " << it->second.cgi.path << "\n";
+					std::cout << "      CGI Configurations:\n";
+					for (size_t k = 0; k < it->second.cgi.size(); ++k)
+					{
+						std::cout << "        Extension: " << it->second.cgi[k].extension << " -> Path: " << it->second.cgi[k].path << "\n";
+					}
 				}
 			}
 			// std::cout << servers[0].locations[0].autoindex << "\n";
