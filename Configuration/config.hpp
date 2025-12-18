@@ -27,6 +27,7 @@ struct LocationConfig {
 	std::vector<std::string>					methods;
 	RedirectConfig								redirect;
 	std::string									upload_store;
+	bool										allow_upload;
 	CGIConfig									cgi;
 };
 
@@ -36,6 +37,7 @@ struct ServerConfig {
 	std::map<std::string, LocationConfig>		locations;
 	std::string									root; // added for server root directive
 	size_t										max_body_size;
+	bool										maxBodySizeExist;
 };
 
 class ConfigParser {
@@ -43,6 +45,8 @@ class ConfigParser {
 		ConfigParser(const std::string& path);
 		std::vector<ServerConfig>				parser();
 	private:
+		void									defaultServerParams(ServerConfig& serverConfig);
+		void									defaultLocationParams(LocationConfig& locConfig);
 		std::string 							_content;
 		std::vector<std::string>				tokenize(const std::string& text);
 		ServerConfig							parseServerBlock(const std::vector<std::string>& tokens, size_t& index);
