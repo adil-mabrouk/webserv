@@ -30,7 +30,7 @@ class Server {
 		// ~Server();
 		void							run(); // Main event loop
 		void							initSocket(std::string host, int port, size_t configIndex); // Initialize a listening socket on the given ports
-		ServerConfig					*getConfigForListenFd(int fd);
+		ServerConfig					getConfigForListenFd(int fd);
 		short							determineClientEvents(Client *clt); // Determine if we want to read or write
 		bool							isListeningSocket(int fd) const; // Check if fd is a listening socket
 		void							handleNewConnection(int fd); // Accept new client connection

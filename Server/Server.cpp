@@ -10,6 +10,9 @@ static void signalHandler(int signo)
 
 
 Server::Server(const std::vector<ServerConfig> &configs) : _serverConfigs(configs) {
+	// std::cout << "Server max body size exist: " << (_serverConfigs[0].maxBodySizeExist ? "true" : "false") << '\n';
+	// std::cout << "Server max body size: " << _serverConfigs[0].max_body_size << '\n';
+	// std::cout << "\n|||||||||||||||||\n";
 	for (size_t i = 0; i < _serverConfigs.size(); i++) {
 		for (size_t j = 0; j < _serverConfigs[i].listenList.size(); j++) {
 			std::string host = _serverConfigs[i].listenList[j].first;
@@ -80,11 +83,11 @@ bool	Server::isListeningSocket(int fd) const
 	return false;
 }
 
-ServerConfig	*Server::getConfigForListenFd(int fd) {
+ServerConfig	Server::getConfigForListenFd(int fd) {
 	std::map<int, size_t>::iterator it = _fdToConfigIndex.find(fd);
 	if (it != _fdToConfigIndex.end())
-			return &_serverConfigs[it->second];
-	return NULL;
+			return _serverConfigs[it->second];
+	return ServerConfig();
 }
 
 void	Server::handleNewConnection(int fd)
@@ -103,7 +106,7 @@ void	Server::handleNewConnection(int fd)
 	int f = fcntl(clientFd, F_GETFL, 0);
 	if (f < 0 || fcntl(clientFd, F_SETFL, f | O_NONBLOCK) < 0)
 		throwError(clientFd, "Failed to set non-blocking: ");
-	ServerConfig	*config = getConfigForListenFd(fd);
+	ServerConfig	config = getConfigForListenFd(fd);
 	// fcntl(clientFd, F_SETFD, FD_CLOEXEC);
 	Client	*client = new Client(clientFd, config);
 	_clients[clientFd] = client;
@@ -189,7 +192,7 @@ This function implements a non-blocking, single-threaded event loop that:
 void	Server::run()
 {
 	int	activity;
-
+	
 	signal(SIGINT, signalHandler);   // Ctrl+C
 	// signal(SIGTERM, signalHandler);  // kill command
 	while (g_running) // main event loop

@@ -1,7 +1,6 @@
 #include "Client.hpp"
-#include <sstream>
 
-Client::Client(int fd, ServerConfig *config)
+Client::Client(int fd, ServerConfig config)
 	: _fd(fd),
 	  _state(READING),
 	  _resBuff(""),
@@ -9,7 +8,7 @@ Client::Client(int fd, ServerConfig *config)
 	  upload_file(NULL),
 	  content_length(0)
 {
-	(void)config;
+	_serverConfig = config;
 }
 
 Client::~Client()
@@ -40,8 +39,9 @@ void	Client::postInit()
 	if (it_content_length == requestHandle.request_header.getHeaderData().end())
 		cerr << "length not found\n", exit(1);
 	content_length = std::strtol(it_content_length->second.c_str(), NULL, 0);
-	cout << "address: " << _serverConfig << '\n';
-	if (content_length > _serverConfig->max_body_size)
+	// cout << "address: " << _serverConfig. << '\n';
+	// cout << "_--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
+	if (content_length > _serverConfig.max_body_size)
 		throw 400;
 	std::srand(std::time(NULL));
 	oss << std::rand();
@@ -104,13 +104,13 @@ bool	Client::readRequest()
 
 void	Client::processRequest()
 {
-	cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n";
-	cout << "=> request_line:\n\t|" << requestHandle.request_line.getMethod()
-		<< "| |" << requestHandle.request_line.getURI() << "|\n";
-	cout << "=> request headers:\n";
-	for (map<const string, const string>::const_iterator it = requestHandle.request_header.getHeaderData().begin();
-		it != requestHandle.request_header.getHeaderData().end(); it++)
-		cout << "\t|" << it->first << "| |" << it->second << "|\n";
+	// cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n";
+	// cout << "=> request_line:\n\t|" << requestHandle.request_line.getMethod()
+	// 	<< "| |" << requestHandle.request_line.getURI() << "|\n";
+	// cout << "=> request headers:\n";
+	// for (map<const string, const string>::const_iterator it = requestHandle.request_header.getHeaderData().begin();
+	// 	it != requestHandle.request_header.getHeaderData().end(); it++)
+	// 	cout << "\t|" << it->first << "| |" << it->second << "|\n";
 	// cout << "=> request body:\n|" << requestHandle.body << "|\n";
 	if (requestHandle.request_line.getMethod() != "POST")
 	{
@@ -130,7 +130,7 @@ void	Client::processRequest()
 
 bool	Client::writeResponse()
 {
-	cout << '\n' << _resRes << "\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n\n";
+	// cout << '\n' << _resRes << "\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n\n";
 	while (_byteSent < _resRes.size())
 	{
 		ssize_t bytesSent = send(_fd, _resRes.c_str() + _byteSent, _resRes.size() - _byteSent, 0);

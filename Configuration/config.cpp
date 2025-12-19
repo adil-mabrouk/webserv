@@ -427,6 +427,6 @@ ServerConfig	ConfigParser::parseServerBlock(const std::vector<std::string> &toke
 	if (index < tokens.size() && tokens[index] != "server")
 	throw std::runtime_error("Expected 'server' or end of configuration after server block");
 	
-	std::cout << "initial adress: " << &serverConfig << '\n';
+	// std::cout << "initial adress: " << &serverConfig << '\n';
 	return serverConfig;
 }

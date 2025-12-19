@@ -20,7 +20,7 @@ void	RequestHeader::parse(string str)
 		if (index2 == string::npos)
 			throw 400;
 		string	field_body(string(str.begin() + index, str.begin() + index2));
-		std::cout << '|' << field_name << "|: |" << field_body << "|\n";
+		// std::cout << '|' << field_name << "|: |" << field_body << "|\n";
 		index2 += 2;
 		if (field_name == "Content-Length" && !field_body.size())
 			throw 400;
