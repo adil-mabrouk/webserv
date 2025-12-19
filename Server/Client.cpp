@@ -35,10 +35,14 @@ void	Client::postInit()
 
 	it_content_type = requestHandle.request_header.getHeaderData().find("Content-Type");
 	it_content_length = requestHandle.request_header.getHeaderData().find("Content-Length");
-	if (it_content_type == requestHandle.request_header.getHeaderData().end() ||
-		it_content_length == requestHandle.request_header.getHeaderData().end())
-		exit(1);
+	if (it_content_type == requestHandle.request_header.getHeaderData().end())
+		cerr << "type not found\n", exit(1);
+	if (it_content_length == requestHandle.request_header.getHeaderData().end())
+		cerr << "length not found\n", exit(1);
 	content_length = std::strtol(it_content_length->second.c_str(), NULL, 0);
+	cout << "address: " << _serverConfig << '\n';
+	if (content_length > _serverConfig->max_body_size)
+		throw 400;
 	std::srand(std::time(NULL));
 	oss << std::rand();
 	upload_file	= new std::ofstream(("upload_" + oss.str()

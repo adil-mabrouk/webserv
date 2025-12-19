@@ -36,7 +36,7 @@ struct ServerConfig {
 	std::map<int, std::string>					error_pages;
 	std::map<std::string, LocationConfig>		locations;
 	std::string									root; // added for server root directive
-	size_t										max_body_size;
+	long long									max_body_size;
 	bool										maxBodySizeExist;
 };
 

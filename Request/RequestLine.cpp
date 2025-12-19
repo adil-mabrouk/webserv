@@ -1,15 +1,61 @@
 #include "RequestLine.hpp"
 #include "../Response/Response.hpp"
 
+string	URIParser::removeDotSegments(string str)
+{
+	string	uri;
+	size_t	index;
+	bool	flag;
+
+	flag = false;
+	if (str[0] != '/')
+		str = '/' + str, flag = true;
+	while (str.size())
+	{
+		if (str[0] == '/')
+			str.erase(str.begin());
+		index = str.find('/', 0);
+		if (index == string::npos)
+			index = str.size();
+		if (string(str.begin(), str.begin() + index) == ".")
+			str.erase(0, 1);
+		else if (string(str.begin(), str.begin() + index) == "..")
+		{
+			if (!uri.size())
+				throw 400;
+			str.erase(0, 2);
+			index = uri.rfind('/', uri.size());
+			if (index == string::npos)
+			{
+				if (uri.size())
+					uri.clear();
+				else
+					throw 400;
+			}
+			else
+				uri.erase(uri.begin() + index, uri.end());
+		}
+		else 
+		{
+			uri.append("/").append(str.begin(), str.begin() + index);
+			str.erase(0, index);
+		}
+	}
+	if (flag)
+		uri.erase(uri.begin());
+	return (uri);
+}
+
 bool URIParser::isURI(string str)
 {
 	string::iterator	it;
 
 	it = find(str.begin(), str.end(), '#');
-	if (!isAbsoluteURI(string(str.begin(), it)) && !isRelativeURI(string(str.begin(), it)))
-		return (0);
-	cout << "+ + + +\n";
-	return ((it == str.end()
+	// cout << "isAbsoluteURI: " << isAbsoluteURI(string(str.begin(), it)) << '\n';
+	// cout << "isRelativeURI: " << isRelativeURI(string(str.begin(), it)) << '\n';
+	return (str.size() && (isAbsoluteURI(string(str.begin(), it))
+				|| isRelativeURI(string(str.begin(), it)))
+				&& (it == str.end()
 					|| isFragment(string(it + 1, str.end()))));
 }
 
@@ -94,6 +140,50 @@ inline bool URIParser::isRelPath(string str)
 	}
 	return (1);
 }
+
+// inline bool URIParser::isRelPath(string str)
+// {
+// 	string::iterator	it;
+// 	string::iterator	it2;
+// 
+// 	it = find(str.begin(), str.end(), ';');
+// 	if (it == str.end())
+// 	{
+// 		it = find(str.begin(), str.end(), '?');
+// 		if (it == str.end())
+// 		{
+// 			if (str.size())
+// 				if (!isPath(str))
+// 					return (0);
+// 		}
+// 		else
+// 		{
+// 			if (distance(str.begin(), it))
+// 				if (!isPath(string(str.begin(), it)))
+// 					return (0);
+// 			it++;
+// 			if (!isQuery(string(it, str.end())))
+// 				return (0);
+// 		}
+// 	}
+// 	else
+// 	{
+// 		if (distance(str.begin(), it))
+// 			if (!isPath(string(str.begin(), it)))
+// 				return (0);
+// 		it++;
+// 		it2 = find(it, str.end(), '?');
+// 		if (!isParams(string(it, it2)))
+// 			return (0);
+// 		if (it2 != str.end())
+// 		{
+// 			it2++;
+// 			if (!isQuery(string(it2, str.end())))
+// 				return (0);
+// 		}
+// 	}
+// 	return (1);
+// }
 
 inline bool URIParser::isPath(string str)
 {
@@ -307,6 +397,7 @@ void	RequestLine::parse(string str)
 	uri.assign(str.begin() + index + 1, str.begin() + index_2);
 	if(!uri_parser.isURI(uri))
 		throw (400);
+	uri = uri_parser.removeDotSegments(uri);
 
 	string http_version(str.begin() + index_2 + 1, str.end());
 	if (http_version.compare("HTTP/1.0")

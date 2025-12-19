@@ -1,60 +1,57 @@
 #include "RequestHeader.hpp"
 
-// revise this parsing
 void	RequestHeader::parse(string str)
 {
-	string::iterator	it;
-	string				header_name;
-	string::iterator	it_header;
+	size_t	index;
+	size_t	index2;
 
-	it_header = str.begin();
-	while (it_header != str.end())
+	index2 = 0;
+	while (index2 < str.size())
 	{
-		if (str.find("\r\n") == string::npos)
-			std::cout << "here\n", exit(1);
-		string	header(it_header, it_header + str.find("\r\n"));
-
-		it = find(header.begin(), header.end(), ':');
-		if (it == header.end())
-			throw std::runtime_error("header field separator error");
-		for (string::iterator it_tmp = header.begin();
-			it_tmp != it; it_tmp++)
-			if (*it_tmp != '-' && (*it_tmp < 'a' || *it_tmp > 'z')
-				&& (*it_tmp < 'A' || *it_tmp > 'Z'))
-				throw std::runtime_error("header field name error");
-		header_name.assign(header.begin(), it);
-		if (*(++it) != ' ')
-			throw std::runtime_error("header field value error");
-		header_data.insert(std::make_pair(header_name, string(++it, header.end())));
-		str.assign(str.begin() + str.find("\r\n") + 2, str.end());
-		it_header = str.begin();
+		index = str.find(':', index2);
+		if (index == string::npos)
+			throw 400;
+		string	field_name(string(str.begin() + index2, str.begin() + index++));
+		if (!isFieldName(field_name))
+			throw 400;
+		if (str[index++] != ' ')
+			throw 400;
+		index2 = str.find("\r\n", index);
+		if (index2 == string::npos)
+			throw 400;
+		string	field_body(string(str.begin() + index, str.begin() + index2));
+		std::cout << '|' << field_name << "|: |" << field_body << "|\n";
+		index2 += 2;
+		if (field_name == "Content-Length" && !field_body.size())
+			throw 400;
+		if (field_name == "Content-Length")
+			for (size_t content_length_index = 0;
+				content_length_index < field_body.size();
+				content_length_index++)
+				if (field_body[content_length_index] < '0'
+					|| field_body[content_length_index] > '9')
+					throw 400;
+		header_data.insert(std::make_pair(field_name, field_body));
 	}
-	// std::cout << header_name << ": " << string(it, str.end()) << '\n';
 }
 
-bool	RequestHeader::isGeneralHeader(string str)
+bool	isCTL(char c)
 {
-	return (!str.compare("Date") || !str.compare("Pragma"));
+	return (c == 127 || (c >= 0 && c <= 31));
 }
 
-bool	RequestHeader::isRequestHeader(string str)
+bool	RequestHeader::isFieldName(string str) const
 {
-	return (!str.compare("Authorization")
-			|| !str.compare("From")
-			|| !str.compare("If-Modified-Since")
-			|| !str.compare("Referer")
-			|| !str.compare("User-Agent"));
-}
-
-bool	RequestHeader::isEntityHeader(string str)
-{
-	return (!str.compare("Allow")
-			|| !str.compare("Content-Encoding")
-			|| !str.compare("Content-Length")
-			|| !str.compare("Content-Type")
-			|| !str.compare("Expires")
-			|| !str.compare("Last-Modified")
-			|| !str.compare("extension-Header"));
+	if (!str.size())
+		return (false);
+	for (size_t index = 0; index < str.size(); index++)
+	{
+		if (str[index] == ' ' ||
+			str[index] == ':' ||
+			isCTL(str[index]))
+			return (false);
+	}
+	return (true);
 }
 
 const map<const string, const string>&	RequestHeader::getHeaderData()

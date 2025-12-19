@@ -11,8 +11,6 @@ string	Request::requestExec()
 			response.DELETEResource();
 		else if (!request_line.getMethod().compare("GET"))
 			response.GETResource();
-		// else if (!request_line.getMethod().compare("POST"))
-		// 	response.POSTResource();
 		return (response.getResponse());
 	}
 // handel backward rethrowing

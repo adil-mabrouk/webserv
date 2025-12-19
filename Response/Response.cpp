@@ -1,13 +1,12 @@
 #include "Response.hpp"
 #include <cstdlib>
 
-
 Response::Response() {}
 
 Response::Response(const Request& request) : request(request)
 {
 	autoindex = true;
-	root_path = "/home/amabrouk/webserv";
+	root_path = "/home/aachalla/webserv";
 	index_file = "index.html";
 }
 

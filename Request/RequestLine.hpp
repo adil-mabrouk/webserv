@@ -12,7 +12,8 @@ using std::string;
 class URIParser
 {
 public:
-	bool isURI(string);
+	string	removeDotSegments(string);
+	bool	isURI(string);
 
 	inline bool isAbsoluteURI(string);
 	inline bool isRelativeURI(string);
