@@ -26,6 +26,11 @@ void	Client::setState(State state)
 	_state = state;
 }
 
+const ServerConfig	&Client::getServerConfig() const
+{
+	return _serverConfig;
+}
+
 void	Client::postInit()
 {
 	ostringstream									oss;

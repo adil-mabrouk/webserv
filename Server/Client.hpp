@@ -19,7 +19,7 @@ class Client {
 		bool		writeResponse(); // Returns true if response is fully sent
 		void		postInit();
 		~Client();
-		// ServerConfig	*getServerConfig() const;
+		const ServerConfig	&getServerConfig() const;
 
 		std::string		_resRes;
 	private:

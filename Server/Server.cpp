@@ -240,6 +240,9 @@ void	Server::run()
 					try
 					{
 						handleClientRead(fd);
+						Client *client = _clients[fd];
+						const ServerConfig &config = client->getServerConfig();
+						std::cout << "Config max body size for fd " << fd << " is " << config.max_body_size << std::endl;
 					}
 					catch (int& status)
 					{
