@@ -112,6 +112,12 @@ void	Client::processRequest()
 	// 	it != requestHandle.request_header.getHeaderData().end(); it++)
 	// 	cout << "\t|" << it->first << "| |" << it->second << "|\n";
 	// cout << "=> request body:\n|" << requestHandle.body << "|\n";
+	std::string path = requestHandle.request_line.getURI();
+	if (isCGIRequest(path))
+	{
+		startCGI();
+		return ;
+	}
 	if (requestHandle.request_line.getMethod() != "POST")
 	{
 		// requestHandle.requestParsing(_resBuff);
@@ -143,4 +149,75 @@ bool	Client::writeResponse()
 	}
 	setState(DONE);
 	return true;
+}
+
+std::string	Client::mapURLToFilePath(const std::string &urlPath)
+{
+	std::string root = _serverConfig.root;
+	if (root.empty())
+		cerr << "ROOT empty\n", exit(1);
+	std::string	path = urlPath;
+	size_t	queryPos = path.find('?');
+	if (queryPos != std::string::npos)
+		path = path.substr(0, queryPos);
+	return root + path;
+}
+
+bool	Client::isCGIRequest(const std::string &path)
+{
+	if (path.find("e/cgi-bin/") == 0)
+		return true;
+	if (path.find(".php") != std::string::npos 
+		|| path.find(".py") != std::string::npos)
+		return true;
+	return false;
+}
+
+std::string		Client::getCGIInterpreter(const std::string &path)
+{
+	size_t	dotPos = path.rfind('.');
+	if (dotPos == std::string::npos)
+		return "";
+	std::string ext = path.substr(dotPos);
+	if (ext == ".php")
+		return "/usr/bin/php-cgi";
+	else if (ext == ".py")
+		return "/usr/bin/python3";
+	return "";
+}
+
+void	Client::startCGI()
+{
+	std::string urlPath = requestHandle.request_line.getURI();
+	std::string scriptPath = mapURLToFilePath(urlPath);
+	if (access(_cgiScriptPath.c_str(), F_OK) != 0)
+	{
+		_resRes = "HTTP/1.0 404 NOt Found\r\n\r\nCGI Script not found";
+		setState(WRITING);
+		return ;
+	}
+	_cgi = new CGI();
+	_cgi->setScriptPath(scriptPath);
+	_cgi->setMethod(requestHandle.request_line.getMethod());
+	_cgi->setQueryString(requestHandle.request_line.getURI());
+
+	const std::map<const std::string, const std::string> &headers = 
+		requestHandle.request_header.getHeaderData();
+
+	for (std::map<const std::string, const std::string>::const_iterator it = headers.begin(); 
+		it != headers.end(); it++)
+	{
+		_cgi->setHeader(it->first, it->second);
+	}
+
+	if (_cgi->start())
+		setState(CGI_RUNNING);
+	
+	else
+	{
+		delete _cgi;
+		_cgi = NULL;
+		_resRes = "HTTP/1.1 500 Internal Server Error\r\n\r\n";
+		setState(WRITING);
+	}
 }

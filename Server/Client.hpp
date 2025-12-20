@@ -8,8 +8,8 @@
 
 class Client {
 	public:
-
-		enum State	{ READING, READ_REQUET_LINE, READ_HEADER, READ_BODY, WRITING, PROCESSING, DONE };
+		// CGI_RUNNING added
+		enum State	{ READING, READ_REQUET_LINE, READ_HEADER, READ_BODY, CGI_RUNNING, WRITING, PROCESSING, DONE };
 
 		Client(int fd, ServerConfig config);
 		int			getState() const;
@@ -20,8 +20,9 @@ class Client {
 		void		postInit();
 		~Client();
 		// ServerConfig	*getServerConfig() const;
-
 		std::string		_resRes;
+			
+			
 	private:
 		Request			requestHandle;
 		ServerConfig	_serverConfig;
@@ -31,4 +32,16 @@ class Client {
 		size_t			_byteSent;
 		std::ofstream*	upload_file;
 		long long		content_length;
+	
+	
+		// ALL CGI needs {
+		bool			isCGIRequest(const std::string &path);
+		void			startCGI();
+		std::string		mapURLToFilePath(const std::string &urlPath);
+		std::string		getCGIInterpreter(const std::string &path);
+
+		
+		std::string		_cgiScriptPath;
+	// }
+
 };
