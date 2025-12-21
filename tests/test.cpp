@@ -23,16 +23,37 @@ using std::pair;
 using std::make_pair;
 using std::vector;
 
+bool	find_location(vector<string> names, string uri)
+{
+	while (uri.size())
+	{
+		cout << "searching for " << uri << '\n';
+		for (vector<string>::iterator	it = names.begin();
+			it != names.end(); it++)
+			if (!it->compare(uri))
+				cout << "found at " << std::distance(names.begin(), it) << " " + *it, exit(0);
+		if (uri[uri.size() - 1] == '/')
+			uri.erase(uri.size() - 1, 1);
+		else
+		{
+			size_t	index;
+			
+			index = uri.rfind('/', uri.size());
+			if (index == string::npos)
+				return (cout << "not found\n", false);
+			uri.erase(uri.begin() + index + 1, uri.end());
+		}
+	}
+	return (cout << "not found\n", false);
+}
+
 int	main(int ac, char *av[])
 {
-	string body;
+	vector <string> names;
 
-	body.assign("<html>\n\
-<head><title>501 Not Implemented</title></head>\n\
-<body>\n\
-<center><h1>501 Not Implemented</h1></center>\n\
-<hr><center>Webserv</center>\n\
-</body>\n\
-</html>");
-	cout << body.size() << '\n';
+	names.push_back("/a/b");
+	names.push_back("/a/b/");
+	// names.push_back("/");
+	names.push_back("/a/b/c");
+	find_location(names, av[1]);
 }

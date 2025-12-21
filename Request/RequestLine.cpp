@@ -1,6 +1,22 @@
 #include "RequestLine.hpp"
 #include "../Response/Response.hpp"
 
+string	URIParser::removeDupSl(string str)
+{
+	string	uri;
+
+	for (size_t index = 0; index != str.size(); index++)
+	{
+		if (!index)
+			uri.assign(1, str[0]);
+		else if (str[index] == '/' && uri[uri.size() - 1] != '/')
+			uri.append(1, str[index]);
+		else if (str[index] != '/')
+			uri.append(1, str[index]);
+	}
+	return (uri);
+}
+
 string	URIParser::removeDotSegments(string str)
 {
 	string	uri;
@@ -397,6 +413,7 @@ void	RequestLine::parse(string str)
 	uri.assign(str.begin() + index + 1, str.begin() + index_2);
 	if(!uri_parser.isURI(uri))
 		throw (400);
+	uri = uri_parser.removeDupSl(uri);
 	uri = uri_parser.removeDotSegments(uri);
 
 	string http_version(str.begin() + index_2 + 1, str.end());

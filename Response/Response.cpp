@@ -3,12 +3,15 @@
 
 Response::Response() {}
 
-Response::Response(const Request& request) : request(request)
+Response::Response(const Request& request, const LocationConfig& location_config)
 {
-	autoindex = true;
+	this->request = request;
+	this->location_config = location_config;
 	root_path = "/home/aachalla/webserv";
-	index_file = "index.html";
 }
+
+Response::Response(const LocationConfig& location_config)
+	: location_config(location_config) {}
 
 void	Response::statusCode400()
 {
@@ -227,12 +230,19 @@ void	Response::GETDir(string path)
 	int			fd;
 	struct stat	st;
 
-	fd = open((path + "/" + index_file).c_str(), O_RDONLY);
+	for (vector<string>::iterator it = location_config.index.begin();
+		it != location_config.index.end(); it++)
+	{
+		fd = open((path + "/" + *it).c_str(), O_RDONLY);
+		if (fd != -1)
+			break ;
+	}
+	// fd = open((path + "/" + index_file).c_str(), O_RDONLY);
 	if (fd == -1)
 	{
 		if (errno == ENOENT)
 		{
-			if (autoindex)
+			if (location_config.autoindex)
 			{
 				DIR*	dir;
 
@@ -270,10 +280,18 @@ void	Response::GETDir(string path)
 	}
 	else
 	{
-		if (!stat((path + "/" + index_file).c_str(), &st))
-			GETFile(path + "/" + index_file, fd, &st);
-		else
-			statusCode404();
+		for (vector<string>::iterator it = location_config.index.begin();
+		it != location_config.index.end(); it++)
+		{
+			if (!stat((path + "/" + *it).c_str(), &st))
+			{
+				GETFile(path + "/" + *it, fd, &st);
+				break ;
+			}
+			else
+				if (it + 1 == location_config.index.end())
+				statusCode404();
+		}
 	}
 }
 

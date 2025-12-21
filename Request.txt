@@ -1,6 +1,3 @@
-POST / HTTP/1.0
+GET / HTTP/1.0
 host: something
-Content-Length: 3
-Content-Type: text/html
 
-avf

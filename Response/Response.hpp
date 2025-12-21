@@ -2,6 +2,7 @@
 #define RESPONSE_HPP
 
 #include "../Request/Request.hpp"
+#include "../Configuration/config.hpp"
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -35,9 +36,8 @@ class	Request;
 class	Response
 {
 private:
-	bool							autoindex;
 	string							root_path;
-	string							index_file;
+	LocationConfig					location_config;
 
 	Request							request;
 	int								status_code;
@@ -46,7 +46,8 @@ private:
 	string							body;
 public:
 	Response();
-	Response(const Request&);
+	Response(const Request&, const LocationConfig&);
+	Response(const LocationConfig&);
 
 	string	fillDate(time_t);
 	static string	fillContentType(string, int);

@@ -39,13 +39,10 @@ void	Client::postInit()
 
 	it_content_type = requestHandle.request_header.getHeaderData().find("Content-Type");
 	it_content_length = requestHandle.request_header.getHeaderData().find("Content-Length");
-	if (it_content_type == requestHandle.request_header.getHeaderData().end())
-		cerr << "type not found\n", exit(1);
-	if (it_content_length == requestHandle.request_header.getHeaderData().end())
-		cerr << "length not found\n", exit(1);
+	if (it_content_type == requestHandle.request_header.getHeaderData().end() ||
+		it_content_length == requestHandle.request_header.getHeaderData().end())
+		throw 400;
 	content_length = std::strtol(it_content_length->second.c_str(), NULL, 0);
-	// cout << "address: " << _serverConfig. << '\n';
-	// cout << "_--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 	if (content_length > _serverConfig.max_body_size)
 		throw 400;
 	std::srand(std::time(NULL));
@@ -107,22 +104,48 @@ bool	Client::readRequest()
 	return (true);
 }
 
+LocationConfig*	Client::find_location()
+{
+	string	uri = requestHandle.request_line.getURI();
+
+	while (uri.size())
+	{
+		for (map<string, LocationConfig>::iterator	it = _serverConfig.locations.begin();
+			it != _serverConfig.locations.end(); it++)
+			if (!it->first.compare(uri))
+				return (&it->second);
+		if (uri[uri.size() - 1] == '/')
+			uri.erase(uri.size() - 1, 1);
+		else
+		{
+			size_t	index;
+			
+			index = uri.rfind('/', uri.size());
+			if (index == string::npos)
+				return (NULL);
+			uri.erase(uri.begin() + index + 1, uri.end());
+		}
+	}
+	return (NULL);
+}
+
 void	Client::processRequest()
 {
-	// cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n";
-	// cout << "=> request_line:\n\t|" << requestHandle.request_line.getMethod()
-	// 	<< "| |" << requestHandle.request_line.getURI() << "|\n";
-	// cout << "=> request headers:\n";
-	// for (map<const string, const string>::const_iterator it = requestHandle.request_header.getHeaderData().begin();
-	// 	it != requestHandle.request_header.getHeaderData().end(); it++)
-	// 	cout << "\t|" << it->first << "| |" << it->second << "|\n";
-	// cout << "=> request body:\n|" << requestHandle.body << "|\n";
 	if (requestHandle.request_line.getMethod() != "POST")
 	{
-		// requestHandle.requestParsing(_resBuff);
+		LocationConfig*							location_config;
 
-		std::string httpResponse = requestHandle.requestExec();
-		_resRes += httpResponse;
+// how about if the location isn't specified in the config
+		location_config = find_location();
+		if (!location_config)
+			throw 400;
+		Response	response(requestHandle, *location_config);
+
+		if (!requestHandle.request_line.getMethod().compare("DELETE"))
+			response.DELETEResource();
+		else if (!requestHandle.request_line.getMethod().compare("GET"))
+			response.GETResource();
+		_resRes += response.getResponse();
 	}
 	else if (requestHandle.request_line.getMethod() == "POST")
 	{

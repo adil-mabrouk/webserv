@@ -12,6 +12,7 @@ using std::string;
 class URIParser
 {
 public:
+	string	removeDupSl(string);
 	string	removeDotSegments(string);
 	bool	isURI(string);
 

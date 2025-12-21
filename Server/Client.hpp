@@ -31,4 +31,5 @@ class Client {
 		size_t			_byteSent;
 		std::ofstream*	upload_file;
 		long long		content_length;
+		LocationConfig*	find_location();
 };

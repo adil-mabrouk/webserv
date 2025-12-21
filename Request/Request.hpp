@@ -18,7 +18,7 @@ public:
 	RequestLine		request_line;
 	RequestHeader	request_header;
 
-	string requestExec();
+	// string requestExec();
 };
 
 #endif
