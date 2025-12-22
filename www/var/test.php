@@ -3,7 +3,7 @@
 header("Content-Type: text/html; charset=UTF-8");
 header("X-Powered-By: WebServ-CGI/1.0");
 header("X-Test-Header: CustomValue");
-sleep(5);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

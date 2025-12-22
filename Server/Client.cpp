@@ -180,17 +180,17 @@ bool	Client::isCGIRequest(const std::string &path)
 		return true;
 	return false;
 }
-
+int x = 1;
 void	Client::startCGI()
 {
 	// std::string urlPath = requestHandle.request_line.getURI();
 	std::string scriptPath;
-	// if (x == 1)
-	// {
-	// 	x = 0;
-		// scriptPath = "www/var/timeout.php";
-	// }
-	// else
+	if (x == 1)
+	{
+		x = 0;
+		scriptPath = "www/var/timeout.py";
+	}
+	else
 		scriptPath = "www/var/test.php";
 	if (access(scriptPath.c_str(), F_OK) != 0)
 	{
