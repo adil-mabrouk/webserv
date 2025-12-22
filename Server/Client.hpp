@@ -25,11 +25,12 @@ class Client {
 	private:
 		Request			requestHandle;
 		ServerConfig	_serverConfig;
+		LocationConfig	*location_config;
 		int				_fd;
 		State			_state;
 		std::string		_resBuff;
 		size_t			_byteSent;
 		std::ofstream*	upload_file;
 		long long		content_length;
-		LocationConfig*	find_location();
+		LocationConfig*	findLocation();
 };

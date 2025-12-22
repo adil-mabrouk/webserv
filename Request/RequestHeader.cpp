@@ -20,7 +20,6 @@ void	RequestHeader::parse(string str)
 		if (index2 == string::npos)
 			throw 400;
 		string	field_body(string(str.begin() + index, str.begin() + index2));
-		// std::cout << '|' << field_name << "|: |" << field_body << "|\n";
 		index2 += 2;
 		if (field_name == "Content-Length" && !field_body.size())
 			throw 400;
@@ -33,6 +32,7 @@ void	RequestHeader::parse(string str)
 					throw 400;
 		header_data.insert(std::make_pair(field_name, field_body));
 	}
+	//check here for the presence of content length/type if the request method == POST
 }
 
 bool	isCTL(char c)

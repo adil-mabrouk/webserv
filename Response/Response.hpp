@@ -32,7 +32,7 @@ using std::ostringstream;
 
 class	Request;
 
-// still need to canonicalize the path
+// 204 status code for post?
 class	Response
 {
 private:

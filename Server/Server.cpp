@@ -253,6 +253,9 @@ void	Server::run()
 							case 400:
 								res.statusCode400();
 								break;
+							case 403:
+								res.statusCode403();
+								break;
 							case 501:
 								res.statusCode501();
 								break;

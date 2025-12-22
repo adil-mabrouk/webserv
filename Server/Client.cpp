@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include <algorithm>
 
 Client::Client(int fd, ServerConfig config)
 	: _fd(fd),
@@ -9,6 +10,7 @@ Client::Client(int fd, ServerConfig config)
 	  content_length(0)
 {
 	_serverConfig = config;
+	location_config = NULL;
 }
 
 Client::~Client()
@@ -39,16 +41,19 @@ void	Client::postInit()
 
 	it_content_type = requestHandle.request_header.getHeaderData().find("Content-Type");
 	it_content_length = requestHandle.request_header.getHeaderData().find("Content-Length");
-	if (it_content_type == requestHandle.request_header.getHeaderData().end() ||
-		it_content_length == requestHandle.request_header.getHeaderData().end())
+	if (it_content_length == requestHandle.request_header.getHeaderData().end())
 		throw 400;
 	content_length = std::strtol(it_content_length->second.c_str(), NULL, 0);
 	if (content_length > _serverConfig.max_body_size)
 		throw 400;
 	std::srand(std::time(NULL));
 	oss << std::rand();
-	upload_file	= new std::ofstream(("upload_" + oss.str()
-			+ "." + Response::fillContentType(it_content_type->second, 1)).c_str());
+	if (it_content_type == requestHandle.request_header.getHeaderData().end())
+		upload_file	= new std::ofstream(("upload_" + oss.str()
+								  + "." + Response::fillContentType("x-www-form-urlencoded", 1)).c_str());
+	else
+		upload_file	= new std::ofstream(("upload_" + oss.str()
+								  + "." + Response::fillContentType(it_content_type->second, 1)).c_str());
 }
 
 bool	Client::readRequest()
@@ -71,9 +76,17 @@ bool	Client::readRequest()
 		crlf_index = _resBuff.find("\r\n");
 		if (crlf_index != string::npos)
 		{
+			vector <string>::iterator	it;
+
 			requestHandle.request_line.parse(string(_resBuff.begin(),
 										   _resBuff.begin() + crlf_index));
 			_resBuff.assign(_resBuff.begin() + crlf_index + 2, _resBuff.end());
+			location_config = findLocation();
+			if (!location_config)
+				throw 404;
+			it = find(location_config->methods.begin(), location_config->methods.end(), requestHandle.request_line.getMethod());
+			if (it == location_config->methods.end())
+				throw 403;
 			setState(READ_HEADER);
 		}
 		else
@@ -84,10 +97,16 @@ bool	Client::readRequest()
 		crlf_index = _resBuff.find("\r\n\r\n");
 		if (crlf_index != string::npos)
 		{
+			map<const string, const string>::const_iterator	it;
+
 			requestHandle.request_header.parse(string(_resBuff.begin(),
 											 _resBuff.begin() + crlf_index + 2));
 			_resBuff.assign(_resBuff.begin() + crlf_index + 4, 
 				   _resBuff.end());
+			it = requestHandle.request_header.getHeaderData().find("Content-Length");
+			if (it != requestHandle.request_header.getHeaderData().end())
+				if (std::strtol(it->second.c_str(), NULL, 0) > _serverConfig.max_body_size)
+					throw 400;
 			if (requestHandle.request_line.getMethod() == "POST")
 				setState(READ_BODY), postInit();
 		}
@@ -104,7 +123,7 @@ bool	Client::readRequest()
 	return (true);
 }
 
-LocationConfig*	Client::find_location()
+LocationConfig*	Client::findLocation()
 {
 	string	uri = requestHandle.request_line.getURI();
 
@@ -136,7 +155,7 @@ void	Client::processRequest()
 		LocationConfig*							location_config;
 
 // how about if the location isn't specified in the config
-		location_config = find_location();
+		location_config = findLocation();
 		if (!location_config)
 			throw 400;
 		Response	response(requestHandle, *location_config);
