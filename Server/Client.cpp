@@ -121,7 +121,7 @@ void	Client::processRequest()
 	// 	cout << "\t|" << it->first << "| |" << it->second << "|\n";
 	// cout << "=> request body:\n|" << requestHandle.body << "|\n";
 	std::string path = requestHandle.request_line.getURI();
-	if (isCGIRequest(path))
+	if (true)
 	{
 		startCGI();
 		return ;
@@ -183,8 +183,15 @@ bool	Client::isCGIRequest(const std::string &path)
 
 void	Client::startCGI()
 {
-	std::string urlPath = requestHandle.request_line.getURI();
-	std::string scriptPath = mapURLToFilePath(urlPath);
+	// std::string urlPath = requestHandle.request_line.getURI();
+	std::string scriptPath;
+	// if (x == 1)
+	// {
+	// 	x = 0;
+		// scriptPath = "www/var/timeout.php";
+	// }
+	// else
+		scriptPath = "www/var/test.php";
 	if (access(scriptPath.c_str(), F_OK) != 0)
 	{
 		_resRes = "HTTP/1.0 404 NOt Found\r\n\r\nCGI Script not found";
@@ -193,20 +200,23 @@ void	Client::startCGI()
 	}
 	_cgi = new CGI();
 	_cgi->setScriptPath(scriptPath);
-	_cgi->setMethod(requestHandle.request_line.getMethod());
-	_cgi->setQueryString(requestHandle.request_line.getURI());
+	_cgi->setMethod("GET");
+	_cgi->setQueryString("name=ADIL");
 
-	if (requestHandle.request_line.getMethod() == "POST")
-		;// _cgi->setBody();
-	const std::map<const std::string, const std::string> &headers = 
-		requestHandle.request_header.getHeaderData();
+	// if (requestHandle.request_line.getMethod() == "POST")
+	// 	;// _cgi->setBody();
+	// const std::map<const std::string, const std::string> &headers = 
+	// 	requestHandle.request_header.getHeaderData();
 
-	for (std::map<const std::string, const std::string>::const_iterator it = headers.begin(); 
-		it != headers.end(); it++)
-	{
-		_cgi->setHeader(it->first, it->second);
-	}
-
+	// for (std::map<const std::string, const std::string>::const_iterator it = headers.begin(); 
+	// 	it != headers.end(); it++)
+	// {
+	// 	_cgi->setHeader(it->first, it->second);
+	// }
+	_cgi->setHeader("Host", "localhost:8080");
+	_cgi->setHeader("Accept", "text/html,application/json");
+	_cgi->setHeader("Accept-Language", "en-US,en;q=0.9");
+	_cgi->setHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
 	if (_cgi->start())
 		setState(CGI_RUNNING);
 	
