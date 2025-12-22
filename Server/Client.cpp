@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include "../CGI/cgi.hpp"
 
 Client::Client(int fd, ServerConfig config)
 	: _fd(fd),
@@ -6,7 +7,8 @@ Client::Client(int fd, ServerConfig config)
 	  _resBuff(""),
 	  _byteSent(0),
 	  upload_file(NULL),
-	  content_length(0)
+	  content_length(0),
+	  _cgi(NULL)
 {
 	_serverConfig = config;
 }
@@ -14,6 +16,7 @@ Client::Client(int fd, ServerConfig config)
 Client::~Client()
 {
 	delete upload_file;
+	delete _cgi;
 }
 
 int	Client::getState() const
@@ -133,7 +136,7 @@ void	Client::processRequest()
 	else if (requestHandle.request_line.getMethod() == "POST")
 	{
 		cout << "here\n";
-		_resRes = "HTTP/1.1 201 Created\r\n\r\n";
+		_resRes = "HTTP/1.0 201 Created\r\n\r\n";
 	}
 	_byteSent = 0;
  	setState(WRITING);
@@ -160,7 +163,7 @@ std::string	Client::mapURLToFilePath(const std::string &urlPath)
 {
 	std::string root = _serverConfig.root;
 	if (root.empty())
-		cerr << "ROOT empty\n", exit(1);
+		cerr << "Error: ROOT empty\n";
 	std::string	path = urlPath;
 	size_t	queryPos = path.find('?');
 	if (queryPos != std::string::npos)
@@ -170,7 +173,7 @@ std::string	Client::mapURLToFilePath(const std::string &urlPath)
 
 bool	Client::isCGIRequest(const std::string &path)
 {
-	if (path.find("e/cgi-bin/") == 0)
+	if (path.find("/cgi-bin/") == 0)
 		return true;
 	if (path.find(".php") != std::string::npos 
 		|| path.find(".py") != std::string::npos)
@@ -178,24 +181,11 @@ bool	Client::isCGIRequest(const std::string &path)
 	return false;
 }
 
-std::string		Client::getCGIInterpreter(const std::string &path)
-{
-	size_t	dotPos = path.rfind('.');
-	if (dotPos == std::string::npos)
-		return "";
-	std::string ext = path.substr(dotPos);
-	if (ext == ".php")
-		return "/usr/bin/php-cgi";
-	else if (ext == ".py")
-		return "/usr/bin/python3";
-	return "";
-}
-
 void	Client::startCGI()
 {
 	std::string urlPath = requestHandle.request_line.getURI();
 	std::string scriptPath = mapURLToFilePath(urlPath);
-	if (access(_cgiScriptPath.c_str(), F_OK) != 0)
+	if (access(scriptPath.c_str(), F_OK) != 0)
 	{
 		_resRes = "HTTP/1.0 404 NOt Found\r\n\r\nCGI Script not found";
 		setState(WRITING);
@@ -206,6 +196,8 @@ void	Client::startCGI()
 	_cgi->setMethod(requestHandle.request_line.getMethod());
 	_cgi->setQueryString(requestHandle.request_line.getURI());
 
+	if (requestHandle.request_line.getMethod() == "POST")
+		;// _cgi->setBody();
 	const std::map<const std::string, const std::string> &headers = 
 		requestHandle.request_header.getHeaderData();
 
@@ -222,7 +214,7 @@ void	Client::startCGI()
 	{
 		delete _cgi;
 		_cgi = NULL;
-		_resRes = "HTTP/1.1 500 Internal Server Error\r\n\r\n";
+		_resRes = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
 		setState(WRITING);
 	}
 }

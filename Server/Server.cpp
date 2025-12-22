@@ -208,11 +208,23 @@ void	Server::run()
 		}
 		for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++) // Add all client sockets
 		{
-			struct pollfd	pfd;
-			pfd.fd = it->first;
-			pfd.events = determineClientEvents(it->second); // Determine if we want to read or write
-			pfd.revents = 0;
-			pollFds.push_back(pfd);
+			if (it->second->getState() == Client::CGI_RUNNING 
+				&& it->second->getCGI())
+			{
+				struct pollfd	pfd;
+				pfd.fd = it->second->getCGI()->getPipeOut();
+				pfd.events = POLLIN;
+				pfd.revents = 0;
+				pollFds.push_back(pfd);
+			}
+			else
+			{
+				struct pollfd	pfd;
+				pfd.fd = it->first;
+				pfd.events = determineClientEvents(it->second); // Determine if we want to read or write
+				pfd.revents = 0;
+				pollFds.push_back(pfd);
+			}
 		}
 		activity = poll(&pollFds[0], pollFds.size(), 1000); // waits for one of a set of file descriptors to become ready to perform I/O.
 		if (activity < 0)
@@ -227,7 +239,14 @@ void	Server::run()
 			short revents = pollFds[i].revents;
 
 			if (pollFds[i].revents == 0 && i)
-				continue ; 
+				continue ;
+			
+			Client	*CGIclient = findClientByCGIPipe(fd);
+			if (CGIclient && CGIclient->getState() == Client::CGI_RUNNING)
+			{
+				handleCGIRead(CGIclient);
+				continue;
+			}
 			if (isListeningSocket(fd))
 			{
 				if (revents & POLLIN)
@@ -262,6 +281,9 @@ void	Server::run()
 					handleClientWrite(fd);
 			}
 		}
+
+		checkCGITimeouts();
+
 		std::vector<int>	clientsToClose; // Collect clients to close after iteration
 		for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 		{
@@ -287,4 +309,81 @@ void	Server::run()
 	}
 	_listenFds.clear();
 	std::cout << "Cleanup completed" << "\n";
+}
+
+
+Client*	Server::findClientByCGIPipe(int pipeFd)
+{
+	for (std::map<int, Client*>::iterator it = _clients.begin(); 
+		 it != _clients.end(); it++)
+	{
+		if (it->second->getState() == Client::CGI_RUNNING &&
+			it->second->getCGI() &&
+			it->second->getCGI()->getPipeOut() == pipeFd)
+		{
+			return it->second;
+		}
+	}
+	return NULL;
+}
+
+void Server::handleCGIRead(Client* client)
+{
+	CGI* cgi = client->getCGI();
+	if (!cgi)
+		return;
+	char buffer[4096];
+	ssize_t bytesRead = read(cgi->getPipeOut(), buffer, sizeof(buffer));
+
+	if (bytesRead > 0)
+	{
+		cgi->appendOutput(buffer, bytesRead);
+	}
+	else if (bytesRead == 0)
+	{
+		// EOF - CGI finished
+		int status;
+		waitpid(cgi->getPid(), &status, WNOHANG);
+		
+		// Format response
+		client->_resRes = cgi->formatResponse();
+		client->setState(Client::WRITING);
+	}
+	else
+	{
+			std::cerr << "CGI read error\n";
+			killCGI(client);
+	}
+}
+
+void Server::checkCGITimeouts()
+{
+	time_t now = time(NULL);
+
+	for (std::map<int, Client*>::iterator it = _clients.begin(); 
+		 it != _clients.end(); it++)
+	{
+		if (it->second->getState() == Client::CGI_RUNNING &&
+			it->second->getCGI())
+		{
+			if (now - it->second->getCGI()->getStartTime() > 30)
+			{
+				std::cout << "CGI timeout\n";
+				killCGI(it->second);
+				
+				it->second->_resRes = "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
+				it->second->setState(Client::WRITING);
+			}
+		}
+	}
+}
+
+void Server::killCGI(Client* client)
+{
+	CGI* cgi = client->getCGI();
+	if (!cgi)
+		return;
+
+	kill(cgi->getPid(), SIGKILL);
+	waitpid(cgi->getPid(), NULL, WNOHANG);
 }

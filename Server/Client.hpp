@@ -6,6 +6,8 @@
 #include "../Response/Response.hpp"
 #include <cstdlib>
 
+class CGI;
+
 class Client {
 	public:
 		// CGI_RUNNING added
@@ -22,7 +24,8 @@ class Client {
 		const ServerConfig	&getServerConfig() const;
 
 		std::string		_resRes;
-			
+		
+		CGI				*getCGI() const { return _cgi; }
 			
 	private:
 		Request			requestHandle;
@@ -33,16 +36,15 @@ class Client {
 		size_t			_byteSent;
 		std::ofstream*	upload_file;
 		long long		content_length;
-	
-	
+
 		// ALL CGI needs {
+		
+		CGI	*_cgi;
+		
 		bool			isCGIRequest(const std::string &path);
 		void			startCGI();
 		std::string		mapURLToFilePath(const std::string &urlPath);
-		std::string		getCGIInterpreter(const std::string &path);
 
-		
-		std::string		_cgiScriptPath;
 	// }
 
 };
