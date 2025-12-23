@@ -11,11 +11,11 @@ class CGI
 		void	setScriptPath(const std::string &path);
 		void	setMethod(const std::string &method);
 		void	setQueryString(const std::string &query);
-		void	setBody(const std::string &body);
+		void	setInputFile(const std::string &filePath);
 		void	setHeader(const std::string &key, const std::string &value);
 
 		pid_t	getPid() const;
-		int		getPipeOut() const;
+		int		getOutFile() const;
 		time_t	getStartTime() const;
 		const	std::string	&getOutput() const;
 
@@ -30,8 +30,10 @@ class CGI
 		std::string							_body;
 		std::map<std::string, std::string>	_headers;
 		pid_t								_pid;
-		int									_pipeOut;
+		int									_outFile;
 		time_t								_startTime;
+		std::string							_inputFile;
+		std::string							_outputFile;
 		std::string							_output;
 
 	std::string	getCGIInterpreter(const std::string &path);

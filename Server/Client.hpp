@@ -26,7 +26,7 @@ class Client {
 		std::string		_resRes;
 		
 		CGI				*getCGI() const { return _cgi; }
-			
+
 	private:
 		Request			requestHandle;
 		ServerConfig	_serverConfig;
@@ -37,8 +37,10 @@ class Client {
 		std::ofstream*	upload_file;
 		long long		content_length;
 
+
 		// ALL CGI needs {
-		
+			
+		std::string		_inputFileName;
 		CGI	*_cgi;
 		
 		bool			isCGIRequest(const std::string &path);

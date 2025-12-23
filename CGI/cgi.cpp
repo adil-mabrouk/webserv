@@ -3,17 +3,34 @@
 #include <sstream>
 #include <cstdlib>
 
-// extern char** environ;
-
 CGI::CGI() 
-	: _pid(-1), _pipeOut(-1), _startTime(0)
+	: _pid(-1), _outFile(-1), _startTime(0)
 {
 }
 
 CGI::~CGI()
 {
-	if (_pipeOut != -1)
-		close(_pipeOut);
+	if (_outFile != -1)
+	{
+		close(_outFile);
+		_outFile = -1;
+	}
+	if (!_inputFile.empty())
+	{
+		unlink(_inputFile.c_str());
+		_inputFile.clear();
+	}
+	if (!_outputFile.empty())
+	{
+		unlink(_outputFile.c_str());
+		_outputFile.clear();
+	}
+	if (_pid > 0)
+	{
+		kill(_pid, SIGKILL);
+		waitpid(_pid, NULL, WNOHANG);
+		_pid = -1;
+	}
 }
 
 void CGI::setScriptPath(const std::string& path)
@@ -31,9 +48,9 @@ void CGI::setQueryString(const std::string& query)
 	_queryString = query;
 }
 
-void CGI::setBody(const std::string& body)
+void CGI::setInputFile(const std::string& filePath)
 {
-	_body = body;
+	_inputFile = filePath;
 }
 
 void CGI::setHeader(const std::string& key, const std::string& value)
@@ -46,9 +63,9 @@ pid_t CGI::getPid() const
 	return _pid;
 }
 
-int CGI::getPipeOut() const
+int CGI::getOutFile() const
 {
-	return _pipeOut;
+	return _outFile;
 }
 
 time_t CGI::getStartTime() const
@@ -116,7 +133,7 @@ char** CGI::mapToEnvArray(const std::map<std::string, std::string>& env)
 		envp[i] = new char[envVar.length() + 1];
 		std::strcpy(envp[i], envVar.c_str());
 		i++;
-	}   
+	}
 	envp[i] = NULL;
 	return envp;
 }
@@ -132,45 +149,63 @@ void CGI::freeEnvArray(char** envp)
 
 bool CGI::start()
 {
-	int pipeOut[2];
-	int pipeIn[2];
-	if (pipe(pipeOut) < 0 || pipe(pipeIn) < 0)
+	std::ostringstream outputPath;
+	outputPath << "/tmp/cgi_output_" << time(NULL) << ".html";
+	_outputFile = outputPath.str();
+
+	int outputFd = open(_outputFile.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0600);
+	if (outputFd < 0)
 	{
-		std::cerr << "Pipe creation failed\n";
+		std::cerr << "Failed to create output file: " << _outputFile << std::endl;
 		return false;
-	}
+    }
+	close(outputFd);
+
 	_pid = fork();
+
 	if (_pid < 0)
 	{
-		close(pipeOut[0]);
-		close(pipeOut[1]);
-		close(pipeIn[0]);
-		close(pipeIn[1]);
 		std::cerr << "Fork failed\n";
+		unlink(_outputFile.c_str());
 		return false;
 	}
-
-	if (_pid == 0) // Child
+	
+	if (_pid == 0)
 	{
-		// Setup stdin/stdout
-		close(pipeIn[1]);
-		close(pipeOut[0]);
-
-		dup2(pipeIn[0], STDIN_FILENO);
-		dup2(pipeOut[1], STDOUT_FILENO);
-
-		close(pipeIn[0]);
-		close(pipeOut[1]);
-
-		// Setup environment
+		if (!_inputFile.empty())
+		{
+			int inFd = open(_inputFile.c_str(), O_RDONLY);
+			if (inFd < 0)
+			{
+				std::cerr << "Child: Failed to open input file: " << _inputFile << "\n";
+				exit(1);
+			}
+			dup2(inFd, STDIN_FILENO);
+			close(inFd);
+		}
+		else
+		{
+			close(STDIN_FILENO);
+			int nullFd = open("/dev/null", O_RDONLY);
+			dup2(nullFd, STDIN_FILENO);
+			close(nullFd);
+		}
+		
+		int outFd = open(_outputFile.c_str(), O_WRONLY | O_TRUNC);
+		if (outFd < 0)
+		{
+			std::cerr << "Child: failed to open output file\n";
+			exit(1);
+		}
+		dup2(outFd, STDOUT_FILENO);
+		close(outFd);
 		std::map<std::string, std::string> envMap = setupEnvironment();
-		char** envp = mapToEnvArray(envMap);
-
+		char **envp = mapToEnvArray(envMap);
 		std::string interpreter = getCGIInterpreter(_scriptPath);
-
+		// std::cerr << "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 		if (!interpreter.empty())
 		{
-			char* argv[3];
+			char *argv[3];
 			argv[0] = const_cast<char*>(interpreter.c_str());
 			argv[1] = const_cast<char*>(_scriptPath.c_str());
 			argv[2] = NULL;
@@ -178,35 +213,30 @@ bool CGI::start()
 		}
 		else
 		{
-			char* argv[2];
-			argv[0] = const_cast<char*>(_scriptPath.c_str());
-			argv[1] = NULL;
+			char *argv[2];
+			argv[1] = const_cast<char*>(_scriptPath.c_str());
+			argv[2] = NULL;
 			execve(_scriptPath.c_str(), argv, envp);
 		}
-
 		freeEnvArray(envp);
-		std::cerr << "execve failed\n";
+		std::cerr << "execve failed: " << strerror(errno) << "\n";
 		exit(1);
 	}
-	else // Parent
+	else
 	{
-		close(pipeOut[1]);
-		close(pipeIn[0]);
-
-		// Write body to CGI stdin
-		if (!_body.empty())
+		_outFile = open(_outputFile.c_str(), O_RDONLY | O_NONBLOCK);
+		if (_outFile < 0)
 		{
-			write(pipeIn[1], _body.c_str(), _body.length());
+			std::cerr << "Parent: Failed to open output File\n";
+			waitpid(_pid, NULL, 0);
+			unlink(_outputFile.c_str());
+			return false;
 		}
-		close(pipeIn[1]);
-
-		// Set pipe to non-blocking
-		int flags = fcntl(pipeOut[0], F_GETFL, 0);
-		fcntl(pipeOut[0], F_SETFL, flags | O_NONBLOCK);
-
-		_pipeOut = pipeOut[0];
 		_startTime = time(NULL);
-		_output.clear();
+
+		std::cout << "CGI started (PID " << _pid << ")" << std::endl;
+		std::cout << "  Input:  " << (_inputFile.empty() ? "(none)" : _inputFile) << std::endl;
+		std::cout << "  Output: " << _outputFile << std::endl;
 
 		return true;
 	}

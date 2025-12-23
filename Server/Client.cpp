@@ -53,13 +53,15 @@ void	Client::postInit()
 		throw 400;
 	std::srand(std::time(NULL));
 	oss << std::rand();
-	upload_file	= new std::ofstream(("upload_" + oss.str()
-			+ "." + Response::fillContentType(it_content_type->second, 1)).c_str());
+	std::string	path = ("upload_" + oss.str()
+			+ "." + Response::fillContentType(it_content_type->second, 1));
+	upload_file	= new std::ofstream(path.c_str());
+	_inputFileName = path;
 }
 
 bool	Client::readRequest()
 {
-	char				buffer[4113394];
+	char				buffer[15];
 	size_t				crlf_index;
 
 	ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
@@ -121,7 +123,7 @@ void	Client::processRequest()
 	// 	cout << "\t|" << it->first << "| |" << it->second << "|\n";
 	// cout << "=> request body:\n|" << requestHandle.body << "|\n";
 	std::string path = requestHandle.request_line.getURI();
-	if (true)
+	if (true) // isCGIRequest()
 	{
 		startCGI();
 		return ;
@@ -144,7 +146,8 @@ void	Client::processRequest()
 
 bool	Client::writeResponse()
 {
-	// cout << '\n' << _resRes << "\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n\n";
+	std::cout << "writeResponse: _byteSent=" << _byteSent 
+              << " / " << _resRes.size() << std::endl;
 	while (_byteSent < _resRes.size())
 	{
 		ssize_t bytesSent = send(_fd, _resRes.c_str() + _byteSent, _resRes.size() - _byteSent, 0);
@@ -185,12 +188,12 @@ void	Client::startCGI()
 {
 	// std::string urlPath = requestHandle.request_line.getURI();
 	std::string scriptPath;
-	if (x == 1)
-	{
-		x = 0;
-		scriptPath = "www/var/timeout.py";
-	}
-	else
+	// if (x == 1)
+	// {
+	// 	x = 0;
+	// 	scriptPath = "www/var/timeout.py";
+	// }
+	// else
 		scriptPath = "www/var/test.php";
 	if (access(scriptPath.c_str(), F_OK) != 0)
 	{
@@ -203,8 +206,8 @@ void	Client::startCGI()
 	_cgi->setMethod("GET");
 	_cgi->setQueryString("name=ADIL");
 
-	// if (requestHandle.request_line.getMethod() == "POST")
-	// 	;// _cgi->setBody();
+	if (requestHandle.request_line.getMethod() == "POST")
+		_cgi->setInputFile(_inputFileName);
 	// const std::map<const std::string, const std::string> &headers = 
 	// 	requestHandle.request_header.getHeaderData();
 
@@ -219,7 +222,7 @@ void	Client::startCGI()
 	_cgi->setHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
 	if (_cgi->start())
 		setState(CGI_RUNNING);
-	
+
 	else
 	{
 		delete _cgi;

@@ -212,7 +212,7 @@ void	Server::run()
 				&& it->second->getCGI())
 			{
 				struct pollfd	pfd;
-				pfd.fd = it->second->getCGI()->getPipeOut();
+				pfd.fd = it->second->getCGI()->getOutFile();
 				pfd.events = POLLIN;
 				pfd.revents = 0;
 				pollFds.push_back(pfd);
@@ -241,10 +241,11 @@ void	Server::run()
 			if (pollFds[i].revents == 0 && i)
 				continue ;
 			
-			Client	*CGIclient = findClientByCGIPipe(fd);
-			if (CGIclient && CGIclient->getState() == Client::CGI_RUNNING)
+			Client	*cgiClient = findClientByCGIPipe(fd);
+			if (cgiClient)
 			{
-				handleCGIRead(CGIclient);
+				if (revents & POLLIN)
+					handleCGIRead(cgiClient);
 				continue;
 			}
 			if (isListeningSocket(fd))
@@ -311,15 +312,14 @@ void	Server::run()
 	std::cout << "Cleanup completed" << "\n";
 }
 
-
-Client*	Server::findClientByCGIPipe(int pipeFd)
+Client*	Server::findClientByCGIPipe(int fileFd)
 {
 	for (std::map<int, Client*>::iterator it = _clients.begin(); 
 		 it != _clients.end(); it++)
 	{
 		if (it->second->getState() == Client::CGI_RUNNING &&
 			it->second->getCGI() &&
-			it->second->getCGI()->getPipeOut() == pipeFd)
+			it->second->getCGI()->getOutFile() == fileFd)
 		{
 			return it->second;
 		}
@@ -332,27 +332,42 @@ void Server::handleCGIRead(Client* client)
 	CGI* cgi = client->getCGI();
 	if (!cgi)
 		return;
-	char buffer[4096];
-	ssize_t bytesRead = read(cgi->getPipeOut(), buffer, sizeof(buffer));
+	    
+	char buffer[15];
+	ssize_t bytesRead = read(cgi->getOutFile(), buffer, sizeof(buffer));
 
 	if (bytesRead > 0)
 	{
 		cgi->appendOutput(buffer, bytesRead);
+		// std::cout << "Read " << bytesRead << " bytes from CGI file" << std::endl;
 	}
 	else if (bytesRead == 0)
 	{
-		// EOF - CGI finished
+		// Check if CGI process has finished
 		int status;
-		waitpid(cgi->getPid(), &status, WNOHANG);
+		pid_t result = waitpid(cgi->getPid(), &status, WNOHANG);
 		
-		// Format response
-		client->_resRes = cgi->formatResponse();
-		client->setState(Client::WRITING);
+		if (result > 0)
+		{
+			std::cout << "CGI process finished (PID " << result << ")" << std::endl;
+			
+			close(cgi->getOutFile());
+			
+			// Format response
+			client->_resRes = cgi->formatResponse();
+			client->setState(Client::WRITING);
+		}
+		else
+		{
+			// CGI still running, no more data available yet
+			// Try again later
+		}
 	}
-	else
+	else  // bytesRead < 0
 	{
-			std::cerr << "CGI read error\n";
-			killCGI(client);
+		std::cerr << "CGI read error: " << strerror(errno) << std::endl;
+		close(cgi->getOutFile());
+		killCGI(client);
 	}
 }
 
