@@ -26,6 +26,7 @@ struct LocationConfig {
 	bool										autoindex;
 	std::vector<std::string>					methods;
 	RedirectConfig								redirect;
+	bool										is_redirect;
 	std::string									upload_store;
 	bool										allow_upload;
 	std::vector<CGIConfig>						cgi;

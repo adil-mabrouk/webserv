@@ -60,6 +60,7 @@ private:
 	URIParser	uri_parser;
 public:
 	void	parse(string);
+	string	rootingPath(string, string);
 	string	getMethod() const;
 	string	getURI() const;
 };

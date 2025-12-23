@@ -48,12 +48,16 @@ void	Client::postInit()
 		throw 400;
 	std::srand(std::time(NULL));
 	oss << std::rand();
+	if (!location_config->allow_upload)
+		throw 403;
 	if (it_content_type == requestHandle.request_header.getHeaderData().end())
-		upload_file	= new std::ofstream(("upload_" + oss.str()
+		upload_file	= new std::ofstream((location_config->upload_store + "/upload_" + oss.str()
 								  + "." + Response::fillContentType("x-www-form-urlencoded", 1)).c_str());
 	else
-		upload_file	= new std::ofstream(("upload_" + oss.str()
+		upload_file	= new std::ofstream((location_config->upload_store + "/upload_" + oss.str()
 								  + "." + Response::fillContentType(it_content_type->second, 1)).c_str());
+	if (!upload_file->is_open())
+		throw 404;
 }
 
 bool	Client::readRequest()
@@ -84,9 +88,12 @@ bool	Client::readRequest()
 			location_config = findLocation();
 			if (!location_config)
 				throw 404;
-			it = find(location_config->methods.begin(), location_config->methods.end(), requestHandle.request_line.getMethod());
+			it = find(location_config->methods.begin(), location_config->methods.end(),
+			 requestHandle.request_line.getMethod());
 			if (it == location_config->methods.end())
 				throw 403;
+// i need the name of the location from the findLocation()
+			// requestHandle.request_line.rootingPath(string, string);
 			setState(READ_HEADER);
 		}
 		else
@@ -109,6 +116,7 @@ bool	Client::readRequest()
 					throw 400;
 			if (requestHandle.request_line.getMethod() == "POST")
 				setState(READ_BODY), postInit();
+			cout << "upload file after: " << upload_file << '\n';
 		}
 		else
 			return (false);

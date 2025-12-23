@@ -156,6 +156,7 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 			if (ss.fail() || !ss.eof())
 				throw std::runtime_error("Invalid status code in error_page directive");
 			locConfig.redirect.url = tokens[index++];
+			locConfig.is_redirect = true;
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after return directive");
 			++index; // Skip ";"

@@ -1,0 +1,20 @@
+GET /redirect1 HTTP/1.0
+Host: localhost:2010
+User-Agent: curl/7.81.0
+Accept: */*
+
+HTTP/1.1 302 Moved Temporarily
+Server: nginx/1.18.0 (Ubuntu)
+Date: Tue, 23 Dec 2025 17:46:00 GMT
+Content-Type: text/html
+Content-Length: 154
+Location: http://localhost:2010/
+Connection: close
+
+<html>
+<head><title>302 Found</title></head>
+<body>
+<center><h1>302 Found</h1></center>
+<hr><center>nginx/1.18.0 (Ubuntu)</center>
+</body>
+</html>

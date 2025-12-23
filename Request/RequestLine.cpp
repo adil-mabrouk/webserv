@@ -391,6 +391,11 @@ inline bool URIParser::isNational(char c)
 		&& !isSafe(c) && !isUnsafe(c));
 }
 
+string	RequestLine::rootingPath(string path, string root)
+{
+	
+}
+
 void	RequestLine::parse(string str)
 {
 	size_t	index;

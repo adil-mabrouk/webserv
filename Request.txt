@@ -1,3 +1,4 @@
-DELETE /file.txt HTTP/1.0
-host: something
+GET /redirect1 HTTP/1.0
+User-Agent: curl/7.81.0
+Accept: */*
 

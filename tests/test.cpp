@@ -49,11 +49,14 @@ bool	find_location(vector<string> names, string uri)
 
 int	main(int ac, char *av[])
 {
-	vector <string> names;
+	string	uri("/kapouet/pouic/toto/pouet");
+	string	path("/kapouet");
+	string	root("/tmp/www");
 
-	names.push_back("/a/b");
-	names.push_back("/a/b/");
-	// names.push_back("/");
-	names.push_back("/a/b/c");
-	find_location(names, av[1]);
+	if (!uri.find(path, 0))
+	{
+		uri.erase(0, path.size());
+		uri = root + uri;
+	}
+	cout << uri << '\n';
 }
