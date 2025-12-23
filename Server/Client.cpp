@@ -231,3 +231,9 @@ void	Client::startCGI()
 		setState(WRITING);
 	}
 }
+
+void	Client::setServerInfo(const std::string &host, int port)
+{
+	_serverHost = host;
+	_serverPort = port;
+}

@@ -22,6 +22,7 @@ class Client {
 		void		postInit();
 		~Client();
 		const ServerConfig	&getServerConfig() const;
+		void		setServerInfo(const std::string &host, int port);
 
 		std::string		_resRes;
 		
@@ -30,6 +31,8 @@ class Client {
 	private:
 		Request			requestHandle;
 		ServerConfig	_serverConfig;
+		std::string		_serverHost;
+		int				_serverPort;
 		int				_fd;
 		State			_state;
 		std::string		_resBuff;

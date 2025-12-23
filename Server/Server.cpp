@@ -8,7 +8,6 @@ static void signalHandler(int signo)
 	g_running = false;
 }
 
-
 Server::Server(const std::vector<ServerConfig> &configs) : _serverConfigs(configs) {
 	// std::cout << "Server max body size exist: " << (_serverConfigs[0].maxBodySizeExist ? "true" : "false") << '\n';
 	// std::cout << "Server max body size: " << _serverConfigs[0].max_body_size << '\n';
@@ -96,12 +95,18 @@ void	Server::handleNewConnection(int fd)
 	socklen_t			addrLen = sizeof(clientAddr);
 
 	int	clientFd = accept(fd, (struct sockaddr*)&clientAddr, &addrLen);
-	// std::cout << "================================fd accepted: " << clientFd << std::endl;
 	if (clientFd < 0)
 	{
 		std::cerr << "accept() error: " << strerror(errno) << std::endl;
 		return;
 	}
+
+	struct sockaddr_in	serverAddr;
+	socklen_t			serverAddrLen = sizeof(serverAddr);
+	getsockname(fd, (struct sockaddr*)&serverAddr, &serverAddrLen);
+
+	std::string serverHost = inet_ntoa(serverAddr.sin_addr);
+	int serverPort = ntohs(serverAddr.sin_port);
 
 	int f = fcntl(clientFd, F_GETFL, 0);
 	if (f < 0 || fcntl(clientFd, F_SETFL, f | O_NONBLOCK) < 0)
@@ -110,6 +115,7 @@ void	Server::handleNewConnection(int fd)
 	// fcntl(clientFd, F_SETFD, FD_CLOEXEC);
 	Client	*client = new Client(clientFd, config);
 	_clients[clientFd] = client;
+	client->setServerInfo(serverHost, serverPort);
 	// std::cout << "New client connected fd = " << clientFd << ")\n";
 }
 
