@@ -51,10 +51,10 @@ void	Client::postInit()
 	if (!location_config->allow_upload)
 		throw 403;
 	if (it_content_type == requestHandle.request_header.getHeaderData().end())
-		upload_file	= new std::ofstream((location_config->upload_store + "/upload_" + oss.str()
+		upload_file	= new std::ofstream((_serverConfig.root + location_config->upload_store + "/upload_" + oss.str()
 								  + "." + Response::fillContentType("x-www-form-urlencoded", 1)).c_str());
 	else
-		upload_file	= new std::ofstream((location_config->upload_store + "/upload_" + oss.str()
+		upload_file	= new std::ofstream((_serverConfig.root + location_config->upload_store + "/upload_" + oss.str()
 								  + "." + Response::fillContentType(it_content_type->second, 1)).c_str());
 	if (!upload_file->is_open())
 		throw 404;
@@ -82,6 +82,7 @@ bool	Client::readRequest()
 		{
 			vector <string>::iterator	it;
 
+// the uri must be decoded
 			requestHandle.request_line.parse(string(_resBuff.begin(),
 										   _resBuff.begin() + crlf_index));
 			_resBuff.assign(_resBuff.begin() + crlf_index + 2, _resBuff.end());
@@ -92,8 +93,13 @@ bool	Client::readRequest()
 			 requestHandle.request_line.getMethod());
 			if (it == location_config->methods.end())
 				throw 403;
-// i need the name of the location from the findLocation()
-			// requestHandle.request_line.rootingPath(string, string);
+			// cout << " => uri before: " << requestHandle.request_line.getURI() << '\n';
+			requestHandle.request_line.removeDupSl();
+			// cout << " => uri after dup sl mod: " << requestHandle.request_line.getURI() << '\n';
+			requestHandle.request_line.removeDotSegments();
+			// cout << " => uri after dot seg mod: " << requestHandle.request_line.getURI() << '\n';
+			requestHandle.request_line.rootingPath(location_config->path, location_config->root, _serverConfig.root);
+			cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
 			setState(READ_HEADER);
 		}
 		else
@@ -116,7 +122,6 @@ bool	Client::readRequest()
 					throw 400;
 			if (requestHandle.request_line.getMethod() == "POST")
 				setState(READ_BODY), postInit();
-			cout << "upload file after: " << upload_file << '\n';
 		}
 		else
 			return (false);
@@ -160,12 +165,10 @@ void	Client::processRequest()
 {
 	if (requestHandle.request_line.getMethod() != "POST")
 	{
-		LocationConfig*							location_config;
-
 // how about if the location isn't specified in the config
-		location_config = findLocation();
-		if (!location_config)
-			throw 400;
+		// location_config = findLocation();
+		// if (!location_config)
+		// 	throw 400;
 		Response	response(requestHandle, *location_config);
 
 		if (!requestHandle.request_line.getMethod().compare("DELETE"))

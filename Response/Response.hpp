@@ -36,7 +36,6 @@ class	Request;
 class	Response
 {
 private:
-	string							root_path;
 	LocationConfig					location_config;
 
 	Request							request;

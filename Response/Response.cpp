@@ -7,7 +7,6 @@ Response::Response(const Request& request, const LocationConfig& location_config
 {
 	this->request = request;
 	this->location_config = location_config;
-	root_path = "/home/aachalla/webserv";
 }
 
 Response::Response(const LocationConfig& location_config)
@@ -341,7 +340,7 @@ void	Response::GETResource()
 	struct stat	st;
 	string		path;
 
-	path = root_path + request.request_line.getURI();
+	path = request.request_line.getURI();
  	if (!stat(path.c_str(), &st))
 	{
 		if (S_ISREG(st.st_mode))
@@ -363,7 +362,7 @@ void	Response::DELETEResource()
 	string		path;
 
 // open the path first
-	path = root_path + request.request_line.getURI();
+	path = request.request_line.getURI();
 	if (stat(path.c_str(), &st))
 		statusCode404();
 	else

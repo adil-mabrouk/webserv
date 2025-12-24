@@ -1,67 +1,6 @@
 #include "RequestLine.hpp"
 #include "../Response/Response.hpp"
 
-string	URIParser::removeDupSl(string str)
-{
-	string	uri;
-
-	for (size_t index = 0; index != str.size(); index++)
-	{
-		if (!index)
-			uri.assign(1, str[0]);
-		else if (str[index] == '/' && uri[uri.size() - 1] != '/')
-			uri.append(1, str[index]);
-		else if (str[index] != '/')
-			uri.append(1, str[index]);
-	}
-	return (uri);
-}
-
-string	URIParser::removeDotSegments(string str)
-{
-	string	uri;
-	size_t	index;
-	bool	flag;
-
-	flag = false;
-	if (str[0] != '/')
-		str = '/' + str, flag = true;
-	while (str.size())
-	{
-		if (str[0] == '/')
-			str.erase(str.begin());
-		index = str.find('/', 0);
-		if (index == string::npos)
-			index = str.size();
-		if (string(str.begin(), str.begin() + index) == ".")
-			str.erase(0, 1);
-		else if (string(str.begin(), str.begin() + index) == "..")
-		{
-			if (!uri.size())
-				throw 400;
-			str.erase(0, 2);
-			index = uri.rfind('/', uri.size());
-			if (index == string::npos)
-			{
-				if (uri.size())
-					uri.clear();
-				else
-					throw 400;
-			}
-			else
-				uri.erase(uri.begin() + index, uri.end());
-		}
-		else 
-		{
-			uri.append("/").append(str.begin(), str.begin() + index);
-			str.erase(0, index);
-		}
-	}
-	if (flag)
-		uri.erase(uri.begin());
-	return (uri);
-}
-
 bool URIParser::isURI(string str)
 {
 	string::iterator	it;
@@ -90,6 +29,9 @@ inline bool URIParser::isAbsoluteURI(string str)
 
 inline bool URIParser::isRelativeURI(string str)
 {
+	cout << isNetPath(str) << '\n';
+	cout << isAbsPath(str) << '\n';
+	cout << isRelPath(str) << '\n';
 	return (isNetPath(str) || isAbsPath(str)
 			|| isRelPath(str));
 }
@@ -101,12 +43,21 @@ inline bool URIParser::isNetPath(string str)
 		return (0);
 	string::iterator	it;
 
-	it = find(str.begin(), str.end(), '/');
+	it = find(str.begin() + 2, str.end(), '/');
 	return (isNetLoc(string(str.begin() + 2, it))
 			&& (it == str.end()
 				|| isAbsPath(string(it, str.end()))));
 }
 
+//        abs_path       = "/" rel_path
+//        rel_path       = [ path ] [ ";" params ] [ "?" query ]
+// 
+//        path           = fsegment *( "/" segment )
+//        fsegment       = 1*pchar
+//        segment        = *pchar
+// 
+//        params         = param *( ";" param )
+//        param          = *( pchar | "/" )
 inline bool URIParser::isAbsPath(string str)
 {
 	return (str.size() && str[0] == '/'
@@ -391,10 +342,78 @@ inline bool URIParser::isNational(char c)
 		&& !isSafe(c) && !isUnsafe(c));
 }
 
-string	RequestLine::rootingPath(string path, string root)
+void	RequestLine::rootingPath(string path, string location_root, string server_root)
 {
-	
+	if (!uri.find(path, 0))
+	{
+		uri.erase(0, path.size());
+		uri = server_root + location_root + uri;
+	}
+	else
+		throw 404;
 }
+
+void	RequestLine::removeDupSl()
+{
+	string	uri_tmp;
+
+	for (size_t index = 0; index != uri.size(); index++)
+	{
+		if (!index)
+			uri_tmp.assign(1, uri[0]);
+		else if (uri[index] == '/' && uri_tmp[uri_tmp.size() - 1] != '/')
+			uri_tmp.append(1, uri[index]);
+		else if (uri[index] != '/')
+			uri_tmp.append(1, uri[index]);
+	}
+	uri = uri_tmp;
+}
+
+void	RequestLine::removeDotSegments()
+{
+	string	uri_tmp;
+	size_t	index;
+	bool	flag;
+
+	flag = false;
+	if (uri[0] != '/')
+		uri = '/' + uri, flag = true;
+	while (uri.size())
+	{
+		if (uri[0] == '/')
+			uri.erase(uri.begin());
+		index = uri.find('/', 0);
+		if (index == string::npos)
+			index = uri.size();
+		if (string(uri.begin(), uri.begin() + index) == ".")
+			uri.erase(0, 1);
+		else if (string(uri.begin(), uri.begin() + index) == "..")
+		{
+			if (!uri_tmp.size())
+				throw 400;
+			uri.erase(0, 2);
+			index = uri_tmp.rfind('/', uri_tmp.size());
+			if (index == string::npos)
+			{
+				if (uri_tmp.size())
+					uri_tmp.clear();
+				else
+					throw 400;
+			}
+			else
+				uri_tmp.erase(uri_tmp.begin() + index, uri_tmp.end());
+		}
+		else 
+		{
+			uri_tmp.append("/").append(uri.begin(), uri.begin() + index);
+			uri.erase(0, index);
+		}
+	}
+	if (flag)
+		uri_tmp.erase(uri_tmp.begin());
+	uri = uri_tmp;
+}
+
 
 void	RequestLine::parse(string str)
 {
@@ -403,7 +422,7 @@ void	RequestLine::parse(string str)
 
 	index = str.find(' ', 0);
 	if (index == string::npos)
-		throw std::runtime_error("method parsing error");
+		throw (400);
 	method.assign(str.begin(), str.begin() + index);
 	if (!method.size())
 		throw (400);
@@ -416,10 +435,8 @@ void	RequestLine::parse(string str)
 	if (index_2 == string::npos)
 		throw (400);
 	uri.assign(str.begin() + index + 1, str.begin() + index_2);
-	if(!uri_parser.isURI(uri))
+	if(!uri_parser.isAbsPath(uri))
 		throw (400);
-	uri = uri_parser.removeDupSl(uri);
-	uri = uri_parser.removeDotSegments(uri);
 
 	string http_version(str.begin() + index_2 + 1, str.end());
 	if (http_version.compare("HTTP/1.0")

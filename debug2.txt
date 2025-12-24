@@ -1,20 +1,4 @@
-GET /redirect1 HTTP/1.0
-Host: localhost:2010
-User-Agent: curl/7.81.0
-Accept: */*
-
-HTTP/1.1 301 Moved Permanently
-Server: nginx/1.18.0 (Ubuntu)
-Date: Tue, 23 Dec 2025 17:56:04 GMT
-Content-Type: text/html
-Content-Length: 178
-Location: http://localhost:2010/
-Connection: close
-
-<html>
-<head><title>301 Moved Permanently</title></head>
-<body>
-<center><h1>301 Moved Permanently</h1></center>
-<hr><center>nginx/1.18.0 (Ubuntu)</center>
-</body>
-</html>
+== Info:   Trying 172.17.0.2:2010...
+== Info: connect to 172.17.0.2 port 2010 failed: No route to host
+== Info: Failed to connect to 172.17.0.2 port 2010 after 3065 ms: No route to host
+== Info: Closing connection 0

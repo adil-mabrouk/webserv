@@ -1,4 +1,6 @@
-GET /redirect1 HTTP/1.0
-User-Agent: curl/7.81.0
-Accept: */*
+POST /upload HTTP/1.0
+host: something
+Content-Length: 4
+Content-Type: text/html
 
+abcd

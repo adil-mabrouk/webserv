@@ -12,8 +12,6 @@ using std::string;
 class URIParser
 {
 public:
-	string	removeDupSl(string);
-	string	removeDotSegments(string);
 	bool	isURI(string);
 
 	inline bool isAbsoluteURI(string);
@@ -60,7 +58,9 @@ private:
 	URIParser	uri_parser;
 public:
 	void	parse(string);
-	string	rootingPath(string, string);
+	void	rootingPath(string, string, string);
+	void	removeDupSl();
+	void	removeDotSegments();
 	string	getMethod() const;
 	string	getURI() const;
 };
