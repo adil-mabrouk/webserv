@@ -16,6 +16,8 @@
 #include "Client.hpp"
 #include <arpa/inet.h>
 #include "../Configuration/config.hpp"
+#include <sys/wait.h>
+#include "../CGI/cgi.hpp"
 
 class Client;
 
@@ -37,4 +39,11 @@ class Server {
 		void							handleClientRead(int ClientFd); // Handle reading from client
 		void							handleClientWrite(int clientFd); // Handle writing to client
 		void							closeClient(int clientFd); // Close and clean up client connection
+
+
+		Client*			findClientByCGIPipe(int pipeFd);
+		void			handleCGIRead(Client* client);
+		void			checkCGITimeouts();
+		void			killCGI(Client* client);
+
 };

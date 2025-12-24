@@ -6,10 +6,12 @@
 #include "../Response/Response.hpp"
 #include <cstdlib>
 
+class CGI;
+
 class Client {
 	public:
-
-		enum State	{ READING, READ_REQUET_LINE, READ_HEADER, READ_BODY, WRITING, PROCESSING, DONE };
+		// CGI_RUNNING added
+		enum State	{ READING, READ_REQUET_LINE, READ_HEADER, READ_BODY, CGI_RUNNING, WRITING, PROCESSING, DONE };
 
 		Client(int fd, ServerConfig config);
 		int			getState() const;
@@ -20,12 +22,18 @@ class Client {
 		void		postInit();
 		~Client();
 		const ServerConfig	&getServerConfig() const;
+		void		setServerInfo(const std::string &host, int port);
 
 		std::string		_resRes;
+		
+		CGI				*getCGI() const { return _cgi; }
+
 	private:
 		Request			requestHandle;
 		ServerConfig	_serverConfig;
 		LocationConfig	*location_config;
+		std::string		_serverHost;
+		int				_serverPort;
 		int				_fd;
 		State			_state;
 		std::string		_resBuff;
@@ -33,4 +41,17 @@ class Client {
 		std::ofstream*	upload_file;
 		long long		content_length;
 		LocationConfig*	findLocation();
+
+
+		// ALL CGI needs {
+			
+		std::string		_inputFileName;
+		CGI	*_cgi;
+		
+		bool			isCGIRequest(const std::string &path);
+		void			startCGI();
+		std::string		mapURLToFilePath(const std::string &urlPath);
+
+	// }
+
 };

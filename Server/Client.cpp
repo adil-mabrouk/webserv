@@ -1,5 +1,6 @@
 #include "Client.hpp"
 #include <algorithm>
+#include "../CGI/cgi.hpp"
 
 Client::Client(int fd, ServerConfig config)
 	: _fd(fd),
@@ -7,7 +8,8 @@ Client::Client(int fd, ServerConfig config)
 	  _resBuff(""),
 	  _byteSent(0),
 	  upload_file(NULL),
-	  content_length(0)
+	  content_length(0),
+	  _cgi(NULL)
 {
 	_serverConfig = config;
 	location_config = NULL;
@@ -16,6 +18,7 @@ Client::Client(int fd, ServerConfig config)
 Client::~Client()
 {
 	delete upload_file;
+	delete _cgi;
 }
 
 int	Client::getState() const
@@ -58,11 +61,15 @@ void	Client::postInit()
 								  + "." + Response::fillContentType(it_content_type->second, 1)).c_str());
 	if (!upload_file->is_open())
 		throw 404;
+	std::string	path = ("upload_" + oss.str()
+			+ "." + Response::fillContentType(it_content_type->second, 1));
+	upload_file	= new std::ofstream(path.c_str());
+	_inputFileName = path;
 }
 
 bool	Client::readRequest()
 {
-	char				buffer[4113394];
+	char				buffer[15];
 	size_t				crlf_index;
 
 	ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
@@ -99,7 +106,7 @@ bool	Client::readRequest()
 			requestHandle.request_line.removeDotSegments();
 			// cout << " => uri after dot seg mod: " << requestHandle.request_line.getURI() << '\n';
 			requestHandle.request_line.rootingPath(location_config->path, location_config->root, _serverConfig.root);
-			cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
+			// cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
 			setState(READ_HEADER);
 		}
 		else
@@ -163,12 +170,27 @@ LocationConfig*	Client::findLocation()
 
 void	Client::processRequest()
 {
+	// cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n";
+	// cout << "=> request_line:\n\t|" << requestHandle.request_line.getMethod()
+	// 	<< "| |" << requestHandle.request_line.getURI() << "|\n";
+	// cout << "=> request headers:\n";
+	// for (map<const string, const string>::const_iterator it = requestHandle.request_header.getHeaderData().begin();
+	// 	it != requestHandle.request_header.getHeaderData().end(); it++)
+	// 	cout << "\t|" << it->first << "| |" << it->second << "|\n";
+	// cout << "=> request body:\n|" << requestHandle.body << "|\n";
+	std::string path = requestHandle.request_line.getURI();
+	// std::cout << "path = " << path << "\n";
+	if (isCGIRequest(path))
+	{
+		startCGI();
+		return ;
+	}
 	if (requestHandle.request_line.getMethod() != "POST")
 	{
 // how about if the location isn't specified in the config
 		// location_config = findLocation();
-		// if (!location_config)
-		// 	throw 400;
+		if (!location_config)
+			throw 400;
 		Response	response(requestHandle, *location_config);
 
 		if (!requestHandle.request_line.getMethod().compare("DELETE"))
@@ -180,7 +202,7 @@ void	Client::processRequest()
 	else if (requestHandle.request_line.getMethod() == "POST")
 	{
 		cout << "here\n";
-		_resRes = "HTTP/1.1 201 Created\r\n\r\n";
+		_resRes = "HTTP/1.0 201 Created\r\n\r\n";
 	}
 	_byteSent = 0;
  	setState(WRITING);
@@ -188,7 +210,8 @@ void	Client::processRequest()
 
 bool	Client::writeResponse()
 {
-	// cout << '\n' << _resRes << "\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n\n";
+	// std::cout << "writeResponse: _byteSent=" << _byteSent 
+	// 		  << " / " << _resRes.size() << std::endl;
 	while (_byteSent < _resRes.size())
 	{
 		ssize_t bytesSent = send(_fd, _resRes.c_str() + _byteSent, _resRes.size() - _byteSent, 0);
@@ -201,4 +224,73 @@ bool	Client::writeResponse()
 	}
 	setState(DONE);
 	return true;
+}
+
+std::string	Client::mapURLToFilePath(const std::string &urlPath)
+{
+	std::string root = _serverConfig.root;
+	if (root.empty())
+		cerr << "Error: ROOT empty\n";
+	std::string	path = urlPath;
+	size_t	queryPos = path.find('?');
+	if (queryPos != std::string::npos)
+		path = path.substr(0, queryPos);
+	return path;
+}
+
+bool	Client::isCGIRequest(const std::string &path)
+{
+	if (path.find("/cgi-bin/") == 0)
+		return true;
+	if (path.find(".php") != std::string::npos 
+		|| path.find(".py") != std::string::npos)
+		return true;
+	return false;
+}
+int x = 1;
+void	Client::startCGI()
+{
+	std::string urlPath = requestHandle.request_line.getURI();
+	std::string scriptPath = mapURLToFilePath(urlPath);
+	// std::cerr << "URL Path = |" << urlPath << "|\n";
+	// std::cerr << "script Path = |" << scriptPath << "|\n";
+
+	if (access(scriptPath.c_str(), F_OK) != 0)
+	{
+		_resRes = "HTTP/1.0 404 NOt Found\r\n\r\nCGI Script not found";
+		setState(WRITING);
+		return ;
+	}
+	_cgi = new CGI();
+	_cgi->setScriptPath(scriptPath);
+	_cgi->setMethod(requestHandle.request_line.getMethod());
+	_cgi->setQueryString("name=ADIL"); // hardcoded
+
+	if (requestHandle.request_line.getMethod() == "POST")
+		_cgi->setInputFile(_inputFileName);
+	const std::map<const std::string, const std::string> &headers = 
+		requestHandle.request_header.getHeaderData();
+
+	for (std::map<const std::string, const std::string>::const_iterator it = headers.begin(); 
+		it != headers.end(); it++)
+	{
+		_cgi->setHeader(it->first, it->second);
+	}
+
+	if (_cgi->start())
+		setState(CGI_RUNNING);
+
+	else
+	{
+		delete _cgi;
+		_cgi = NULL;
+		_resRes = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
+		setState(WRITING);
+	}
+}
+
+void	Client::setServerInfo(const std::string &host, int port)
+{
+	_serverHost = host;
+	_serverPort = port;
 }

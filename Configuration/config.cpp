@@ -78,6 +78,12 @@ static bool isValidMethod(const std::string& method)
 	return method == "GET" || method == "POST" || method == "DELETE";
 }
 
+static void	normalizePath(std::string &path)
+{
+	if (path[path.size() - 1] != '/')
+		path += '/';
+}
+
 LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& tokens, size_t& index)
 {
 	++index; // Skip "location"
@@ -85,7 +91,10 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 		throw std::runtime_error("Expected path after location");
 	LocationConfig locConfig;
 	defaultLocationParams(locConfig);
+
 	locConfig.path = tokens[index++];
+	normalizePath(locConfig.path);
+
 	if (tokens[index] != "{")
 		throw std::runtime_error("Expected '{' after location path");
 	++index; // Skip "{"
@@ -156,10 +165,10 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 			if (ss.fail() || !ss.eof())
 				throw std::runtime_error("Invalid status code in error_page directive");
 			locConfig.redirect.url = tokens[index++];
-			locConfig.is_redirect = true;
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after return directive");
 			++index; // Skip ";"
+			locConfig.redirectExist = true;
 		}
 		else if (tokens[index] == "upload_store")
 		{
