@@ -146,8 +146,8 @@ void	Client::processRequest()
 
 bool	Client::writeResponse()
 {
-	std::cout << "writeResponse: _byteSent=" << _byteSent 
-              << " / " << _resRes.size() << std::endl;
+	// std::cout << "writeResponse: _byteSent=" << _byteSent 
+	// 		  << " / " << _resRes.size() << std::endl;
 	while (_byteSent < _resRes.size())
 	{
 		ssize_t bytesSent = send(_fd, _resRes.c_str() + _byteSent, _resRes.size() - _byteSent, 0);
@@ -194,7 +194,7 @@ void	Client::startCGI()
 	// 	scriptPath = "www/var/timeout.py";
 	// }
 	// else
-		scriptPath = "www/var/test.php";
+		scriptPath = "www/var/a.out";
 	if (access(scriptPath.c_str(), F_OK) != 0)
 	{
 		_resRes = "HTTP/1.0 404 NOt Found\r\n\r\nCGI Script not found";

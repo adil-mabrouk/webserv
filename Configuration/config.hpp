@@ -26,9 +26,11 @@ struct LocationConfig {
 	bool										autoindex;
 	std::vector<std::string>					methods;
 	RedirectConfig								redirect;
+	bool										redirectExist;
 	std::string									upload_store;
 	bool										allow_upload;
 	std::vector<CGIConfig>						cgi;
+	LocationConfig() : autoindex(false), redirectExist(false), allow_upload(false) {}
 };
 
 struct ServerConfig {
@@ -38,6 +40,7 @@ struct ServerConfig {
 	std::string									root; // added for server root directive
 	long long									max_body_size;
 	bool										maxBodySizeExist;
+	ServerConfig() : max_body_size(0), maxBodySizeExist(false) {}
 };
 
 class ConfigParser {

@@ -169,7 +169,6 @@ bool CGI::start()
 		unlink(_outputFile.c_str());
 		return false;
 	}
-	
 	if (_pid == 0)
 	{
 		if (!_inputFile.empty())
@@ -197,12 +196,15 @@ bool CGI::start()
 			std::cerr << "Child: failed to open output file\n";
 			exit(1);
 		}
+		
 		dup2(outFd, STDOUT_FILENO);
 		close(outFd);
 		std::map<std::string, std::string> envMap = setupEnvironment();
 		char **envp = mapToEnvArray(envMap);
 		std::string interpreter = getCGIInterpreter(_scriptPath);
-		// std::cerr << "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
+		std::cerr << "interpreter = " << interpreter << "\n";
+		std::cerr << "script Path = " << _scriptPath << "\n";
+		// std::cerr << "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 		if (!interpreter.empty())
 		{
 			char *argv[3];
@@ -214,8 +216,8 @@ bool CGI::start()
 		else
 		{
 			char *argv[2];
-			argv[1] = const_cast<char*>(_scriptPath.c_str());
-			argv[2] = NULL;
+			argv[0] = const_cast<char*>(_scriptPath.c_str());
+			argv[1] = NULL;
 			execve(_scriptPath.c_str(), argv, envp);
 		}
 		freeEnvArray(envp);
@@ -234,9 +236,9 @@ bool CGI::start()
 		}
 		_startTime = time(NULL);
 
-		std::cout << "CGI started (PID " << _pid << ")" << std::endl;
-		std::cout << "  Input:  " << (_inputFile.empty() ? "(none)" : _inputFile) << std::endl;
-		std::cout << "  Output: " << _outputFile << std::endl;
+		// std::cout << "CGI started (PID " << _pid << ")" << std::endl;
+		// std::cout << "  Input:  " << (_inputFile.empty() ? "(none)" : _inputFile) << std::endl;
+		// std::cout << "  Output: " << _outputFile << std::endl;
 
 		return true;
 	}
