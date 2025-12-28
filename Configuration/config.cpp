@@ -85,11 +85,12 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 		throw std::runtime_error("Expected path after location");
 	LocationConfig locConfig;
 	defaultLocationParams(locConfig);
+
 	locConfig.path = tokens[index++];
+
 	if (tokens[index] != "{")
 		throw std::runtime_error("Expected '{' after location path");
 	++index; // Skip "{"
-
 
 	while (index < tokens.size() && tokens[index] != "}")
 	{
@@ -156,10 +157,10 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 			if (ss.fail() || !ss.eof())
 				throw std::runtime_error("Invalid status code in error_page directive");
 			locConfig.redirect.url = tokens[index++];
-			locConfig.is_redirect = true;
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after return directive");
 			++index; // Skip ";"
+			locConfig.redirectExist = true;
 		}
 		else if (tokens[index] == "upload_store")
 		{
