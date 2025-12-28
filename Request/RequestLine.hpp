@@ -55,6 +55,7 @@ class	RequestLine
 private:
 	string		method;
 	string		uri;
+	string		query;
 	URIParser	uri_parser;
 public:
 	void	parse(string);
@@ -63,6 +64,7 @@ public:
 	void	removeDotSegments();
 	string	getMethod() const;
 	string	getURI() const;
+	string	getQuery() const;
 };
 
 #endif

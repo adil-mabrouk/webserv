@@ -1,6 +1,4 @@
-POST /upload HTTP/1.0
+GET /redirect-me HTTP/1.0
 host: something
-Content-Length: 4
 Content-Type: text/html
 
-abcd

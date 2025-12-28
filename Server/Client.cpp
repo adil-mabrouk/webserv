@@ -12,7 +12,6 @@ Client::Client(int fd, ServerConfig config)
 	  _cgi(NULL)
 {
 	_serverConfig = config;
-	location_config = NULL;
 }
 
 Client::~Client()
@@ -51,28 +50,25 @@ void	Client::postInit()
 		throw 400;
 	std::srand(std::time(NULL));
 	oss << std::rand();
-	if (!location_config->allow_upload)
+	if (!location_config.allow_upload)
 		throw 403;
 	if (it_content_type == requestHandle.request_header.getHeaderData().end())
 	{
-		upload_file	= new std::ofstream((_serverConfig.root + location_config->upload_store + "/upload_" + oss.str()
+		upload_file	= new std::ofstream((_serverConfig.root + location_config.upload_store + "/upload_" + oss.str()
 								  + "." + Response::fillContentType("x-www-form-urlencoded", 1)).c_str());
-		_inputFileName = _serverConfig.root + location_config->upload_store + "/upload_" + oss.str()
+		_inputFileName = _serverConfig.root + location_config.upload_store + "/upload_" + oss.str()
 								  + "." + Response::fillContentType("x-www-form-urlencoded", 1);
 	}
 	else
 	{
-		upload_file	= new std::ofstream((_serverConfig.root + location_config->upload_store + "/upload_" + oss.str()
+		upload_file	= new std::ofstream((_serverConfig.root + location_config.upload_store + "/upload_" + oss.str()
 								  + "." + Response::fillContentType(it_content_type->second, 1)).c_str());
-		_inputFileName = _serverConfig.root + location_config->upload_store + "/upload_" + oss.str()
+		_inputFileName = _serverConfig.root + location_config.upload_store + "/upload_" + oss.str()
 								  + "." + Response::fillContentType(it_content_type->second, 1);
 		
 	}
 	if (!upload_file->is_open())
 		throw 404;
-	// std::string	path = ("upload_" + oss.str()
-	// 		+ "." + Response::fillContentType(it_content_type->second, 1));
-	// upload_file	= new std::ofstream(path.c_str());
 }
 
 bool	Client::readRequest()
@@ -102,18 +98,16 @@ bool	Client::readRequest()
 										   _resBuff.begin() + crlf_index));
 			_resBuff.assign(_resBuff.begin() + crlf_index + 2, _resBuff.end());
 			location_config = findLocation();
-			if (!location_config)
-				throw 404;
-			it = find(location_config->methods.begin(), location_config->methods.end(),
+			it = find(location_config.methods.begin(), location_config.methods.end(),
 			 requestHandle.request_line.getMethod());
-			if (it == location_config->methods.end())
+			if (!location_config.redirectExist && it == location_config.methods.end())
 				throw 403;
-			cout << " => uri before: " << requestHandle.request_line.getURI() << '\n';
+			// cout << " => uri before: " << requestHandle.request_line.getURI() << '\n';
 			requestHandle.request_line.removeDupSl();
-			cout << " => uri after dup sl mod: " << requestHandle.request_line.getURI() << '\n';
+			// cout << " => uri after dup sl mod: " << requestHandle.request_line.getURI() << '\n';
 			requestHandle.request_line.removeDotSegments();
-			cout << " => uri after dot seg mod: " << requestHandle.request_line.getURI() << '\n';
-			requestHandle.request_line.rootingPath(location_config->path, location_config->root, _serverConfig.root);
+			// cout << " => uri after dot seg mod: " << requestHandle.request_line.getURI() << '\n';
+			requestHandle.request_line.rootingPath(location_config.path, location_config.root, _serverConfig.root);
 			cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
 			setState(READ_HEADER);
 		}
@@ -135,8 +129,12 @@ bool	Client::readRequest()
 			if (it != requestHandle.request_header.getHeaderData().end())
 				if (std::strtol(it->second.c_str(), NULL, 0) > _serverConfig.max_body_size)
 					throw 400;
-			if (requestHandle.request_line.getMethod() == "POST")
+			if (location_config.redirectExist)
+				return (true);
+			if (!location_config.cgi.size() && requestHandle.request_line.getMethod() == "POST")
 				setState(READ_BODY), postInit();
+			else if (location_config.cgi.size())
+				setState(READ_BODY);
 		}
 		else
 			return (false);
@@ -151,7 +149,7 @@ bool	Client::readRequest()
 	return (true);
 }
 
-LocationConfig*	Client::findLocation()
+LocationConfig	Client::findLocation()
 {
 	string	uri = requestHandle.request_line.getURI();
 
@@ -160,7 +158,7 @@ LocationConfig*	Client::findLocation()
 		for (map<string, LocationConfig>::iterator	it = _serverConfig.locations.begin();
 			it != _serverConfig.locations.end(); it++)
 			if (!it->first.compare(uri))
-				return (&it->second);
+				return (it->second);
 		if (uri[uri.size() - 1] == '/')
 			uri.erase(uri.size() - 1, 1);
 		else
@@ -169,36 +167,44 @@ LocationConfig*	Client::findLocation()
 			
 			index = uri.rfind('/', uri.size());
 			if (index == string::npos)
-				return (NULL);
+				throw 404;
 			uri.erase(uri.begin() + index + 1, uri.end());
 		}
 	}
-	return (NULL);
+	throw 404;
 }
 
 void	Client::processRequest()
 {
-	// cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n";
-	// cout << "=> request_line:\n\t|" << requestHandle.request_line.getMethod()
-	// 	<< "| |" << requestHandle.request_line.getURI() << "|\n";
-	// cout << "=> request headers:\n";
-	// for (map<const string, const string>::const_iterator it = requestHandle.request_header.getHeaderData().begin();
-	// 	it != requestHandle.request_header.getHeaderData().end(); it++)
-	// 	cout << "\t|" << it->first << "| |" << it->second << "|\n";
-	// cout << "=> request body:\n|" << requestHandle.body << "|\n";
-	std::string path = requestHandle.request_line.getURI();
-	if (isCGIRequest(path))
+	if (location_config.redirectExist)
+	{
+		Response			response;
+		std::stringstream	ss;
+
+		ss << _serverPort;
+		if (location_config.redirect.status_code == 301)
+			response.statusCode301("http://" + _serverHost + ":" + ss.str()
+					+ location_config.redirect.url);
+		else if (location_config.redirect.status_code == 302)
+			response.statusCode302("http://" + _serverHost + ":" + ss.str()
+					+ location_config.redirect.url);
+		else
+			response.statusCode501();
+		_resRes = response.getResponse();
+		_byteSent = 0;
+		setState(WRITING);
+		return ;
+	}
+	if (isCGIRequest(requestHandle.request_line.getURI()))
 	{
 		startCGI();
+		// _byteSent = 0;
+		// setState(WRITING);
 		return ;
 	}
 	if (requestHandle.request_line.getMethod() != "POST")
 	{
-// how about if the location isn't specified in the config
-		// location_config = findLocation();
-		// if (!location_config)
-		// 	throw 400;
-		Response	response(requestHandle, *location_config);
+		Response	response(requestHandle, location_config);
 
 		if (!requestHandle.request_line.getMethod().compare("DELETE"))
 			response.DELETEResource();

@@ -12,6 +12,45 @@ Response::Response(const Request& request, const LocationConfig& location_config
 Response::Response(const LocationConfig& location_config)
 	: location_config(location_config) {}
 
+void	Response::statusCode301(const string& location_header)
+{
+	pair<string, string>	tmp_headers[4];
+
+	tmp_headers[0] = make_pair("Server: ", "webserv");
+	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
+	tmp_headers[3] = make_pair("Content-Length: ", "156");
+	tmp_headers[3] = make_pair("Location: ", location_header);
+	status_code = 301, reason_phrase.assign("Moved Permanently");
+	headers.assign(tmp_headers, tmp_headers + 4);
+	body.assign("<html>\n\
+<head><title>301 Moved Permanently</title></head>\n\
+<body>\n\
+<center><h1>301 Moved Permanently</h1></center>\n\
+<hr><center>Webserv</center>\n\
+</body>\n\
+</html>");
+}
+
+void	Response::statusCode302(const string& location_header)
+{
+	pair<string, string>	tmp_headers[4];
+
+	tmp_headers[0] = make_pair("Server: ", "webserv");
+	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
+	tmp_headers[3] = make_pair("Content-Length: ", "132");
+	tmp_headers[3] = make_pair("Location: ", location_header);
+	status_code = 302, reason_phrase.assign("Moved Temporarily");
+	headers.assign(tmp_headers, tmp_headers + 4);
+	body.assign("<html>\n\
+<head><title>302 Found</title></head>\n\
+<body>\n\
+<center><h1>302 Found</h1></center>\n\
+<hr><center>Webserv</center>\n\
+</body>\n\
+</html>");
+}
 void	Response::statusCode400()
 {
 	pair<string, string>	tmp_headers[4];

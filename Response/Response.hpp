@@ -54,6 +54,8 @@ public:
 	void	fillFileBody(int);
 	void	fillDirBody(string, DIR*);
 
+	void	statusCode301(const string&);
+	void	statusCode302(const string&);
 	void	statusCode400();
 	void	statusCode401();
 	void	statusCode403();

@@ -31,7 +31,7 @@ class Client {
 	private:
 		Request			requestHandle;
 		ServerConfig	_serverConfig;
-		LocationConfig	*location_config;
+		LocationConfig	location_config;
 		std::string		_serverHost;
 		int				_serverPort;
 		int				_fd;
@@ -40,7 +40,7 @@ class Client {
 		size_t			_byteSent;
 		std::ofstream*	upload_file;
 		long long		content_length;
-		LocationConfig*	findLocation();
+		LocationConfig	findLocation();
 
 
 		// ALL CGI needs {

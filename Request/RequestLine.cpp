@@ -419,6 +419,7 @@ void	RequestLine::parse(string str)
 {
 	size_t	index;
 	size_t	index_2;
+	size_t	query_index;
 
 	index = str.find(' ', 0);
 	if (index == string::npos)
@@ -437,6 +438,12 @@ void	RequestLine::parse(string str)
 	uri.assign(str.begin() + index + 1, str.begin() + index_2);
 	if(!uri_parser.isAbsPath(uri))
 		throw (400);
+	query_index = uri.find('?', 0);
+	if (query_index != string::npos)
+	{
+		query.assign(uri.begin() + query_index + 1, uri.end());
+		uri.erase(uri.begin() + query_index, uri.end());
+	}
 
 	string http_version(str.begin() + index_2 + 1, str.end());
 	if (http_version.compare("HTTP/1.0")
@@ -452,4 +459,9 @@ string	RequestLine::getMethod() const
 string	RequestLine::getURI() const
 {
 	return (uri);
+}
+
+string	RequestLine::getQuery() const
+{
+	return (query);
 }

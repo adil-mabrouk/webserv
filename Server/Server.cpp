@@ -136,36 +136,10 @@ void Server::closeClient(int fd)
 
 void Server::handleClientRead(int clientFd)
 {
-	// cout << "Reading . . .\n";
 	Client *client = _clients[clientFd];
 	if (!client)
 		return;
 	bool complete = client->readRequest();
-	// cout << "State: ";
-	// switch (client->getState())
-	// {
-	// 	enum State	{ READING, READ_REQUET_LINE, READ_HEADER, READ_BODY, WRITING, PROCESSING, DONE };
-	// 	case Client::DONE:
-	// 		cout << "DONE\n";
-	// 		break;
-	// 	case Client::READ_REQUET_LINE:
-	// 		cout << "READ_REQUET_LINE\n";
-	// 		break;
-	// 	case Client::READ_HEADER:
-	// 		cout << "READ_HEADER\n";
-	// 		break;
-	// 	case Client::READ_BODY:
-	// 		cout << "READ_BODY\n";
-	// 		break;
-	// 	case Client::WRITING:
-	// 		cout << "WRITING\n";
-	// 		break;
-	// 	case Client::READING:
-	// 		cout << "READING\n";
-	// 		break;
-	// 	default:
-	// 		cout << "OTHER\n";
-	// }
 	if (client->getState() == Client::DONE)
 		return;
 	if (complete)
@@ -177,7 +151,6 @@ void Server::handleClientRead(int clientFd)
 
 void Server::handleClientWrite(int clientFd)
 {
-	// cout << "Writing. . .\n";
 	Client *client = _clients[clientFd];
 	if (!client)
 		return;
@@ -188,7 +161,6 @@ void Server::handleClientWrite(int clientFd)
 		// std::cout << "Response sent to Fd = " << clientFd << "\n";
 		closeClient(clientFd);
 	}
-	// cout << "Writing end . . .\n";
 }
 
 /*
