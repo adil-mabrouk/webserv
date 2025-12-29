@@ -197,9 +197,10 @@ void	Client::processRequest()
 	}
 	if (isCGIRequest(requestHandle.request_line.getURI()))
 	{
-		startCGI();
+		std::string outfilename = startCGI();
+		std::cerr << "out file name ===> " << outfilename << "\n";
 		// _byteSent = 0;
-		// setState(WRITING);
+		setState(WRITING);
 		return ;
 	}
 	if (requestHandle.request_line.getMethod() != "POST")
@@ -239,17 +240,17 @@ bool	Client::writeResponse()
 	return true;
 }
 
-std::string	Client::mapURLToFilePath(const std::string &urlPath)
-{
-	std::string root = _serverConfig.root;
-	if (root.empty())
-		cerr << "Error: ROOT empty\n";
-	std::string	path = urlPath;
-	size_t	queryPos = path.find('?');
-	if (queryPos != std::string::npos)
-		path = path.substr(0, queryPos);
-	return root + path;
-}
+// std::string	Client::mapURLToFilePath(const std::string &urlPath)
+// {
+// 	std::string root = _serverConfig.root;
+// 	if (root.empty())
+// 		cerr << "Error: ROOT empty\n";
+// 	std::string	path = urlPath;
+// 	size_t	queryPos = path.find('?');
+// 	if (queryPos != std::string::npos)
+// 		path = path.substr(0, queryPos);
+// 	return root + path;
+// }
 
 bool	Client::isCGIRequest(const std::string &path)
 {
@@ -261,21 +262,20 @@ bool	Client::isCGIRequest(const std::string &path)
 	return false;
 }
 
-void	Client::startCGI()
+std::string	Client::startCGI()
 {
 	std::string scriptPath = requestHandle.request_line.getURI();
 
 	if (access(scriptPath.c_str(), F_OK) != 0)
 	{
-		_resRes = "HTTP/1.0 404 NOt Found\r\n\r\nCGI Script not found";
-		setState(WRITING);
-		return ;
+		// _resRes = "HTTP/1.0 404 NOt Found\r\n\r\nCGI Script not found";
+		// setState(WRITING);
+		throw 404;
 	}
 	_cgi = new CGI();
 	_cgi->setScriptPath(scriptPath);
 	_cgi->setMethod(requestHandle.request_line.getMethod());
-	// _cgi->setQueryString(requestHandle.request_line.getQuery());
-	_cgi->setQueryString("tkharbi9a");
+	_cgi->setQueryString(requestHandle.request_line.getQuery());
 
 	if (requestHandle.request_line.getMethod() == "POST")
 		_cgi->setInputFile(_inputFileName);
@@ -291,16 +291,24 @@ void	Client::startCGI()
 	// _cgi->setHeader("Accept", "text/html,application/json");
 	// _cgi->setHeader("Accept-Language", "en-US,en;q=0.9");
 	// _cgi->setHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
-	if (_cgi->start())
+	try
+	{
+		std::string outFileName = _cgi->start();
 		setState(CGI_RUNNING);
-
-	else
+		return outFileName;
+	}
+	catch(int& status)
 	{
 		delete _cgi;
 		_cgi = NULL;
-		_resRes = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
-		setState(WRITING);
+		throw 500;
 	}
+	
+	// else
+	// {
+	// 	_resRes = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
+	// 	setState(WRITING);
+	// }
 }
 
 void	Client::setServerInfo(const std::string &host, int port)

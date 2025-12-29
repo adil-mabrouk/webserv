@@ -222,13 +222,13 @@ void Server::run()
 			if (pollFds[i].revents == 0 && i)
 				continue;
 
-			Client *cgiClient = findClientByCGIPipe(fd);
-			if (cgiClient)
-			{
-				if (revents & POLLIN)
-					handleCGIRead(cgiClient);
-				continue;
-			}
+			// Client *cgiClient = findClientByCGIPipe(fd);
+			// if (cgiClient)
+			// {
+			// 	if (revents & POLLIN)
+			// 		handleCGIRead(cgiClient);
+			// 	continue;
+			// }
 			if (isListeningSocket(fd))
 			{
 				if (revents & POLLIN)

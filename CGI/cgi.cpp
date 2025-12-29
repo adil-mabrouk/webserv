@@ -20,14 +20,9 @@ CGI::~CGI()
 		unlink(_inputFile.c_str());
 		_inputFile.clear();
 	}
-	if (!_outputFile.empty())
-	{
-		unlink(_outputFile.c_str());
-		_outputFile.clear();
-	}
 	if (_pid > 0)
 	{
-		kill(_pid, SIGKILL);
+		// kill(_pid, SIGKILL);
 		waitpid(_pid, NULL, WNOHANG);
 		_pid = -1;
 	}
@@ -148,17 +143,19 @@ void CGI::freeEnvArray(char** envp)
 	delete[] envp;
 }
 
-bool CGI::start()
+
+std::string CGI::start()
 {
 	std::ostringstream outputPath;
-	outputPath << "/tmp/cgi_output_" << time(NULL) << ".html";
+	// outputPath << "/tmp/cgi_output_" << time(NULL) << ".html";
+	outputPath << "webservAmabroukFUNNY.txt";
 	_outputFile = outputPath.str();
 
 	int outputFd = open(_outputFile.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0600);
 	if (outputFd < 0)
 	{
 		std::cerr << "Failed to create output file: " << _outputFile << std::endl;
-		return false;
+		throw 500;
     }
 	close(outputFd);
 
@@ -168,7 +165,7 @@ bool CGI::start()
 	{
 		std::cerr << "Fork failed\n";
 		unlink(_outputFile.c_str());
-		return false;
+		throw 500;
 	}
 	if (_pid == 0)
 	{
@@ -233,7 +230,7 @@ bool CGI::start()
 			std::cerr << "Parent: Failed to open output File\n";
 			waitpid(_pid, NULL, 0);
 			unlink(_outputFile.c_str());
-			return false;
+			throw 500;
 		}
 		_startTime = time(NULL);
 
@@ -241,7 +238,7 @@ bool CGI::start()
 		// std::cout << "  Input:  " << (_inputFile.empty() ? "(none)" : _inputFile) << std::endl;
 		// std::cout << "  Output: " << _outputFile << std::endl;
 
-		return true;
+		return _outputFile;
 	}
 }
 

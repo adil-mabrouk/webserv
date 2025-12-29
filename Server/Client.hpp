@@ -44,13 +44,13 @@ class Client {
 
 
 		// ALL CGI needs {
-			
+
 		std::string		_inputFileName;
 		CGI	*_cgi;
 		
 		bool			isCGIRequest(const std::string &path);
-		void			startCGI();
-		std::string		mapURLToFilePath(const std::string &urlPath);
+		std::string		startCGI();
+		// std::string		mapURLToFilePath(const std::string &urlPath);
 
 	// }
 

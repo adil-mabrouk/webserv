@@ -19,7 +19,7 @@ class CGI
 		time_t	getStartTime() const;
 		const	std::string	&getOutput() const;
 
-		bool	start();
+		std::string	start();
 		void	appendOutput(const char* data, size_t size);
 		std::string	formatResponse();
 
