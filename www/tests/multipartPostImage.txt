@@ -1,0 +1,56 @@
+POST /upload HTTP/1.1
+Host: localhost:9999
+Connection: keep-alive
+Content-Length: 733
+Cache-Control: max-age=0
+sec-ch-ua: "Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Origin: http://localhost:9999
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary92nhoBlDqngaZcAY
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=
+0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: http://localhost:9999/tests/postForm.html
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
+
+------WebKitFormBoundary92nhoBlDqngaZcAY
+Content-Disposition: form-data; name="file"; filename="nginx.conf"
+Content-Type: application/octet-stream
+
+events
+{}
+
+http
+{
+        include /etc/nginx/mime.types;
+        access_log /var/log/nginx/access.log;
+        error_log /var/log/nginx/error.log;
+
+        include /etc/nginx/mime.types;
+        server
+        {
+                listen  2010;
+                root    /var/www/html;
+                autoindex on;
+                index page.html;
+        }
+}
+
+------WebKitFormBoundary92nhoBlDqngaZcAY
+Content-Disposition: form-data; name="text"
+
+just a normal text
+------WebKitFormBoundary92nhoBlDqngaZcAY
+Content-Disposition: form-data; name="file"; filename="phpScript.php"
+Content-Type: application/x-php
+
+<?php echo "Hello World!";?>
+
+------WebKitFormBoundary92nhoBlDqngaZcAY--

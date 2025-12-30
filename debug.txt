@@ -1,0 +1,33 @@
+== Info: Host localhost:7070 was resolved.
+== Info: IPv6: ::1
+== Info: IPv4: 127.0.0.1
+== Info:   Trying [::1]:7070...
+== Info: connect to ::1 port 7070 from ::1 port 48390 failed: Connection refused
+== Info:   Trying 127.0.0.1:7070...
+== Info: Connected to localhost (127.0.0.1) port 7070
+=> Send header, 132 bytes (0x84)
+0000: GET /cgi-bin?query_key1=query_value1&query_key2=query_value2 HTT
+0040: P/1.0
+0047: Host: localhost:7070
+005d: User-Agent: curl/8.5.0
+0075: Accept: */*
+0082: 
+<= Recv header, 17 bytes (0x11)
+0000: HTTP/1.1 200 OK
+<= Recv header, 17 bytes (0x11)
+0000: Server: webserv
+<= Recv header, 37 bytes (0x25)
+0000: Date: Sun, 28 Dec 2025 22:02:34 GMT
+<= Recv header, 25 bytes (0x19)
+0000: Content-Type: text/html
+== Info: no chunk, no close, no size. Assume close to signal end
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 337 bytes (0x151)
+0000: <html>.<head><title>Indexof /home/abdelmajid_admin/webserv_merge
+0040: /www/var</title></head>.<body>.<h1>Index of /home/abdelmajid_adm
+0080: in/webserv_merge/www/var</h1><hr><pre><a href="../">../</a>.<a h
+00c0: ref="test.cpp">test.cpp</a>.<a href="a.out">a.out</a>.<a href="t
+0100: est.py">test.py</a>.<a href="timeout.py">timeout.py</a>.</pre><h
+0140: r></body>.</html>
+== Info: Closing connection

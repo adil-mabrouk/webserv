@@ -1,0 +1,14 @@
+`/ <Request> • Set the maximum allowed size for client request bodies.
+`/ <Request> ◦ List of accepted HTTP methods for the route.
+<Request> ◦ HTTP redirection.
+`/ <Request> ◦ Directory where the requested file should be located (e.g., if URL /kapouet
+				is rooted to /tmp/www, URL /kapouet/pouic/toto/pouet will search for
+				/tmp/www/pouic/toto/pouet).
+
+<Response> • Set up default error pages.
+`/ <Response> ◦ Enabling or disabling directory listing.
+`/ <Response> ◦ Default file to serve when the requested resource is a directory.
+`/ <Response> ◦ Uploading files from the clients to the server is authorized, and storage
+				location is provided.
+
+- delete the unused request parsing functions and revise it
