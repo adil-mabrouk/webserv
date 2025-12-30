@@ -249,8 +249,10 @@ bool	Client::isCGIRequest(const std::string &path)
 {
 	if (path.find("/cgi-bin/") == 0)
 		return true;
-	if (path.find(".php") != std::string::npos 
-		|| path.find(".py") != std::string::npos)
+	if (path.find(".php") != std::string::npos
+		|| path.find(".py") != std::string::npos
+		|| path.find(".sh") != std::string::npos
+		|| path.find(".pl") != std::string::npos)
 		return true;
 	return false;
 }
@@ -266,6 +268,17 @@ void	Client::startCGI()
 		return ;
 	}
 	_cgi = new CGI();
+
+	std::map<std::string, LocationConfig> lc = getServerConfig().locations;
+	for (std::map<std::string, LocationConfig>::iterator it = lc.begin(); 
+			it != lc.end(); it++)
+	{
+		LocationConfig lc_it = it->second;
+		if (lc_it.hasCGI)
+		{
+			_cgi->cgi_c = lc_it.cgi;
+		}
+	}
 	_cgi->setScriptPath(scriptPath);
 	_cgi->setMethod(requestHandle.request_line.getMethod());
 	// _cgi->setQueryString(requestHandle.request_line.getQuery());

@@ -202,6 +202,7 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after cgi_extension directive");
 			++index; // Skip ";"
+			locConfig.hasCGI = true;
 		}
 		else
 			throw std::runtime_error("Unknown directive inside location block: " + tokens[index]);

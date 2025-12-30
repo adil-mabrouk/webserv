@@ -44,7 +44,7 @@ class Client {
 
 
 		// ALL CGI needs {
-			
+
 		std::string		_inputFileName;
 		CGI	*_cgi;
 		
