@@ -200,8 +200,8 @@ std::string CGI::start()
 		std::map<std::string, std::string> envMap = setupEnvironment();
 		char **envp = mapToEnvArray(envMap);
 		std::string interpreter = getCGIInterpreter(_scriptPath);
-		std::cerr << "interpreter = " << interpreter << "\n";
-		std::cerr << "script Path = " << _scriptPath << "\n";
+		// std::cerr << "interpreter = " << interpreter << "\n";
+		// std::cerr << "script Path = " << _scriptPath << "\n";
 		// std::cerr << "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 		if (!interpreter.empty())
 		{
@@ -225,6 +225,7 @@ std::string CGI::start()
 	else
 	{
 		_outFile = open(_outputFile.c_str(), O_RDONLY | O_NONBLOCK);
+		waitpid(_pid, NULL, 0);
 		if (_outFile < 0)
 		{
 			std::cerr << "Parent: Failed to open output File\n";

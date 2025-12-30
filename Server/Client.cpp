@@ -35,6 +35,31 @@ const ServerConfig	&Client::getServerConfig() const
 	return _serverConfig;
 }
 
+LocationConfig	Client::findLocation()
+{
+	string	uri = requestHandle.request_line.getURI();
+
+	while (uri.size())
+	{
+		for (map<string, LocationConfig>::iterator	it = _serverConfig.locations.begin();
+			it != _serverConfig.locations.end(); it++)
+			if (!it->first.compare(uri))
+				return (it->second);
+		if (uri[uri.size() - 1] == '/')
+			uri.erase(uri.size() - 1, 1);
+		else
+		{
+			size_t	index;
+			
+			index = uri.rfind('/', uri.size());
+			if (index == string::npos)
+				throw 404;
+			uri.erase(uri.begin() + index + 1, uri.end());
+		}
+	}
+	throw 404;
+}
+
 void	Client::postInit()
 {
 	ostringstream									oss;
@@ -133,8 +158,10 @@ bool	Client::readRequest()
 				return (true);
 			if (!location_config.cgi.size() && requestHandle.request_line.getMethod() == "POST")
 				setState(READ_BODY), postInit();
+// handle if the CGI must be runned with a request that hasn't a body
 			else if (location_config.cgi.size())
-				setState(READ_BODY);
+				cout << "<<< it's CGI\n";
+			// setState(READ_BODY);
 		}
 		else
 			return (false);
@@ -149,34 +176,26 @@ bool	Client::readRequest()
 	return (true);
 }
 
-LocationConfig	Client::findLocation()
-{
-	string	uri = requestHandle.request_line.getURI();
-
-	while (uri.size())
-	{
-		for (map<string, LocationConfig>::iterator	it = _serverConfig.locations.begin();
-			it != _serverConfig.locations.end(); it++)
-			if (!it->first.compare(uri))
-				return (it->second);
-		if (uri[uri.size() - 1] == '/')
-			uri.erase(uri.size() - 1, 1);
-		else
-		{
-			size_t	index;
-			
-			index = uri.rfind('/', uri.size());
-			if (index == string::npos)
-				throw 404;
-			uri.erase(uri.begin() + index + 1, uri.end());
-		}
-	}
-	throw 404;
-}
-
 void	Client::processRequest()
 {
-	if (location_config.redirectExist)
+	cout << "<<< processing request\n";
+	if (isCGIRequest(requestHandle.request_line.getURI()))
+	{
+		int	fd;
+
+		cgiFile = startCGI();
+		fd = open(cgiFile.c_str(), O_RDONLY);
+		if (-1 == fd)
+			throw 500;
+		this->fd = fd;
+		// close (fd);
+		cout << "<<< filename: " << cgiFile << '\n';
+		cout << "<<< state sated to CGI_WRITING\n";
+		setState(CGI_WRITING);
+		_byteSent = 0;
+		return ;
+	}
+	else if (location_config.redirectExist)
 	{
 		Response			response;
 		std::stringstream	ss;
@@ -191,19 +210,8 @@ void	Client::processRequest()
 		else
 			response.statusCode501();
 		_resRes = response.getResponse();
-		_byteSent = 0;
-		setState(WRITING);
-		return ;
 	}
-	if (isCGIRequest(requestHandle.request_line.getURI()))
-	{
-		std::string outfilename = startCGI();
-		std::cerr << "out file name ===> " << outfilename << "\n";
-		// _byteSent = 0;
-		setState(WRITING);
-		return ;
-	}
-	if (requestHandle.request_line.getMethod() != "POST")
+	else if (requestHandle.request_line.getMethod() != "POST")
 	{
 		Response	response(requestHandle, location_config);
 
@@ -214,18 +222,13 @@ void	Client::processRequest()
 		_resRes += response.getResponse();
 	}
 	else if (requestHandle.request_line.getMethod() == "POST")
-	{
-		cout << "here\n";
 		_resRes = "HTTP/1.0 201 Created\r\n\r\n";
-	}
 	_byteSent = 0;
  	setState(WRITING);
 }
 
 bool	Client::writeResponse()
 {
-	// std::cout << "writeResponse: _byteSent=" << _byteSent 
-	// 		  << " / " << _resRes.size() << std::endl;
 	while (_byteSent < _resRes.size())
 	{
 		ssize_t bytesSent = send(_fd, _resRes.c_str() + _byteSent, _resRes.size() - _byteSent, 0);
@@ -240,6 +243,34 @@ bool	Client::writeResponse()
 	return true;
 }
 
+bool	Client::writeCGIResponse()
+{
+	// int 	fd;
+	ssize_t	bytesSent;
+	char	buffer[2];
+
+	// cout << "- - - - - - - - - - - - -\n";
+	//system(("ls -l " + cgiFile).c_str());
+	//cout << "- - - - - - - - - - - - -\n";
+	string response("HTTP/1.1 200 OK\r\nContent-Length: 12\r\nContent-Type: text/plain\r\n\r\n");
+	send(_fd, response.c_str(), response.size(), 0);
+	i++;
+	bytesSent = read(fd, buffer, 2);
+	if (bytesSent == -1)
+		throw 500;
+	// close(fd);
+	cout << "\\\\\\reading " << bytesSent << " from " << cgiFile << '\n';;
+	bytesSent = send(_fd, buffer, bytesSent, 0);
+	if (bytesSent < 0)
+	{
+		std::cout << "send() error: " << strerror(errno) << "\n";
+		return false;
+	}
+	if (!bytesSent)
+		return (cout << "\\\\\\eof reached\n", setState(DONE), close(fd) ,true);
+	return false;
+}
+
 // std::string	Client::mapURLToFilePath(const std::string &urlPath)
 // {
 // 	std::string root = _serverConfig.root;
@@ -252,6 +283,7 @@ bool	Client::writeResponse()
 // 	return root + path;
 // }
 
+// this function must be modified the way it checks for CGI
 bool	Client::isCGIRequest(const std::string &path)
 {
 	if (path.find("/cgi-bin/") == 0)
@@ -259,6 +291,7 @@ bool	Client::isCGIRequest(const std::string &path)
 	if (path.find(".php") != std::string::npos 
 		|| path.find(".py") != std::string::npos)
 		return true;
+	cout << "it's not CGI\n";
 	return false;
 }
 
@@ -267,11 +300,7 @@ std::string	Client::startCGI()
 	std::string scriptPath = requestHandle.request_line.getURI();
 
 	if (access(scriptPath.c_str(), F_OK) != 0)
-	{
-		// _resRes = "HTTP/1.0 404 NOt Found\r\n\r\nCGI Script not found";
-		// setState(WRITING);
 		throw 404;
-	}
 	_cgi = new CGI();
 	_cgi->setScriptPath(scriptPath);
 	_cgi->setMethod(requestHandle.request_line.getMethod());
@@ -284,13 +313,7 @@ std::string	Client::startCGI()
 
 	for (std::map<const std::string, const std::string>::const_iterator it = headers.begin(); 
 		it != headers.end(); it++)
-	{
 		_cgi->setHeader(it->first, it->second);
-	}
-	// _cgi->setHeader("Host", "localhost:8080");
-	// _cgi->setHeader("Accept", "text/html,application/json");
-	// _cgi->setHeader("Accept-Language", "en-US,en;q=0.9");
-	// _cgi->setHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
 	try
 	{
 		std::string outFileName = _cgi->start();
@@ -303,12 +326,6 @@ std::string	Client::startCGI()
 		_cgi = NULL;
 		throw 500;
 	}
-	
-	// else
-	// {
-	// 	_resRes = "HTTP/1.0 500 Internal Server Error\r\n\r\n";
-	// 	setState(WRITING);
-	// }
 }
 
 void	Client::setServerInfo(const std::string &host, int port)

@@ -68,7 +68,8 @@ void Server::initSocket(std::string host, int port, size_t configIndex)
 short Server::determineClientEvents(Client *clt)
 {
 	short events = 0;
-	if (clt->getState() == Client::WRITING)
+	if (clt->getState() == Client::WRITING
+			|| clt->getState() == Client::CGI_WRITING)
 		events |= POLLOUT;
 	else
 		events |= POLLIN;
@@ -143,24 +144,22 @@ void Server::handleClientRead(int clientFd)
 	if (client->getState() == Client::DONE)
 		return;
 	if (complete)
-	{
-		// std::cout << "Request complete from fd = " << clientFd << "\n";
 		client->processRequest();
-	}
 }
 
 void Server::handleClientWrite(int clientFd)
 {
+	bool	complete;
+
 	Client *client = _clients[clientFd];
 	if (!client)
 		return;
-	client->setState(Client::WRITING);
-	bool complete = client->writeResponse();
+	if (client->getState() == Client::CGI_WRITING)
+		complete = client->writeCGIResponse();
+	else
+		complete = client->writeResponse();
 	if (complete)
-	{
-		// std::cout << "Response sent to Fd = " << clientFd << "\n";
 		closeClient(clientFd);
-	}
 }
 
 /*
@@ -229,6 +228,14 @@ void Server::run()
 			// 		handleCGIRead(cgiClient);
 			// 	continue;
 			// }
+
+			// if (_clients.find(fd) != _clients.end())
+			// {
+			// 	if (_clients.find(fd)->second->getState() == Client::CGI_WRITING)
+			// 		cout << "- - - - Client state: cgi runing\n";
+			// 	else
+			// 		cout << "!!!! Client state: " << _clients.find(fd)->second->getState() << '\n';
+			// }
 			if (isListeningSocket(fd))
 			{
 				if (revents & POLLIN)
@@ -241,9 +248,6 @@ void Server::run()
 					try
 					{
 						handleClientRead(fd);
-						// Client *client = _clients[fd];
-						// const ServerConfig &config = client->getServerConfig();
-						// std::cout << "Config max body size for fd " << fd << " is " << config.max_body_size << std::endl;
 					}
 					catch (int &status)
 					{
@@ -273,7 +277,7 @@ void Server::run()
 			}
 		}
 
-		checkCGITimeouts();
+		// checkCGITimeouts();
 
 		std::vector<int> clientsToClose; // Collect clients to close after iteration
 		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
