@@ -98,7 +98,7 @@ void	Client::postInit()
 
 bool	Client::readRequest()
 {
-	char				buffer[15];
+	char				buffer[200000];
 	size_t				crlf_index;
 
 	ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);

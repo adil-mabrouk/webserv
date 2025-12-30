@@ -23,7 +23,9 @@ class CGI
 		void	appendOutput(const char* data, size_t size);
 		std::string	formatResponse();
 
-	private:
+		std::vector<CGIConfig>						cgi_c;
+
+		private:
 		std::string							_scriptPath;
 		std::string							_method;
 		std::string							_queryString;

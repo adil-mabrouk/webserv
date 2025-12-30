@@ -30,7 +30,8 @@ struct LocationConfig {
 	std::string									upload_store;
 	bool										allow_upload;
 	std::vector<CGIConfig>						cgi;
-	LocationConfig() : autoindex(false), redirectExist(false), allow_upload(false) {}
+	bool										hasCGI;
+	LocationConfig() : autoindex(false), redirectExist(false), allow_upload(false), hasCGI(false) {}
 };
 
 struct ServerConfig {
@@ -45,16 +46,16 @@ struct ServerConfig {
 
 class ConfigParser {
 	public:
-		ConfigParser(const std::string& path);
+		ConfigParser(const std::string&);
 		std::vector<ServerConfig>				parser();
 	private:
 		void									defaultServerParams(ServerConfig& serverConfig);
 		void									defaultLocationParams(LocationConfig& locConfig);
 		std::string 							_content;
 		std::vector<std::string>				tokenize(const std::string& text);
-		ServerConfig							parseServerBlock(const std::vector<std::string>& tokens, size_t& index);
-		LocationConfig							parseLocationBlock(const std::vector<std::string>& tokens, size_t& index);
-		void									parseListenDirective(const std::vector<std::string> &tokens, size_t &index, ServerConfig &servConf);
-		void									parseClientMaxBody(const std::vector<std::string> &tokens, size_t &index, ServerConfig &servConf);
-		void									parseErrorPage(const std::vector<std::string> &tokens, size_t &index, ServerConfig &servConf);
+		ServerConfig							parseServerBlock(const std::vector<std::string>& , size_t&);
+		LocationConfig							parseLocationBlock(const std::vector<std::string>& , size_t&);
+		void									parseListenDirective(const std::vector<std::string>&, size_t&, ServerConfig&);
+		void									parseClientMaxBody(const std::vector<std::string>&, size_t&, ServerConfig&);
+		void									parseErrorPage(const std::vector<std::string>&, size_t&, ServerConfig&);
 };

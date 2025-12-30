@@ -98,7 +98,7 @@ void	Client::postInit()
 
 bool	Client::readRequest()
 {
-	char				buffer[15];
+	char				buffer[200000];
 	size_t				crlf_index;
 
 	ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
@@ -254,7 +254,7 @@ bool	Client::writeCGIResponse()
 	//cout << "- - - - - - - - - - - - -\n";
 	string response("HTTP/1.1 200 OK\r\nContent-Length: 12\r\nContent-Type: text/plain\r\n\r\n");
 	send(_fd, response.c_str(), response.size(), 0);
-	i++;
+	// i++;
 	bytesSent = read(fd, buffer, 2);
 	if (bytesSent == -1)
 		throw 500;
@@ -288,10 +288,11 @@ bool	Client::isCGIRequest(const std::string &path)
 {
 	if (path.find("/cgi-bin/") == 0)
 		return true;
-	if (path.find(".php") != std::string::npos 
-		|| path.find(".py") != std::string::npos)
+	if (path.find(".php") != std::string::npos
+		|| path.find(".py") != std::string::npos
+		|| path.find(".sh") != std::string::npos
+		|| path.find(".pl") != std::string::npos)
 		return true;
-	cout << "it's not CGI\n";
 	return false;
 }
 
@@ -302,6 +303,17 @@ std::string	Client::startCGI()
 	if (access(scriptPath.c_str(), F_OK) != 0)
 		throw 404;
 	_cgi = new CGI();
+
+	std::map<std::string, LocationConfig> lc = getServerConfig().locations;
+	for (std::map<std::string, LocationConfig>::iterator it = lc.begin(); 
+			it != lc.end(); it++)
+	{
+		LocationConfig lc_it = it->second;
+		if (lc_it.hasCGI)
+		{
+			_cgi->cgi_c = lc_it.cgi;
+		}
+	}
 	_cgi->setScriptPath(scriptPath);
 	_cgi->setMethod(requestHandle.request_line.getMethod());
 	_cgi->setQueryString(requestHandle.request_line.getQuery());

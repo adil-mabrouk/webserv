@@ -75,15 +75,20 @@ const std::string& CGI::getOutput() const
 
 std::string CGI::getCGIInterpreter(const std::string& path)
 {
-	 // update it dynamicly
-	size_t dotPos = path.rfind('.');
+	size_t	dotPos = path.rfind('.');
 	if (dotPos == std::string::npos)
 		return "";
-	std::string ext = path.substr(dotPos);
-	if (ext == ".php")
-		return "/usr/bin/php-cgi";
-	else if (ext == ".py")
-		return "/usr/bin/python3";
+	std::string ext = string(path.begin() + dotPos, path.end());
+	for (std::vector<CGIConfig>::iterator it = cgi_c.begin();
+		  it != cgi_c.end(); it++)
+	{
+		CGIConfig cgi_c_it = *it;
+		if (cgi_c_it.extension == ext)
+		{
+			// std::cerr << cgi_c_it.path;
+			return cgi_c_it.path;
+		}
+	}
 	return "";
 }
 
@@ -143,7 +148,6 @@ void CGI::freeEnvArray(char** envp)
 	delete[] envp;
 }
 
-
 std::string CGI::start()
 {
 	std::ostringstream outputPath;
@@ -200,8 +204,8 @@ std::string CGI::start()
 		std::map<std::string, std::string> envMap = setupEnvironment();
 		char **envp = mapToEnvArray(envMap);
 		std::string interpreter = getCGIInterpreter(_scriptPath);
-		// std::cerr << "interpreter = " << interpreter << "\n";
-		// std::cerr << "script Path = " << _scriptPath << "\n";
+		std::cerr << "interpreter = " << interpreter << "\n";
+		std::cerr << "script Path = " << _scriptPath << "\n";
 		// std::cerr << "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 		if (!interpreter.empty())
 		{
