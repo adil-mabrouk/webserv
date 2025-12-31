@@ -39,12 +39,9 @@ void Server::initSocket(std::string host, int port, size_t configIndex)
 	if (setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 		throwError(listenFd, "setsockopt() failed: ");
 
-	int f = fcntl(listenFd, F_GETFL, 0);
-	if (f < 0)
-		throwError(listenFd, "fcntl(F_GETFL) failed: ");
-
-	if (fcntl(listenFd, F_SETFL, f | O_NONBLOCK) < 0)
+	if (fcntl(listenFd, F_SETFL, O_NONBLOCK) < 0)
 		throwError(listenFd, "fcntl(F_SETFL) failed: ");
+	fcntl(listenFd, F_SETFL, FD_CLOEXEC);
 
 	struct sockaddr_in address;
 	std::memset(&address, 0, sizeof(address));
@@ -69,7 +66,8 @@ short Server::determineClientEvents(Client *clt)
 {
 	short events = 0;
 	if (clt->getState() == Client::WRITING
-			|| clt->getState() == Client::CGI_WRITING)
+			|| clt->getState() == Client::CGI_WRITING
+		|| clt->getState() == Client::CGI_HEADERS_WRITING)
 		events |= POLLOUT;
 	else
 		events |= POLLIN;
@@ -113,11 +111,10 @@ void Server::handleNewConnection(int fd)
 	std::string serverHost = inet_ntoa(serverAddr.sin_addr);
 	int serverPort = ntohs(serverAddr.sin_port);
 
-	int f = fcntl(clientFd, F_GETFL, 0);
-	if (f < 0 || fcntl(clientFd, F_SETFL, f | O_NONBLOCK) < 0)
+	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0)
 		throwError(clientFd, "Failed to set non-blocking: ");
+	fcntl(clientFd, F_SETFL, FD_CLOEXEC);
 	ServerConfig config = getConfigForListenFd(fd);
-	// fcntl(clientFd, F_SETFD, FD_CLOEXEC);
 	Client *client = new Client(clientFd, config);
 	_clients[clientFd] = client;
 	client->setServerInfo(serverHost, serverPort);
@@ -154,7 +151,8 @@ void Server::handleClientWrite(int clientFd)
 	Client *client = _clients[clientFd];
 	if (!client)
 		return;
-	if (client->getState() == Client::CGI_WRITING)
+	if (client->getState() == Client::CGI_WRITING
+		|| client->getState() == Client::CGI_HEADERS_WRITING)
 		complete = client->writeCGIResponse();
 	else
 		complete = client->writeResponse();
@@ -277,7 +275,7 @@ void Server::run()
 			}
 		}
 
-		// checkCGITimeouts();
+		checkCGITimeouts();
 
 		std::vector<int> clientsToClose; // Collect clients to close after iteration
 		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
@@ -396,10 +394,10 @@ void Server::checkCGITimeouts()
 	for (std::map<int, Client *>::iterator it = _clients.begin();
 		 it != _clients.end(); it++)
 	{
-		if (it->second->getState() == Client::CGI_RUNNING &&
-			it->second->getCGI())
+		if (it->second->getCGI())
 		{
-			if (now - it->second->getCGI()->getStartTime() > 10)
+			// std::cout << "state timeout => " << it->second->getState() << "\n";
+			if (now - it->second->getCGI()->getStartTime() > 3)
 			{
 				std::cout << "CGI timeout\n";
 				close(it->second->getCGI()->getOutFile());

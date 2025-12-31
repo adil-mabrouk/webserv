@@ -1,6 +1,3 @@
-import time
+import os
 
-time.sleep(4)
-
-
-print('Hello world')
+os.system("curl http://localhost:7070/cgi-bin/test.py")

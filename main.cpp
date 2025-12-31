@@ -4,6 +4,8 @@
 
 int main(int ac, char** av)
 {
+	signal(SIGPIPE, SIG_IGN);
+	
 	if (ac != 2) {
 		std::cerr << "Usage: ./webserv config_file\n";
 		return 1;

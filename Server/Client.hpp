@@ -11,7 +11,7 @@ class CGI;
 class Client {
 	public:
 		// CGI_RUNNING added
-		enum State	{ READING, READ_HEADER, READ_BODY, CGI_RUNNING, CGI_WRITING, WRITING, PROCESSING, DONE };
+		enum State	{ READING, READ_HEADER, READ_BODY, CGI_RUNNING, CGI_WRITING, CGI_HEADERS_WRITING, WRITING, PROCESSING, DONE };
 
 		Client(int fd, ServerConfig config);
 		int			getState() const;

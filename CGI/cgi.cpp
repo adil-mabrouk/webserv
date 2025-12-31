@@ -4,7 +4,7 @@
 #include <cstdlib>
 
 CGI::CGI() 
-	: _pid(-1), _outFile(-1), _startTime(0)
+	: _pid(-1), _outFile(-1), _startTime(0), _state(CGI_RUNNING)
 {
 }
 
@@ -163,6 +163,8 @@ std::string CGI::start()
     }
 	close(outputFd);
 
+	_startTime = time(NULL);
+
 	_pid = fork();
 
 	if (_pid < 0)
@@ -179,7 +181,7 @@ std::string CGI::start()
 			if (inFd < 0)
 			{
 				std::cerr << "Child: Failed to open input file: " << _inputFile << "\n";
-				exit(1);
+				exit(10);
 			}
 			dup2(inFd, STDIN_FILENO);
 			close(inFd);
@@ -196,7 +198,7 @@ std::string CGI::start()
 		if (outFd < 0)
 		{
 			std::cerr << "Child: failed to open output file\n";
-			exit(1);
+			exit(11);
 		}
 		
 		dup2(outFd, STDOUT_FILENO);
@@ -214,6 +216,8 @@ std::string CGI::start()
 			argv[1] = const_cast<char*>(_scriptPath.c_str());
 			argv[2] = NULL;
 			execve(interpreter.c_str(), argv, envp);
+			std::cerr << "execve failed: " << strerror(errno) << "\n";
+			exit(12);
 		}
 		else
 		{
@@ -228,15 +232,15 @@ std::string CGI::start()
 	}
 	else
 	{
-		_outFile = open(_outputFile.c_str(), O_RDONLY | O_NONBLOCK);
-		waitpid(_pid, NULL, WNOHANG);
-		if (_outFile < 0)
-		{
-			std::cerr << "Parent: Failed to open output File\n";
-			waitpid(_pid, NULL, 0);
-			unlink(_outputFile.c_str());
-			throw 500;
-		}
+		// _outFile = open(_outputFile.c_str(), O_RDONLY | O_NONBLOCK);
+		// waitpid(_pid, NULL, WNOHANG);
+		// if (_outFile < 0)
+		// {
+		// 	std::cerr << "Parent: Failed to open output File\n";
+		// 	waitpid(_pid, NULL, 0);
+		// 	unlink(_outputFile.c_str());
+		// 	throw 500;
+		// }
 		_startTime = time(NULL);
 
 		// std::cout << "CGI started (PID " << _pid << ")" << std::endl;
