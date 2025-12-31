@@ -69,7 +69,8 @@ short Server::determineClientEvents(Client *clt)
 {
 	short events = 0;
 	if (clt->getState() == Client::WRITING
-			|| clt->getState() == Client::CGI_WRITING)
+			|| clt->getState() == Client::CGI_WRITING
+			|| clt->getState() == Client::ERROR_WRITING)
 		events |= POLLOUT;
 	else
 		events |= POLLIN;
@@ -156,6 +157,9 @@ void Server::handleClientWrite(int clientFd)
 		return;
 	if (client->getState() == Client::CGI_WRITING)
 		complete = client->writeCGIResponse();
+	else if (client->getState() == Client::ERROR_HEADERS_WRITING ||
+		client->getState() == Client::ERROR_WRITING )
+		complete = client->writeErrorResponse();
 	else
 		complete = client->writeResponse();
 	if (complete)
@@ -229,13 +233,6 @@ void Server::run()
 			// 	continue;
 			// }
 
-			// if (_clients.find(fd) != _clients.end())
-			// {
-			// 	if (_clients.find(fd)->second->getState() == Client::CGI_WRITING)
-			// 		cout << "- - - - Client state: cgi runing\n";
-			// 	else
-			// 		cout << "!!!! Client state: " << _clients.find(fd)->second->getState() << '\n';
-			// }
 			if (isListeningSocket(fd))
 			{
 				if (revents & POLLIN)
@@ -251,24 +248,47 @@ void Server::run()
 					}
 					catch (int &status)
 					{
-						Response res;
+						map<int, std::string>::const_iterator	it;
 
-						switch (status)
+						it = _clients.find(fd)->second->getServerConfig().error_pages.find(status);
+						if (it != _clients.find(fd)->second->getServerConfig().error_pages.end())
 						{
-							case 400:
-								res.statusCode400();
-								break;
-							case 403:
-								res.statusCode403();
-								break;
-							case 404:
-								res.statusCode404();
-								break;
-							case 501:
-								res.statusCode501();
-								break;
+							cout << "+ + + error pages\n";
+							_clients.find(fd)->second->setState(Client::ERROR_HEADERS_WRITING);
+							_clients.find(fd)->second->setFileFd(open(it->second.c_str(), O_RDONLY));
+							_clients.find(fd)->second->setFileName(it->second.c_str());
+							_clients.find(fd)->second->setErrorStatus(it->first);
 						}
-						_clients.find(fd)->second->_resRes = res.getResponse();
+						if (_clients.find(fd)->second->getFileFd() == -1)
+						{
+							cout << "+ + + normal pages\n";
+							Response res;
+
+							_clients.find(fd)->second->setState(Client::WRITING);
+							switch (status)
+							{
+								case 400:
+									res.statusCode400();
+									break;
+								case 401:
+									res.statusCode401();
+									break;
+								case 403:
+									res.statusCode403();
+									break;
+								case 404:
+									res.statusCode404();
+									break;
+								case 500:
+									res.statusCode500();
+									break;
+								case 501:
+									res.statusCode501();
+									break;
+							}
+							_clients.find(fd)->second->_resRes = res.getResponse();
+						}
+						cout << "writing . . . \n";
 						handleClientWrite(fd);
 					}
 				}
@@ -368,10 +388,10 @@ void Server::handleCGIRead(Client *client)
 			}
 			close(cgi->getOutFile());
 			// Only format response if not already set (e.g., by timeout handler)
-			if (client->_resRes.empty())
-			{
-				client->_resRes = cgi->formatResponse();
-			}
+			// if (client->_resRes.empty())
+			// {
+			// 	client->_resRes = cgi->formatResponse();
+			// }
 			client->setState(Client::WRITING);
 		}
 	}
