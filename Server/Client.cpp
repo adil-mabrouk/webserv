@@ -185,11 +185,7 @@ void	Client::processRequest()
 
 		cgiFile = startCGI();
 
-		std::ifstream is;
-		is.open(cgiFile.c_str(), std::ios::binary);
-		is.seekg(0, std::ios::end);
-		_outputLength = is.tellg();
-		is.close();
+		
 
 		fd = open(cgiFile.c_str(), O_RDONLY);
 		if (-1 == fd)
@@ -252,35 +248,73 @@ bool	Client::writeResponse()
 
 bool	Client::writeCGIResponse()
 {
-	// int 	fd;
-	ssize_t	bytesSent;
-	char	buffer[4096];
 
-	// cout << "- - - - - - - - - - - - -\n";
-	//system(("ls -l " + cgiFile).c_str());
-	//cout << "- - - - - - - - - - - - -\n";
+	int status;
+	pid_t result = waitpid(_cgi->getPid(), &status, WNOHANG);
 
-	std::ostringstream oss;
-	oss << _outputLength;
-	std::cerr << "oss = " << oss.str() << "\n";
-	string response("HTTP/1.1 200 OK\r\nContent-Length: " + oss.str() + "\r\n\r\n");
-	send(_fd, response.c_str(), response.size(), 0);
-	// i++;
-	bytesSent = read(fd, buffer, sizeof(buffer));
-	if (bytesSent == -1)
-		throw 500;
-	// close(fd);
-	// cout << "\\\\\\reading " << bytesSent << " from " << cgiFile << '\n';;
-	bytesSent = send(_fd, buffer, bytesSent, 0);
-	if (bytesSent < 0)
+	if (result == -1)
 	{
-		std::cout << "send() error: " << strerror(errno) << "\n";
+		std::cerr << "waitpid error: " << strerror(errno) << std::endl;
+		kill(_cgi->getPid(), SIGKILL);
+		waitpid(_cgi->getPid(), NULL, WNOHANG);
+		close(_cgi->getOutFile());
 		return false;
 	}
-	if (!bytesSent)
+	else if (result == 0)
 	{
-		// cout << "\\\\\\eof reached\n";
-		return (setState(DONE), close(fd) ,true);
+		// Process still running but no data
+		// This is OK, just wait
+		return false;
+	}
+	else // result == pid (process finished)
+	{
+		// std::cout << "CGI process finished (PID " << result << ")" << std::endl;
+		if (WIFEXITED(status))
+		{
+			// Normal exit
+			int exitCode = WEXITSTATUS(status);
+			// std::cout << "  Exit code: " << exitCode << std::endl;
+			if (exitCode != 0)
+			{
+				std::cerr << "  CGI exited with error code " << exitCode << std::endl;
+				// Could send 500 error here
+			}
+		}
+		close(_cgi->getOutFile());
+		setState(Client::WRITING);
+	}
+
+	if (getState() == WRITING)
+	{
+		ssize_t	bytesSent;
+		char	buffer[4096];
+		std::ifstream is;
+		is.open(cgiFile.c_str(), std::ios::binary);
+		is.seekg(0, std::ios::end);
+		_outputLength = is.tellg();
+		is.close();
+		std::ostringstream oss;
+		oss << _outputLength;
+		std::cerr << "oss = " << oss.str() << "\n";
+		string response("HTTP/1.1 200 OK\r\nContent-Length: " + oss.str() + "\r\n\r\n");
+		send(_fd, response.c_str(), response.size(), 0);
+		// i++;
+		bytesSent = read(fd, buffer, sizeof(buffer));
+		if (bytesSent == -1)
+			throw 500;
+		// close(fd);
+		// cout << "\\\\\\reading " << bytesSent << " from " << cgiFile << '\n';;
+		bytesSent = send(_fd, buffer, bytesSent, 0);
+		if (bytesSent < 0)
+		{
+			std::cout << "send() error: " << strerror(errno) << "\n";
+			return false;
+		}
+		if (!bytesSent)
+		{
+			// cout << "\\\\\\eof reached\n";
+			return (setState(DONE), close(fd) ,true);
+		}
 	}
 	return false;
 }

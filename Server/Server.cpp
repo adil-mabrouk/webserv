@@ -337,43 +337,43 @@ void Server::handleCGIRead(Client *client)
 	else if (bytesRead == 0)
 	{
 		// EOF - check if process finished
-		int status;
-		pid_t result = waitpid(cgi->getPid(), &status, WNOHANG);
+		// int status;
+		// pid_t result = waitpid(cgi->getPid(), &status, WNOHANG);
 
-		if (result == -1)
-		{
-			std::cerr << "waitpid error: " << strerror(errno) << std::endl;
-			killCGI(client);
-			return;
-		}
-		else if (result == 0)
-		{
-			// Process still running but no data
-			// This is OK, just wait
-			return;
-		}
-		else // result == pid (process finished)
-		{
-			// std::cout << "CGI process finished (PID " << result << ")" << std::endl;
-			if (WIFEXITED(status))
-			{
-				// Normal exit
-				int exitCode = WEXITSTATUS(status);
-				// std::cout << "  Exit code: " << exitCode << std::endl;
-				if (exitCode != 0)
-				{
-					std::cerr << "  CGI exited with error code " << exitCode << std::endl;
-					// Could send 500 error here
-				}
-			}
-			close(cgi->getOutFile());
-			// Only format response if not already set (e.g., by timeout handler)
-			// if (client->_resRes.empty())
-			// {
-			// 	client->_resRes = cgi->formatResponse();
-			// }
-			client->setState(Client::WRITING);
-		}
+		// if (result == -1)
+		// {
+		// 	std::cerr << "waitpid error: " << strerror(errno) << std::endl;
+		// 	killCGI(client);
+		// 	return;
+		// }
+		// else if (result == 0)
+		// {
+		// 	// Process still running but no data
+		// 	// This is OK, just wait
+		// 	return;
+		// }
+		// else // result == pid (process finished)
+		// {
+		// 	// std::cout << "CGI process finished (PID " << result << ")" << std::endl;
+		// 	if (WIFEXITED(status))
+		// 	{
+		// 		// Normal exit
+		// 		int exitCode = WEXITSTATUS(status);
+		// 		// std::cout << "  Exit code: " << exitCode << std::endl;
+		// 		if (exitCode != 0)
+		// 		{
+		// 			std::cerr << "  CGI exited with error code " << exitCode << std::endl;
+		// 			// Could send 500 error here
+		// 		}
+		// 	}
+		// 	close(cgi->getOutFile());
+		// 	// Only format response if not already set (e.g., by timeout handler)
+		// 	// if (client->_resRes.empty())
+		// 	// {
+		// 	// 	client->_resRes = cgi->formatResponse();
+		// 	// }
+		// 	client->setState(Client::WRITING);
+		// }
 	}
 	else // bytesRead < 0
 	{
