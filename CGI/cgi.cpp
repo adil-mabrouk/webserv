@@ -151,8 +151,8 @@ void CGI::freeEnvArray(char** envp)
 std::string CGI::start()
 {
 	std::ostringstream outputPath;
-	// outputPath << "/tmp/cgi_output_" << time(NULL) << ".html";
-	outputPath << "webservAmabroukFUNNY.txt";
+	outputPath << "/tmp/cgi_output_" << time(NULL);
+	// outputPath << "webservAmabroukFUNNY.txt";
 	_outputFile = outputPath.str();
 
 	int outputFd = open(_outputFile.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0600);

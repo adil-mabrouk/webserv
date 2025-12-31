@@ -306,7 +306,7 @@ void Server::run()
 	std::cout << "Cleanup completed" << "\n";
 }
 
-Client *Server::findClientByCGIPipe(int fileFd)
+Client *Server::findClientByCGIInFile(int fileFd)
 {
 	for (std::map<int, Client *>::iterator it = _clients.begin();
 		 it != _clients.end(); it++)
@@ -368,10 +368,10 @@ void Server::handleCGIRead(Client *client)
 			}
 			close(cgi->getOutFile());
 			// Only format response if not already set (e.g., by timeout handler)
-			if (client->_resRes.empty())
-			{
-				client->_resRes = cgi->formatResponse();
-			}
+			// if (client->_resRes.empty())
+			// {
+			// 	client->_resRes = cgi->formatResponse();
+			// }
 			client->setState(Client::WRITING);
 		}
 	}

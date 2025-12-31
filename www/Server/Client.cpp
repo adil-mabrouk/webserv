@@ -247,14 +247,13 @@ bool	Client::writeCGIResponse()
 {
 	// int 	fd;
 	ssize_t	bytesSent;
-	char	buffer[2];
+	char	buffer[4096];
 
 	// cout << "- - - - - - - - - - - - -\n";
 	//system(("ls -l " + cgiFile).c_str());
 	//cout << "- - - - - - - - - - - - -\n";
 	string response("HTTP/1.1 200 OK\r\nContent-Length: 12\r\nContent-Type: text/plain\r\n\r\n");
 	send(_fd, response.c_str(), response.size(), 0);
-	i++;
 	bytesSent = read(fd, buffer, 2);
 	if (bytesSent == -1)
 		throw 500;

@@ -44,6 +44,7 @@ class Client {
 		LocationConfig	findLocation();
 		std::string	cgiFile;
 		int	fd;
+		long long		_outputLength;
 
 
 		// ALL CGI needs {

@@ -41,7 +41,7 @@ class Server {
 		void							closeClient(int clientFd); // Close and clean up client connection
 
 
-		Client*			findClientByCGIPipe(int pipeFd);
+		Client*			findClientByCGIInFile(int fileFd);
 		void			handleCGIRead(Client* client);
 		void			checkCGITimeouts();
 		void			killCGI(Client* client);

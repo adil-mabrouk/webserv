@@ -133,7 +133,7 @@ bool	Client::readRequest()
 			requestHandle.request_line.removeDotSegments();
 			// cout << " => uri after dot seg mod: " << requestHandle.request_line.getURI() << '\n';
 			requestHandle.request_line.rootingPath(location_config.path, location_config.root, _serverConfig.root);
-			cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
+			// cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
 			setState(READ_HEADER);
 		}
 		else
@@ -159,8 +159,8 @@ bool	Client::readRequest()
 			if (!location_config.cgi.size() && requestHandle.request_line.getMethod() == "POST")
 				setState(READ_BODY), postInit();
 // handle if the CGI must be runned with a request that hasn't a body
-			else if (location_config.cgi.size())
-				cout << "<<< it's CGI\n";
+			// else if (location_config.cgi.size())
+			// 	cout << "<<< it's CGI\n";
 			// setState(READ_BODY);
 		}
 		else
@@ -178,19 +178,26 @@ bool	Client::readRequest()
 
 void	Client::processRequest()
 {
-	cout << "<<< processing request\n";
+	// cout << "<<< processing request\n";
 	if (isCGIRequest(requestHandle.request_line.getURI()))
 	{
 		int	fd;
 
 		cgiFile = startCGI();
+
+		std::ifstream is;
+		is.open(cgiFile.c_str(), std::ios::binary);
+		is.seekg(0, std::ios::end);
+		_outputLength = is.tellg();
+		is.close();
+
 		fd = open(cgiFile.c_str(), O_RDONLY);
 		if (-1 == fd)
 			throw 500;
 		this->fd = fd;
 		// close (fd);
-		cout << "<<< filename: " << cgiFile << '\n';
-		cout << "<<< state sated to CGI_WRITING\n";
+		// cout << "<<< filename: " << cgiFile << '\n';
+		// cout << "<<< state sated to CGI_WRITING\n";
 		setState(CGI_WRITING);
 		_byteSent = 0;
 		return ;
@@ -247,19 +254,23 @@ bool	Client::writeCGIResponse()
 {
 	// int 	fd;
 	ssize_t	bytesSent;
-	char	buffer[2];
+	char	buffer[4096];
 
 	// cout << "- - - - - - - - - - - - -\n";
 	//system(("ls -l " + cgiFile).c_str());
 	//cout << "- - - - - - - - - - - - -\n";
-	string response("HTTP/1.1 200 OK\r\nContent-Length: 12\r\nContent-Type: text/plain\r\n\r\n");
+
+	std::ostringstream oss;
+	oss << _outputLength;
+	std::cerr << "oss = " << oss.str() << "\n";
+	string response("HTTP/1.1 200 OK\r\nContent-Length: " + oss.str() + "\r\n\r\n");
 	send(_fd, response.c_str(), response.size(), 0);
 	// i++;
-	bytesSent = read(fd, buffer, 2);
+	bytesSent = read(fd, buffer, sizeof(buffer));
 	if (bytesSent == -1)
 		throw 500;
 	// close(fd);
-	cout << "\\\\\\reading " << bytesSent << " from " << cgiFile << '\n';;
+	// cout << "\\\\\\reading " << bytesSent << " from " << cgiFile << '\n';;
 	bytesSent = send(_fd, buffer, bytesSent, 0);
 	if (bytesSent < 0)
 	{
@@ -267,7 +278,10 @@ bool	Client::writeCGIResponse()
 		return false;
 	}
 	if (!bytesSent)
-		return (cout << "\\\\\\eof reached\n", setState(DONE), close(fd) ,true);
+	{
+		// cout << "\\\\\\eof reached\n";
+		return (setState(DONE), close(fd) ,true);
+	}
 	return false;
 }
 
@@ -301,7 +315,10 @@ std::string	Client::startCGI()
 	std::string scriptPath = requestHandle.request_line.getURI();
 
 	if (access(scriptPath.c_str(), F_OK) != 0)
+	{
+		cout << "access failed\n";
 		throw 404;
+	}
 	_cgi = new CGI();
 
 	std::map<std::string, LocationConfig> lc = getServerConfig().locations;
