@@ -206,8 +206,8 @@ std::string CGI::start()
 		std::map<std::string, std::string> envMap = setupEnvironment();
 		char **envp = mapToEnvArray(envMap);
 		std::string interpreter = getCGIInterpreter(_scriptPath);
-		// std::cerr << "interpreter = " << interpreter << "\n";
-		// std::cerr << "script Path = " << _scriptPath << "\n";
+		std::cerr << "interpreter = " << interpreter << "\n";
+		std::cerr << "script Path = " << _scriptPath << "\n";
 		// std::cerr << "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 		if (!interpreter.empty())
 		{

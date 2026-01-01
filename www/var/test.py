@@ -18,5 +18,3 @@ name = params.get("name", [""])[0]
 
 # Output
 print(f"Hello {name}")
-
-time.sleep(100)

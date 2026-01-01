@@ -423,15 +423,12 @@ bool	Client::isCGIRequest(const std::string &path)
 	size_t	extension_index;
 
 	extension_index = path.rfind('.', path.size());
-	if (extension_index == string::npos
-		|| (string(path.begin() + extension_index, path.end()) != ".php"
-		&& string(path.begin() + extension_index, path.end()) != ".py"))
+	if (extension_index == string::npos)
 		return (cout << "<<< it's not CGI\n", false);
-	if (!location_config.cgi.size())
-		cout << "<<< it's not CGI\n";
-	else
-		cout << "<<< it's CGI\n";
-	return (location_config.cgi.size() != 0);
+	for (vector<CGIConfig>::iterator it = location_config.cgi.begin(); it != location_config.cgi.end(); it++)
+		if (string(path.begin() + extension_index, path.end()) == it->extension)
+			return (cout << "<<< it's CGI\n", true);
+	return (cout << "<<< it's not CGI\n", false);
 }
 
 std::string	Client::startCGI()
