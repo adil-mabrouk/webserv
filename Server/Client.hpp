@@ -45,13 +45,13 @@ class Client {
 		std::string		_resBuff;
 		size_t			_byteSent;
 		std::ofstream*	upload_file;
-		long long		content_length;
+		unsigned long		content_length;
 		LocationConfig	findLocation();
 		long long		_outputLength;
 		std::string		fileName;
 		int				fileFd;
 		int				errorStatus;
-
+		unsigned long	contentSize;
 
 		// ALL CGI needs {
 

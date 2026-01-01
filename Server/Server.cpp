@@ -219,8 +219,8 @@ void Server::run()
 		{
 			int fd = pollFds[i].fd;
 			short revents = pollFds[i].revents;
-
-			if (pollFds[i].revents == 0 && i)
+			
+			if (pollFds[i].revents == 0)
 				continue;
 			if (isListeningSocket(fd))
 			{
@@ -286,7 +286,7 @@ void Server::run()
 			}
 		}
 
-		// checkCGITimeouts();
+		checkCGITimeouts();
 
 		std::vector<int> clientsToClose; // Collect clients to close after iteration
 		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)

@@ -23,23 +23,19 @@ class CGI
 		CGIState		getState() { return _state; }
 
 		std::string	start();
-		void	appendOutput(const char* data, size_t size);
-		std::string	formatResponse();
-
 		std::vector<CGIConfig>						cgi_c;
 
 	private:
 		std::string							_scriptPath;
 		std::string							_method;
 		std::string							_queryString;
-		std::string							_body;
+		// std::string							_body;
 		std::map<std::string, std::string>	_headers;
 		pid_t								_pid;
 		int									_outFile;
 		time_t								_startTime;
 		std::string							_inputFile;
 		std::string							_outputFile;
-		std::string							_output;
 		CGIState							_state;
 
 	std::string	getCGIInterpreter(const std::string &path);

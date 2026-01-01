@@ -15,8 +15,8 @@ ConfigParser::ConfigParser(const std::string& path)
 
 void	ConfigParser::defaultServerParams(ServerConfig& serverConfig)
 {
-	serverConfig.root = "./www"; // Default root directory
-	serverConfig.maxBodySizeExist = false;
+	serverConfig.root = "/home/amabrouk/Desktop/webserv"; // Default root directory
+	// serverConfig.maxBodySizeExist = false;
 }
 
 std::vector<ServerConfig>	ConfigParser::parser()
@@ -331,13 +331,13 @@ void ConfigParser::parseClientMaxBody(const std::vector<std::string>& tokens, si
 		throw std::runtime_error("client_max_body_size cannot be 0");
 	// Parse unit
 	size_t	toConvert = convertToBytes(unitPart);
-	if (maxBodySize > std::numeric_limits<size_t>::max() / toConvert) // Prevent overflow
+	if (maxBodySize > std::numeric_limits<unsigned long>::max() / toConvert) // Prevent overflow
 		throw std::runtime_error("client_max_body_size value too large");
 	serverConfig.max_body_size = maxBodySize * toConvert;
 	if (index >= tokens.size() || tokens[index] != ";")
 		throw std::runtime_error("Expected ';' after client_max_body_size directive");
 	++index;
-	serverConfig.maxBodySizeExist = true;
+	// serverConfig.maxBodySizeExist = true;
 }
 
 void	ConfigParser::parseErrorPage(const std::vector<std::string>& tokens, size_t& index, ServerConfig& serverConfig)

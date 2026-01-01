@@ -39,9 +39,9 @@ struct ServerConfig {
 	std::map<int, std::string>					error_pages;
 	std::map<std::string, LocationConfig>		locations;
 	std::string									root; // added for server root directive
-	long long									max_body_size;
-	bool										maxBodySizeExist;
-	ServerConfig() : max_body_size(0), maxBodySizeExist(false) {}
+	unsigned long									max_body_size;
+	// bool										maxBodySizeExist;
+	ServerConfig() : max_body_size(std::numeric_limits<unsigned long>::max()) {}
 };
 
 class ConfigParser {

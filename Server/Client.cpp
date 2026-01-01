@@ -13,6 +13,7 @@ Client::Client(int fd, ServerConfig config)
 	  _byteSent(0),
 	  upload_file(NULL),
 	  content_length(0),
+	  contentSize(0),
 	  _cgi(NULL)
 {
 	_serverConfig = config;
@@ -155,7 +156,7 @@ bool	Client::readRequest()
 				   _resBuff.end());
 			it = requestHandle.request_header.getHeaderData().find("Content-Length");
 			if (it != requestHandle.request_header.getHeaderData().end())
-				if (std::strtol(it->second.c_str(), NULL, 0) > _serverConfig.max_body_size)
+				if (std::strtoul(it->second.c_str(), NULL, 0) > _serverConfig.max_body_size)
 					throw 400;
 			if (location_config.redirectExist)
 				return (true);
@@ -171,10 +172,24 @@ bool	Client::readRequest()
 	}
 	if (getState() == READ_BODY && upload_file)
 	{
-		*upload_file << string(_resBuff.begin(), _resBuff.end());
-		upload_file->flush(), _resBuff.clear();
-		if (upload_file->tellp() < content_length)
+		unsigned long	size_tmp;
+
+		if (string(_resBuff.begin(), _resBuff.end()).size() + contentSize >= content_length)
+		{
+			size_tmp = (string(_resBuff.begin(), _resBuff.end()).size() + contentSize) - content_length; 
+			*upload_file << string(_resBuff.begin(), _resBuff.end() - size_tmp);
+			upload_file->flush(), _resBuff.clear();
+		}
+		else
+		{
+			*upload_file << string(_resBuff.begin(), _resBuff.end());
+			contentSize += string(_resBuff.begin(), _resBuff.end()).size();
+			upload_file->flush(), _resBuff.clear();
 			return (false);
+		}
+		// unsigned long written = static_cast<unsigned long>(upload_file->tellp());
+		// if (written < content_length)
+		// 	return (false);
 	}
 	return (true);
 }

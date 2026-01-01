@@ -4,17 +4,17 @@
 #include <cstdlib>
 
 CGI::CGI() 
-	: _pid(-1), _outFile(-1), _startTime(0), _state(CGI_RUNNING)
+	: _pid(-1), _startTime(0), _state(CGI_RUNNING)
 {
 }
 
 CGI::~CGI()
 {
-	if (_outFile != -1)
-	{
-		close(_outFile);
-		_outFile = -1;
-	}
+	// if (_outFile != -1)
+	// {
+	// 	close(_outFile);
+	// 	_outFile = -1;
+	// }
 	if (!_inputFile.empty())
 	{
 		unlink(_inputFile.c_str());
@@ -68,10 +68,10 @@ time_t CGI::getStartTime() const
 	return _startTime;
 }
 
-const std::string& CGI::getOutput() const
-{
-	return _output;
-}
+// const std::string& CGI::getOutput() const
+// {
+// 	return _output;
+// }
 
 std::string CGI::getCGIInterpreter(const std::string& path)
 {
@@ -101,9 +101,9 @@ std::map<std::string, std::string> CGI::setupEnvironment()
 	env["SERVER_PROTOCOL"] = "HTTP/1.0";
 	env["GATEWAY_INTERFACE"] = "CGI/1.0";
 	env["REDIRECT_STATUS"] = "200";
-	std::ostringstream oss;
-	oss << _body.length();
-	env["CONTENT_LENGTH"] = oss.str();
+	// std::ostringstream oss;
+	// oss << _body.length();
+	// env["CONTENT_LENGTH"] = oss.str();
 	std::map<std::string, std::string>::iterator it = _headers.find("Content-Type");
 	if (it != _headers.end())
 		env["CONTENT_TYPE"] = it->second;
@@ -249,30 +249,4 @@ std::string CGI::start()
 
 		return _outputFile;
 	}
-}
-
-void CGI::appendOutput(const char* data, size_t size)
-{
-	_output.append(data, size);
-}
-
-std::string CGI::formatResponse()
-{
-	// Check if CGI output already has HTTP status
-	if (_output.find("HTTP/") == 0)
-		return _output;
-
-	// Check if output has headers
-	size_t headerEnd = _output.find("\r\n\r\n");
-	if (headerEnd == std::string::npos)
-		headerEnd = _output.find("\n\n");
-
-	if (headerEnd != std::string::npos)
-	{
-		// CGI provided headers
-		return "HTTP/1.0 200 OK\r\n" + _output;
-	}
-
-	// No headers - add default
-	return "HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n" + _output;
 }
