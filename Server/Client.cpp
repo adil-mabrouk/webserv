@@ -1,5 +1,9 @@
 #include "Client.hpp"
 #include <algorithm>
+#include <sstream>
+#include <stdexcept>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "../CGI/cgi.hpp"
 
 Client::Client(int fd, ServerConfig config)
@@ -79,17 +83,19 @@ void	Client::postInit()
 		throw 403;
 	if (it_content_type == requestHandle.request_header.getHeaderData().end())
 	{
-		upload_file	= new std::ofstream((_serverConfig.root + location_config.upload_store + "/upload_" + oss.str()
-								  + "." + Response::fillContentType("x-www-form-urlencoded", 1)).c_str());
-		_inputFileName = _serverConfig.root + location_config.upload_store + "/upload_" + oss.str()
-								  + "." + Response::fillContentType("x-www-form-urlencoded", 1);
+		upload_file	= new std::ofstream((_serverConfig.root + location_config.upload_store
+								  + "/upload_" + oss.str() + "."
+								  + Response::fillContentType("x-www-form-urlencoded", 1)).c_str());
+		_inputFileName = _serverConfig.root + location_config.upload_store + "/upload_"
+			+ oss.str() + "." + Response::fillContentType("x-www-form-urlencoded", 1);
 	}
 	else
 	{
-		upload_file	= new std::ofstream((_serverConfig.root + location_config.upload_store + "/upload_" + oss.str()
-								  + "." + Response::fillContentType(it_content_type->second, 1)).c_str());
-		_inputFileName = _serverConfig.root + location_config.upload_store + "/upload_" + oss.str()
-								  + "." + Response::fillContentType(it_content_type->second, 1);
+		upload_file	= new std::ofstream((_serverConfig.root + location_config.upload_store
+								  + "/upload_" + oss.str() + "."
+								  + Response::fillContentType(it_content_type->second, 1)).c_str());
+		_inputFileName = _serverConfig.root + location_config.upload_store
+			+ "/upload_" + oss.str() + "." + Response::fillContentType(it_content_type->second, 1);
 		
 	}
 	if (!upload_file->is_open())
@@ -127,13 +133,10 @@ bool	Client::readRequest()
 			 requestHandle.request_line.getMethod());
 			if (!location_config.redirectExist && it == location_config.methods.end())
 				throw 403;
-			// cout << " => uri before: " << requestHandle.request_line.getURI() << '\n';
 			requestHandle.request_line.removeDupSl();
-			// cout << " => uri after dup sl mod: " << requestHandle.request_line.getURI() << '\n';
 			requestHandle.request_line.removeDotSegments();
-			// cout << " => uri after dot seg mod: " << requestHandle.request_line.getURI() << '\n';
 			requestHandle.request_line.rootingPath(location_config.path, location_config.root, _serverConfig.root);
-			// cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
+			cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
 			setState(READ_HEADER);
 		}
 		else
@@ -159,8 +162,8 @@ bool	Client::readRequest()
 			if (!location_config.cgi.size() && requestHandle.request_line.getMethod() == "POST")
 				setState(READ_BODY), postInit();
 // handle if the CGI must be runned with a request that hasn't a body
-			// else if (location_config.cgi.size())
-			// 	cout << "<<< it's CGI\n";
+			else if (location_config.cgi.size())
+				cout << "";
 			// setState(READ_BODY);
 		}
 		else
@@ -178,22 +181,15 @@ bool	Client::readRequest()
 
 void	Client::processRequest()
 {
-	// cout << "<<< processing request\n";
+	cout << "<<< processing request\n";
 	if (isCGIRequest(requestHandle.request_line.getURI()))
 	{
-		int	fd;
-
-		cgiFile = startCGI();
-
-		
-
-		fd = open(cgiFile.c_str(), O_RDONLY);
-		if (-1 == fd)
+		fileName = startCGI();
+		fileFd = open(fileName.c_str(), O_RDONLY);
+		if (-1 == fileFd)
 			throw 500;
-		this->fd = fd;
-		// close (fd);
-		// cout << "<<< filename: " << cgiFile << '\n';
-		// cout << "<<< state sated to CGI_WRITING\n";
+		cout << "<<< filename: " << fileName << '\n';
+		cout << "<<< state sated to CGI_HEADERS_WRITING\n";
 		setState(CGI_HEADERS_WRITING);
 		_byteSent = 0;
 		return ;
@@ -296,7 +292,7 @@ bool	Client::writeCGIResponse()
 	if (getState() == CGI_HEADERS_WRITING)
 	{
 		std::ifstream is;
-		is.open(cgiFile.c_str(), std::ios::binary);
+		is.open(fileName.c_str(), std::ios::binary);
 		is.seekg(0, std::ios::end);
 		_outputLength = is.tellg();
 		is.close();
@@ -312,17 +308,17 @@ bool	Client::writeCGIResponse()
 		}
 		setState(CGI_WRITING);
 	}
-	bytesSent = read(fd, buffer, sizeof(buffer) -1);
+	bytesSent = read(fileFd, buffer, sizeof(buffer) -1);
 	if (bytesSent == -1)
 		throw 500;
 	buffer[bytesSent] = '\0';
 	// close(fd);
-	cout << "\\\\\\reading " << bytesSent << " from " << cgiFile << '\n';
+	cout << "\\\\\\reading " << bytesSent << " from " << fileName << '\n';
 	cout << '|' << buffer << "|\n";
 	if (!bytesSent)
 	{
 		cout << "\\\\\\eof reached\n";
-		return (setState(DONE), close(fd) ,true);
+		return (setState(DONE), close(fileFd) ,true);
 	}
 	bytesSent = send(_fd, buffer, bytesSent, 0);
 	if (bytesSent < 0)
@@ -334,29 +330,108 @@ bool	Client::writeCGIResponse()
 	return false;
 }
 
-// std::string	Client::mapURLToFilePath(const std::string &urlPath)
-// {
-// 	std::string root = _serverConfig.root;
-// 	if (root.empty())
-// 		cerr << "Error: ROOT empty\n";
-// 	std::string	path = urlPath;
-// 	size_t	queryPos = path.find('?');
-// 	if (queryPos != std::string::npos)
-// 		path = path.substr(0, queryPos);
-// 	return root + path;
-// }
+
+int	Client::writeErrorResponseHeaders()
+{
+	struct stat	st;
+
+// look for the reason
+	if (stat(fileName.c_str(), &st) == -1)
+		throw std::runtime_error("cant get error page stat");
+	if (S_ISREG(st.st_mode))
+	{
+		std::stringstream	ss;
+		string				response;
+		size_t				content_length;
+
+		content_length = st.st_size;
+		ss << content_length;
+		if (errorStatus == 400)
+			response = "HTTP/1.0 400 Bad Request\r\n";
+		else if (errorStatus == 401)
+			response = "HTTP/1.0 401 Unauthorized\r\n";
+		else if (errorStatus == 403)
+			response = "HTTP/1.0 403 Forbidden\r\n";
+		else if (errorStatus == 404)
+			response = "HTTP/1.0 404 Not Found\r\n";
+		else if (errorStatus == 500)
+			response = "HTTP/1.0 500 Internal Server Error\r\n";
+		else
+			response = "HTTP/1.0 501 Not Implemented\r\n";
+		response += "Content-Length: " + ss.str() + "\r\n\r\n";
+		if (-1 == send(_fd, response.c_str(), response.size(), 0))
+			throw std::runtime_error("send fail");
+		return (setState(ERROR_WRITING), 0);
+	}
+	else if (S_ISDIR(st.st_mode))
+	{
+		Response	res;
+		DIR*		dir;
+
+		dir = opendir(fileName.c_str());
+		if (!dir)
+			throw std::runtime_error("can't open error page");
+		if (errorStatus == 400)
+			res.statusCode400();
+		else if (errorStatus == 401)
+			res.statusCode401();
+		else if (errorStatus == 403)
+			res.statusCode403();
+		else if (errorStatus == 404)
+			res.statusCode404();
+		else if (errorStatus == 500)
+			res.statusCode500();
+		else
+			res.statusCode501();
+		res.fillDirBody(string(fileName), dir);
+		closedir(dir);
+		if (-1 == send(_fd, res.getResponse().c_str(), res.getResponse().size(), 0))
+			throw std::runtime_error("send fail");
+		return (setState(DONE), 1);
+	}
+	else
+		throw std::runtime_error("error page type not supported");
+}
+
+bool	Client::writeErrorResponse()
+{
+	char	buffer[4096];
+	ssize_t	bytesSent;
+
+	if (getState() == ERROR_HEADERS_WRITING)
+		if (writeErrorResponseHeaders())
+			return (true);
+	bytesSent = read(fileFd, buffer, 4095);
+	cout << "<+ <+ reading " << bytesSent << " of error page bytes " << fileFd << "\n";
+// throw an exception that result to printing error in terminal
+	if (bytesSent == -1)
+		(void)buffer;
+	if (!bytesSent)
+	{
+		cout << "<+ <+ done\n";
+		setState(DONE);
+		close(fileFd);
+		return (true);
+	}
+	bytesSent = send(_fd, buffer, bytesSent, 0);
+	return (false);
+}
 
 // this function must be modified the way it checks for CGI
 bool	Client::isCGIRequest(const std::string &path)
 {
-	if (path.find("/cgi-bin/") == 0)
-		return true;
-	if (path.find(".php") != std::string::npos
-		|| path.find(".py") != std::string::npos
-		|| path.find(".sh") != std::string::npos
-		|| path.find(".pl") != std::string::npos)
-		return true;
-	return false;
+	size_t	extension_index;
+
+	extension_index = path.rfind('.', path.size());
+	if (extension_index == string::npos
+		|| (string(path.begin() + extension_index, path.end()) != ".php"
+		&& string(path.begin() + extension_index, path.end()) != ".py"))
+		return (cout << "<<< it's not CGI\n", false);
+	if (!location_config.cgi.size())
+		cout << "<<< it's not CGI\n";
+	else
+		cout << "<<< it's CGI\n";
+	return (location_config.cgi.size() != 0);
 }
 
 std::string	Client::startCGI()
@@ -364,10 +439,7 @@ std::string	Client::startCGI()
 	std::string scriptPath = requestHandle.request_line.getURI();
 
 	if (access(scriptPath.c_str(), F_OK) != 0)
-	{
-		cout << "access failed\n";
 		throw 404;
-	}
 	_cgi = new CGI();
 
 	std::map<std::string, LocationConfig> lc = getServerConfig().locations;
@@ -410,4 +482,24 @@ void	Client::setServerInfo(const std::string &host, int port)
 {
 	_serverHost = host;
 	_serverPort = port;
+}
+
+void	Client::setFileFd(int fd)
+{
+	fileFd = fd;
+}
+
+int	Client::getFileFd()
+{
+	return (fileFd);
+}
+
+void	Client::setFileName(string name)
+{
+	fileName = name;
+}
+
+void	Client::setErrorStatus(int error_status)
+{
+	errorStatus = error_status;
 }

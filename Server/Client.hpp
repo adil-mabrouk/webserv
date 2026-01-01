@@ -10,16 +10,21 @@ class CGI;
 
 class Client {
 	public:
-		// CGI_RUNNING added
-		enum State	{ READING, READ_HEADER, READ_BODY, CGI_RUNNING, CGI_WRITING, CGI_HEADERS_WRITING, WRITING, PROCESSING, DONE };
+		enum State	{ READING, READ_HEADER, READ_BODY, CGI_RUNNING, CGI_WRITING, CGI_HEADERS_WRITING, WRITING, PROCESSING, ERROR_HEADERS_WRITING, ERROR_WRITING, DONE };
 
 		Client(int fd, ServerConfig config);
 		int			getState() const;
 		void		setState(State state);
+		void		setFileFd(int);
+		int			getFileFd();
+		void		setFileName(string);
+		void		setErrorStatus(int);
 		bool		readRequest(); // Returns true if request is complete
 		void		processRequest(); // Process the request and prepare the response
 		bool		writeResponse(); // Returns true if response is fully sent
-		bool		writeCGIResponse(); // Returns true if response is fully sent
+		bool		writeCGIResponse();
+		bool		writeErrorResponse();
+		int			writeErrorResponseHeaders();
 		void		postInit();
 		~Client();
 		const ServerConfig	&getServerConfig() const;
@@ -42,9 +47,10 @@ class Client {
 		std::ofstream*	upload_file;
 		long long		content_length;
 		LocationConfig	findLocation();
-		std::string	cgiFile;
-		int	fd;
 		long long		_outputLength;
+		std::string		fileName;
+		int				fileFd;
+		int				errorStatus;
 
 
 		// ALL CGI needs {

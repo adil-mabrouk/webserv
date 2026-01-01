@@ -49,6 +49,7 @@ bool	find_location(vector<string> names, string uri)
 
 int	main(int ac, char *av[])
 {
+<<<<<<< HEAD
 	string str("<html>\n\
 <head><title>302 Found</title></head>\n\
 <body>\n\
@@ -57,4 +58,11 @@ int	main(int ac, char *av[])
 </body>\n\
 </html>");
 	cout << str.size() << '\n';
+=======
+	string str("test.php");
+	size_t	index;
+
+	index = str.rfind('.', str.size());
+	cout << string(str.begin() + index, str.end()) << '\n';
+>>>>>>> achallah
 }

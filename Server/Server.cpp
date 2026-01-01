@@ -67,7 +67,8 @@ short Server::determineClientEvents(Client *clt)
 	short events = 0;
 	if (clt->getState() == Client::WRITING
 			|| clt->getState() == Client::CGI_WRITING
-		|| clt->getState() == Client::CGI_HEADERS_WRITING)
+			|| clt->getState() == Client::CGI_HEADERS_WRITING
+			|| clt->getState() == Client::ERROR_WRITING)
 		events |= POLLOUT;
 	else
 		events |= POLLIN;
@@ -154,6 +155,9 @@ void Server::handleClientWrite(int clientFd)
 	if (client->getState() == Client::CGI_WRITING
 		|| client->getState() == Client::CGI_HEADERS_WRITING)
 		complete = client->writeCGIResponse();
+	else if (client->getState() == Client::ERROR_HEADERS_WRITING ||
+		client->getState() == Client::ERROR_WRITING )
+		complete = client->writeErrorResponse();
 	else
 		complete = client->writeResponse();
 	if (complete)
@@ -218,22 +222,6 @@ void Server::run()
 
 			if (pollFds[i].revents == 0 && i)
 				continue;
-
-			// Client *cgiClient = findClientByCGIPipe(fd);
-			// if (cgiClient)
-			// {
-			// 	if (revents & POLLIN)
-			// 		handleCGIRead(cgiClient);
-			// 	continue;
-			// }
-
-			// if (_clients.find(fd) != _clients.end())
-			// {
-			// 	if (_clients.find(fd)->second->getState() == Client::CGI_WRITING)
-			// 		cout << "- - - - Client state: cgi runing\n";
-			// 	else
-			// 		cout << "!!!! Client state: " << _clients.find(fd)->second->getState() << '\n';
-			// }
 			if (isListeningSocket(fd))
 			{
 				if (revents & POLLIN)
@@ -249,24 +237,47 @@ void Server::run()
 					}
 					catch (int &status)
 					{
-						Response res;
+						map<int, std::string>::const_iterator	it;
 
-						switch (status)
+						it = _clients.find(fd)->second->getServerConfig().error_pages.find(status);
+						if (it != _clients.find(fd)->second->getServerConfig().error_pages.end())
 						{
-							case 400:
-								res.statusCode400();
-								break;
-							case 403:
-								res.statusCode403();
-								break;
-							case 404:
-								res.statusCode404();
-								break;
-							case 501:
-								res.statusCode501();
-								break;
+							cout << "+ + + error pages\n";
+							_clients.find(fd)->second->setState(Client::ERROR_HEADERS_WRITING);
+							_clients.find(fd)->second->setFileFd(open(it->second.c_str(), O_RDONLY));
+							_clients.find(fd)->second->setFileName(it->second.c_str());
+							_clients.find(fd)->second->setErrorStatus(it->first);
 						}
-						_clients.find(fd)->second->_resRes = res.getResponse();
+						if (_clients.find(fd)->second->getFileFd() == -1)
+						{
+							cout << "+ + + normal pages\n";
+							Response res;
+
+							_clients.find(fd)->second->setState(Client::WRITING);
+							switch (status)
+							{
+								case 400:
+									res.statusCode400();
+									break;
+								case 401:
+									res.statusCode401();
+									break;
+								case 403:
+									res.statusCode403();
+									break;
+								case 404:
+									res.statusCode404();
+									break;
+								case 500:
+									res.statusCode500();
+									break;
+								case 501:
+									res.statusCode501();
+									break;
+							}
+							_clients.find(fd)->second->_resRes = res.getResponse();
+						}
+						cout << "writing . . . \n";
 						handleClientWrite(fd);
 					}
 				}
@@ -275,7 +286,7 @@ void Server::run()
 			}
 		}
 
-		checkCGITimeouts();
+		// checkCGITimeouts();
 
 		std::vector<int> clientsToClose; // Collect clients to close after iteration
 		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
@@ -317,74 +328,6 @@ Client *Server::findClientByCGIInFile(int fileFd)
 		}
 	}
 	return NULL;
-}
-
-void Server::handleCGIRead(Client *client)
-{
-	CGI *cgi = client->getCGI();
-	if (!cgi)
-		return;
-
-	char buffer[4096];
-	ssize_t bytesRead = read(cgi->getOutFile(), buffer, sizeof(buffer));
-
-	if (bytesRead > 0)
-	{
-		cgi->appendOutput(buffer, bytesRead);
-	}
-	else if (bytesRead == 0)
-	{
-		// EOF - check if process finished
-		// int status;
-		// pid_t result = waitpid(cgi->getPid(), &status, WNOHANG);
-
-		// if (result == -1)
-		// {
-		// 	std::cerr << "waitpid error: " << strerror(errno) << std::endl;
-		// 	killCGI(client);
-		// 	return;
-		// }
-		// else if (result == 0)
-		// {
-		// 	// Process still running but no data
-		// 	// This is OK, just wait
-		// 	return;
-		// }
-		// else // result == pid (process finished)
-		// {
-		// 	// std::cout << "CGI process finished (PID " << result << ")" << std::endl;
-		// 	if (WIFEXITED(status))
-		// 	{
-		// 		// Normal exit
-		// 		int exitCode = WEXITSTATUS(status);
-		// 		// std::cout << "  Exit code: " << exitCode << std::endl;
-		// 		if (exitCode != 0)
-		// 		{
-		// 			std::cerr << "  CGI exited with error code " << exitCode << std::endl;
-		// 			// Could send 500 error here
-		// 		}
-		// 	}
-		// 	close(cgi->getOutFile());
-		// 	// Only format response if not already set (e.g., by timeout handler)
-		// 	// if (client->_resRes.empty())
-		// 	// {
-		// 	// 	client->_resRes = cgi->formatResponse();
-		// 	// }
-		// 	client->setState(Client::WRITING);
-		// }
-	}
-	else // bytesRead < 0
-	{
-		// if (errno == EAGAIN || errno == EWOULDBLOCK)
-		// {
-		// 	std::cout << "Errno = EAGAIN or Errno = EWOULDBLOCK \n";
-		// 	return;
-		// }
-		
-		std::cerr << "CGI read error: " << strerror(errno) << std::endl;
-		close(cgi->getOutFile());
-		killCGI(client);
-	}
 }
 
 void Server::checkCGITimeouts()

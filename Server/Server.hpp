@@ -42,7 +42,6 @@ class Server {
 
 
 		Client*			findClientByCGIInFile(int fileFd);
-		void			handleCGIRead(Client* client);
 		void			checkCGITimeouts();
 		void			killCGI(Client* client);
 

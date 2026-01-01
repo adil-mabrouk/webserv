@@ -211,7 +211,8 @@ string	Response::fillDate(time_t time1)
 
 void	Response::fillDirBody(string path, DIR* dir)
 {
-	dirent*	directory;
+	std::stringstream	ss;
+	dirent*				directory;
 
 	errno = 0;
 	directory = readdir(dir);
@@ -235,9 +236,14 @@ void	Response::fillDirBody(string path, DIR* dir)
 		directory = readdir(dir);
 	}
 	if (!directory && errno == EBADF)
-		statusCode403();
+		throw 403;//statusCode403();
 	else
 		body.append("</pre><hr></body>\n</html>");
+	ss << body.size();
+	if (!headers[headers.size() - 1].first.compare("Content-Length: "))
+		headers[headers.size() - 1].second = ss.str();
+	else
+		headers.push_back(make_pair("Content-Length: ", ss.str()));
 }
 
 void	Response::fillFileBody(int fd)
@@ -288,19 +294,23 @@ void	Response::GETDir(string path)
 				if (!dir)
 				{
 					if (errno == ENOENT)
-						statusCode404();
+						throw 404;//statusCode404();
 					else
-						statusCode403();
+						throw 403;//statusCode403();
 				}
 				else
 				{
 					try
 					{
+						// stringstream	ss;
+
 						status_code = 200, reason_phrase.assign("OK");
 						headers.push_back(make_pair("Server: ", "webserv"));
 						headers.push_back(make_pair("Date: ", fillDate(time(NULL))));
 						headers.push_back(make_pair("Content-Type: ", "text/html"));
 						fillDirBody(path, dir);
+						// ss << body.size();
+						// headers.push_back(make_pair("Content-Length: ", ss.str()));
 					}
 					catch (std::exception& e)
 					{
@@ -311,10 +321,10 @@ void	Response::GETDir(string path)
 				}
 			}
 			else
-				statusCode403();
+				throw 403;//statusCode403();
 		}
 		else
-			statusCode403();
+			throw 403;//statusCode403();
 	}
 	else
 	{
@@ -328,7 +338,7 @@ void	Response::GETDir(string path)
 			}
 			else
 				if (it + 1 == location_config.index.end())
-				statusCode404();
+				throw 404;//statusCode404();
 		}
 	}
 }
@@ -338,9 +348,9 @@ void	Response::GETFile(string path, int fd, struct stat *st)
 	if (fd == -1)
 	{
 		if (errno == ENOENT)
-			statusCode404();
+			throw 404;//statusCode404();
 		else
-			statusCode403();
+			throw 403;//statusCode403();
 	}
 	else
 	{
@@ -388,10 +398,10 @@ void	Response::GETResource()
 			GETDir(path);
 		else
 // should test nginx behavior for this one
-			statusCode403();
+			throw 403;//statusCode403();
 	}
 	else
-		statusCode404();
+		throw 404;//statusCode404();
 }
 
 // must verify if the program has the right to delete the resource?
@@ -403,11 +413,11 @@ void	Response::DELETEResource()
 // open the path first
 	path = request.request_line.getURI();
 	if (stat(path.c_str(), &st))
-		statusCode404();
+		throw 404;//statusCode404();
 	else
 	{
 		if (S_ISDIR(st.st_mode))
-			statusCode403();
+			throw 403;//statusCode403();
 		else if (S_ISREG(st.st_mode))
 		{
 			string parent;
@@ -423,89 +433,18 @@ void	Response::DELETEResource()
 			if (!access(parent.c_str(), W_OK | X_OK))
 			{
 				if (unlink(path.c_str()))
-					statusCode403();
+					throw 403;//statusCode403();
 				else
 // check the headers
 					status_code = 200, reason_phrase.assign("OK");
 			}
 			else
-				statusCode401();
+				throw 401;//statusCode401();
 		}
 		else
-			statusCode403();
+			throw 403;//statusCode403();
 	}
 }
-
-// void	Response::post(int socket_fd, string body, string content_type, long long content_length)
-// {
-// 	string				file_name;
-// 	string::iterator	it_extension;
-// 	ostringstream		oss;
-// 	static int					fd;
-// 	static int			creation;
-// 
-// 	std::srand(std::time(NULL));
-// 	oss << std::rand();
-// 	if (!creation)
-// 	{
-// 		fd = open(("upload_" + oss.str()
-// 			+ "." + fillContentType(content_type, 1)).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-// 		creation = 1;
-// 	}
-// 	if (fd == -1)
-// 		statusCode500();
-// 	else
-// 	{
-// 		if (-1 == write(fd, &body[0], request.body.size()))
-// 			statusCode500();
-// 		else
-// 		{
-// 			char		buffer[4113394];
-// 			long long	tmp_count;
-// 
-// 			write(fd, &body[0], body.size());
-// 			if (static_cast<long long>(body.size()) < content_length)
-// 			{
-// 				content_length -= body.size();
-// 				// while (count < content_length)
-// 				// {
-// 					tmp_count = recv(socket_fd, buffer, sizeof(buffer), 0);
-// 					cout << "recv " << tmp_count << " bytes\n";
-// 					write(socket_fd, buffer, tmp_count);
-// 					// if (-1 == tmp_count)
-// 					// 	std::cerr << "error after reading " << count << "\n", exit(1); // error
-// 					// std::cout << tmp_count << " readed\n";
-// 					// if (tmp_count + count > content_length)
-// 					// 	write (fd, buffer, tmp_count + count - ((tmp_count + count) - content_length));
-// 					// else
-// 					// 	write (fd, buffer, tmp_count);
-// 					// count += tmp_count;
-// 				// }
-// 			}
-// 			status_code = 201, reason_phrase.assign("Created");
-// 		}
-// 		// close(fd);
-// 	}
-// 
-// }
-// 
-// void	Response::POSTResource(int socket_fd, string body)
-// {
-// 	map<const string, const string>::const_iterator	it_content_type;
-// 	long long								content_length;
-// 	char*											end;
-// 
-// 	content_length =
-// 		std::strtoll(request.request_header.getHeaderData().find("Content-Length")->second.c_str(),
-// 			  &end, 0);
-// 	it_content_type = request.request_header.getHeaderData().find("Content-Type");
-// 	if (it_content_type->second == "multipart/form-data")
-// 		statusCode400();
-// 	else if (it_content_type->second == "x-www-form-urlencoded")
-// 		;
-// 	else
-// 		post(socket_fd, body, it_content_type->second, content_length);
-// }
 
 int	Response::getStatusCode() const
 {

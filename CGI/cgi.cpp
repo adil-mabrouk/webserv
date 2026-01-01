@@ -148,11 +148,11 @@ void CGI::freeEnvArray(char** envp)
 	delete[] envp;
 }
 
+
 std::string CGI::start()
 {
 	std::ostringstream outputPath;
-	// outputPath << "/tmp/cgi_output_" << time(NULL);
-	outputPath << "webservAmabroukFUNNY.txt";
+	outputPath << "/tmp/cgi_output_" << time(NULL);
 	_outputFile = outputPath.str();
 
 	int outputFd = open(_outputFile.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0600);
@@ -206,8 +206,8 @@ std::string CGI::start()
 		std::map<std::string, std::string> envMap = setupEnvironment();
 		char **envp = mapToEnvArray(envMap);
 		std::string interpreter = getCGIInterpreter(_scriptPath);
-		std::cerr << "interpreter = " << interpreter << "\n";
-		std::cerr << "script Path = " << _scriptPath << "\n";
+		// std::cerr << "interpreter = " << interpreter << "\n";
+		// std::cerr << "script Path = " << _scriptPath << "\n";
 		// std::cerr << "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 		if (!interpreter.empty())
 		{
@@ -241,7 +241,7 @@ std::string CGI::start()
 		// 	unlink(_outputFile.c_str());
 		// 	throw 500;
 		// }
-		_startTime = time(NULL);
+		// _startTime = time(NULL);
 
 		// std::cout << "CGI started (PID " << _pid << ")" << std::endl;
 		// std::cout << "  Input:  " << (_inputFile.empty() ? "(none)" : _inputFile) << std::endl;

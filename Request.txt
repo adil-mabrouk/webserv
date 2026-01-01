@@ -1,0 +1,4 @@
+DELETE /redirect-me HTTP/1.0
+host: something
+Content-Type: text/html
+
