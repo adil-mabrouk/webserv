@@ -275,7 +275,15 @@ void	ConfigParser::parseListenDirective(const std::vector<std::string>& tokens, 
 		if (ss.fail() || listenPair.second <= 0 || listenPair.second > 65535)
 			throw std::runtime_error("Invalid port number in listen directive");
 	}
+	for (std::vector<std::pair<std::string, int> >::iterator it = allListenDirectives.begin();
+		it != allListenDirectives.end(); it++)
+	{
+		if ((it->second == listenPair.second)
+			&& (it->first == listenPair.first || it->first == "0.0.0.0"))
+			throw std::runtime_error("Duplicate listen directive");
+	}
 	serverConfig.listenList.push_back(listenPair);
+	allListenDirectives.push_back(listenPair);
 }
 
 static size_t	convertToBytes(std::string &unit)

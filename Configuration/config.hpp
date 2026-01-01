@@ -47,7 +47,8 @@ struct ServerConfig {
 class ConfigParser {
 	public:
 		ConfigParser(const std::string&);
-		std::vector<ServerConfig>				parser();
+		std::vector<ServerConfig>					parser();
+		std::vector<std::pair<std::string, int> >	allListenDirectives;
 	private:
 		void									defaultServerParams(ServerConfig& serverConfig);
 		void									defaultLocationParams(LocationConfig& locConfig);
