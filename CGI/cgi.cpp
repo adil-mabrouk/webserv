@@ -17,8 +17,8 @@ CGI::~CGI()
 	// }
 	if (!_inputFile.empty())
 	{
-		unlink(_inputFile.c_str());
-		_inputFile.clear();
+		// unlink(_inputFile.c_str());
+		// _inputFile.clear();
 	}
 	if (_pid > 0)
 	{
@@ -94,32 +94,39 @@ std::string CGI::getCGIInterpreter(const std::string& path)
 
 std::map<std::string, std::string> CGI::setupEnvironment()
 {
-	std::map<std::string, std::string> env;
-	env["REQUEST_METHOD"] = _method;
-	env["SCRIPT_FILENAME"] = _scriptPath;
-	env["QUERY_STRING"] = _queryString;
-	env["SERVER_PROTOCOL"] = "HTTP/1.0";
-	env["GATEWAY_INTERFACE"] = "CGI/1.0";
-	// std::ostringstream oss;
-	// oss << _body.length();
-	// env["CONTENT_LENGTH"] = oss.str();
-	std::map<std::string, std::string>::iterator it = _headers.find("Content-Type");
-	if (it != _headers.end())
-		env["CONTENT_TYPE"] = it->second;
-	// Convert HTTP headers to HTTP_* variables
-	for (it = _headers.begin(); it != _headers.end(); ++it)
-	{
-		std::string key = "HTTP_" + it->first;
-		for (size_t i = 0; i < key.length(); i++)
-		{
-			if (key[i] == '-')
-				key[i] = '_';
-			else if (key[i] >= 'a' && key[i] <= 'z')
-				key[i] = key[i] - 32;
-		}
-		env[key] = it->second;
-	}
-	return env;
+    std::map<std::string, std::string> env;
+    env["REQUEST_METHOD"] = _method;
+    env["SCRIPT_FILENAME"] = _scriptPath;
+    env["QUERY_STRING"] = _queryString;
+    env["SERVER_PROTOCOL"] = "HTTP/1.0";
+    env["GATEWAY_INTERFACE"] = "CGI/1.0";
+    std::ifstream is;
+    is.open(_inputFile.c_str(), std::ios::binary);
+    is.seekg(0, std::ios::end);
+    unsigned long bodyLength = is.tellg();
+    is.close();
+    std::ostringstream oss;
+    oss << bodyLength;
+    std::cerr << "CGI body => " << oss.str() << "\n";
+    env["CONTENT_LENGTH"] = oss.str();
+    std::map<std::string, std::string>::iterator it = _headers.find("Content-Type");
+    if (it != _headers.end())
+        env["CONTENT_TYPE"] = it->second;
+    // Convert HTTP headers to HTTP_* variables
+    for (it = _headers.begin(); it != _headers.end(); ++it)
+    {
+        std::string key = "HTTP_" + it->first;
+        for (size_t i = 0; i < key.length(); i++)
+        {
+            if (key[i] == '-')
+                key[i] = '_';
+            else if (key[i] >= 'a' && key[i] <= 'z')
+                key[i] = key[i] - 32;
+        }
+        // std::cerr << it->first << ": " << it->second << "\n\n";
+        env[key] = it->second;
+    }
+    return env;
 }
 
 char** CGI::mapToEnvArray(const std::map<std::string, std::string>& env)

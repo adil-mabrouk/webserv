@@ -7,45 +7,76 @@ inline bool URIParser::isAbsPath(string str)
 			&& isRelPath(string(str.begin() + 1, str.end())));
 }
 
+// rel_path       = [ path ] [ ";" params ] [ "?" query ]
 inline bool URIParser::isRelPath(string str)
 {
 	string::iterator	it;
 	string::iterator	it2;
 
+	if (str.find('?', 0) != string::npos
+		&& str.find(';', 0) > str.find('?', 0))
+	{
+		it = find(str.begin(), str.end(), '?');
+		if (it == str.end())
+		{
+			cout << "ispath1: " << str << '\n';
+			if (str.size())
+				if (!isPath(str))
+					return (cout << "not path\n", 0);
+		}
+		else
+		{
+			cout << "ispath2: " << string(str.begin(), it) << '\n';
+			if (distance(str.begin(), it))
+				if (!isPath(string(str.begin(), it)))
+					return (cout << "not path\n", 0);
+			it++;
+			cout << "isquery: " << string(it + 1, str.end()) << '\n';
+			if (!isQuery(string(it + 1, str.end())))
+				return (cout << "not query\n", 0);
+		}
+		return (1);
+	}
 	it = find(str.begin(), str.end(), ';');
 	if (it == str.end())
 	{
 		it = find(str.begin(), str.end(), '?');
 		if (it == str.end())
 		{
+			cout << "ispath1: " << str << '\n';
 			if (str.size())
 				if (!isPath(str))
-					return (0);
+					return (cout << "not path\n", 0);
 		}
 		else
 		{
+			cout << "ispath2: " << string(str.begin(), it) << '\n';
 			if (distance(str.begin(), it))
 				if (!isPath(string(str.begin(), it)))
-					return (0);
+					return (cout << "not path\n", 0);
 			it++;
-			if (!isQuery(string(it, str.end())))
-				return (0);
+			cout << "isquery: " << string(it + 1, str.end()) << '\n';
+			if (!isQuery(string(it + 1, str.end())))
+				return (cout << "not query\n", 0);
 		}
 	}
 	else
 	{
+		cout << "ispath3: " << string(str.begin(), it) << '\n';
 		if (distance(str.begin(), it))
 			if (!isPath(string(str.begin(), it)))
-				return (0);
+				return (cout << "not path\n", 0);
 		it++;
 		it2 = find(it, str.end(), '?');
+		cout << "isparams: " << string(it, it2) << '\n';
 		if (!isParams(string(it, it2)))
-			return (0);
+			return (cout << "not params\n", 0);
 		if (it2 != str.end())
 		{
 			it2++;
+			cout << "isquery: " << string(it2, str.end()) << '\n';
 			if (!isQuery(string(it2, str.end())))
-				return (0);
+				return (cout << "not query\n", 0);
 		}
 	}
 	return (1);
@@ -346,9 +377,9 @@ void	RequestLine::parse(string str)
 	uri.assign(str.begin() + index + 1, str.begin() + index_2);
 	if(!uri_parser.isAbsPath(uri))
 		throw (400);
-	cout << "=> uri before encoding: " << uri << '\n';
+	// cout << "=> uri before encoding: " << uri << '\n';
 	URIEncoding();
-	cout << "=> uri after encoding: " << uri << '\n';
+	// cout << "=> uri after encoding: " << uri << '\n';
 	query_index = uri.find('?', 0);
 	if (query_index != string::npos)
 	{

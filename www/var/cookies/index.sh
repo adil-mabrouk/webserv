@@ -1,1 +1,0 @@
-curl http://127.0.0.1:9990/cookies/index.sh 2> /dev/null

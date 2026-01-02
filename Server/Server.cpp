@@ -237,26 +237,26 @@ void Server::run()
 					}
 					catch (int &status)
 					{
-						map<int, std::string>::const_iterator	it;
-						string									root;
+						// map<int, std::string>::const_iterator	it;
+						// string									root;
 
-						root = _clients.find(fd)->second->getServerConfig().root;
-						it = _clients.find(fd)->second->getServerConfig().error_pages.find(status);
-						if (it != _clients.find(fd)->second->getServerConfig().error_pages.end())
-						{
-							string	file_name;
+						// root = _clients.find(fd)->second->getServerConfig().root;
+						// it = _clients.find(fd)->second->getServerConfig().error_pages.find(status);
+						// if (it != _clients.find(fd)->second->getServerConfig().error_pages.end())
+						// {
+						// 	string	file_name;
 
-							file_name = root
-								+ ((*root.rbegin() != '/' && *it->second.begin() != '/') ? "/" : "") + it->second;
-							cout << "+ + + error page: " << file_name << "\n";
-							_clients.find(fd)->second->setState(Client::ERROR_HEADERS_WRITING);
-							_clients.find(fd)->second->setFileFd(open(file_name.c_str(), O_RDONLY));
-							_clients.find(fd)->second->setFileName(it->second.c_str());
-							_clients.find(fd)->second->setErrorStatus(it->first);
-						}
-						if (_clients.find(fd)->second->getFileFd() == -1)
-						{
-							cout << "+ + + normal pages\n";
+						// 	file_name = root
+						// 		+ ((*root.rbegin() != '/' && *it->second.begin() != '/') ? "/" : "") + it->second;
+						// 	cout << "- - - - - error status code: " << status << " error page: " << file_name << "\n";
+						// 	_clients.find(fd)->second->setState(Client::ERROR_HEADERS_WRITING);
+						// 	_clients.find(fd)->second->setFileFd(open(file_name.c_str(), O_RDONLY));
+						// 	_clients.find(fd)->second->setFileName(it->second.c_str());
+						// 	_clients.find(fd)->second->setErrorStatus(it->first);
+						// }
+						// if (_clients.find(fd)->second->getFileFd() == -1)
+						// {
+							cout << "- - - - - normal pages\n";
 							Response res;
 
 							_clients.find(fd)->second->setState(Client::WRITING);
@@ -282,8 +282,7 @@ void Server::run()
 									break;
 							}
 							_clients.find(fd)->second->_resRes = res.getResponse();
-						}
-						cout << "writing . . . \n";
+						// }
 						handleClientWrite(fd);
 					}
 				}
