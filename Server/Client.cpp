@@ -128,6 +128,7 @@ bool	Client::readRequest()
 // the uri must be decoded
 			requestHandle.request_line.parse(string(_resBuff.begin(),
 										   _resBuff.begin() + crlf_index));
+			cout << "uri 1: " << requestHandle.request_line.getURI() << '\n';
 			_resBuff.assign(_resBuff.begin() + crlf_index + 2, _resBuff.end());
 			location_config = findLocation();
 			it = find(location_config.methods.begin(), location_config.methods.end(),
@@ -135,7 +136,9 @@ bool	Client::readRequest()
 			if (!location_config.redirectExist && it == location_config.methods.end())
 				throw 403;
 			requestHandle.request_line.removeDupSl();
+			cout << "uri 2: " << requestHandle.request_line.getURI() << '\n';
 			requestHandle.request_line.removeDotSegments();
+			cout << "uri 3: " << requestHandle.request_line.getURI() << '\n';
 			requestHandle.request_line.rootingPath(location_config.path, location_config.root, _serverConfig.root);
 			cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
 			setState(READ_HEADER);
@@ -212,17 +215,28 @@ void	Client::processRequest()
 	else if (location_config.redirectExist)
 	{
 		Response			response;
-		std::stringstream	ss;
+		string				location;
+		map<const string, const string>::const_iterator	it;
 
-		ss << _serverPort;
+		it = requestHandle.request_header.getHeaderData().find("Host");
+		if (it != requestHandle.request_header.getHeaderData().end())
+			location = it->second;
+		else
+		{
+			std::stringstream	ss;
+
+			ss << _serverPort;
+			location = _serverHost + ":" + ss.str();
+		}
+		cout << "http redirection: " << "http://" + location + location_config.redirect.url << '\n';
 		if (location_config.redirect.status_code == 301)
-			response.statusCode301("http://" + _serverHost + ":" + ss.str()
+			response.statusCode301("http://" + location
 					+ location_config.redirect.url);
 		else if (location_config.redirect.status_code == 302)
-			response.statusCode302("http://" + _serverHost + ":" + ss.str()
+			response.statusCode302("http://" + location
 					+ location_config.redirect.url);
 		else
-			response.statusCode501();
+			throw 501;
 		_resRes = response.getResponse();
 	}
 	else if (requestHandle.request_line.getMethod() != "POST")
@@ -313,7 +327,6 @@ bool	Client::writeCGIResponse()
 		is.close();
 		std::ostringstream oss;
 		oss << _outputLength;
-		// std::cout << "oss = " << oss.str() << "\n";
 		string response("HTTP/1.1 200 OK\r\nContent-Length: " + oss.str() + "\r\n\r\n");
 	
 		if (send(_fd, response.c_str(), response.size(), 0) < 0)
@@ -341,73 +354,28 @@ bool	Client::writeCGIResponse()
 		// std::cout << "send() error: 3 " << strerror(errno) << "\n";
 		return false;
 	}
-	// std::cout << "hnaaaaaaaaaaaaa------------------------->    " << i++ << "\n";
 	return false;
 }
 
-
+// even the normal error files call must be http redirection
 int	Client::writeErrorResponseHeaders()
 {
 	struct stat	st;
+	Response	response;
+	string		file_name;
 
+	file_name = _serverConfig.root
+		+ ((*_serverConfig.root.rbegin() != '/' && *fileName.begin() != '/') ? "/" : "") + fileName;
 // look for the reason
-	if (stat(fileName.c_str(), &st) == -1)
+	if (stat(file_name.c_str(), &st) == -1)
 		throw std::runtime_error("cant get error page stat");
-	if (S_ISREG(st.st_mode))
-	{
-		std::stringstream	ss;
-		string				response;
-		size_t				content_length;
-
-		content_length = st.st_size;
-		ss << content_length;
-		if (errorStatus == 400)
-			response = "HTTP/1.0 400 Bad Request\r\n";
-		else if (errorStatus == 401)
-			response = "HTTP/1.0 401 Unauthorized\r\n";
-		else if (errorStatus == 403)
-			response = "HTTP/1.0 403 Forbidden\r\n";
-		else if (errorStatus == 404)
-			response = "HTTP/1.0 404 Not Found\r\n";
-		else if (errorStatus == 500)
-			response = "HTTP/1.0 500 Internal Server Error\r\n";
-		else
-			response = "HTTP/1.0 501 Not Implemented\r\n";
-		response += "Content-Length: " + ss.str() + "\r\n\r\n";
-		if (-1 == send(_fd, response.c_str(), response.size(), 0))
-			throw std::runtime_error("send fail");
-		return (setState(ERROR_WRITING), 0);
-	}
-	else if (S_ISDIR(st.st_mode))
-	{
-		Response	res;
-		DIR*		dir;
-
-		dir = opendir(fileName.c_str());
-		if (!dir)
-			throw std::runtime_error("can't open error page");
-		if (errorStatus == 400)
-			res.statusCode400();
-		else if (errorStatus == 401)
-			res.statusCode401();
-		else if (errorStatus == 403)
-			res.statusCode403();
-		else if (errorStatus == 404)
-			res.statusCode404();
-		else if (errorStatus == 500)
-			res.statusCode500();
-		else
-			res.statusCode501();
-		res.fillDirBody(string(fileName), dir);
-		closedir(dir);
-		if (-1 == send(_fd, res.getResponse().c_str(), res.getResponse().size(), 0))
-			throw std::runtime_error("send fail");
-		return (setState(DONE), 1);
-	}
-	else
-		throw std::runtime_error("error page type not supported");
+	response.statusCode301(fileName);
+	if (-1 == send(_fd, response.getResponse().c_str(), response.getResponse().size(), 0))
+		throw std::runtime_error("send fail");
+	return (setState(DONE), 1);
 }
 
+// make this buffer larger
 bool	Client::writeErrorResponse()
 {
 	char	buffer[4096];

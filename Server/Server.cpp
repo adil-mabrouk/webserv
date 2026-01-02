@@ -238,13 +238,19 @@ void Server::run()
 					catch (int &status)
 					{
 						map<int, std::string>::const_iterator	it;
+						string									root;
 
+						root = _clients.find(fd)->second->getServerConfig().root;
 						it = _clients.find(fd)->second->getServerConfig().error_pages.find(status);
 						if (it != _clients.find(fd)->second->getServerConfig().error_pages.end())
 						{
-							cout << "+ + + error pages\n";
+							string	file_name;
+
+							file_name = root
+								+ ((*root.rbegin() != '/' && *it->second.begin() != '/') ? "/" : "") + it->second;
+							cout << "+ + + error page: " << file_name << "\n";
 							_clients.find(fd)->second->setState(Client::ERROR_HEADERS_WRITING);
-							_clients.find(fd)->second->setFileFd(open(it->second.c_str(), O_RDONLY));
+							_clients.find(fd)->second->setFileFd(open(file_name.c_str(), O_RDONLY));
 							_clients.find(fd)->second->setFileName(it->second.c_str());
 							_clients.find(fd)->second->setErrorStatus(it->first);
 						}

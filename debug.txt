@@ -1,0 +1,34 @@
+== Info:   Trying 0.0.0.0:2010...
+== Info: Connected to 0.0.0.0 (127.0.0.1) port 2010 (#0)
+=> Send header, 84 bytes (0x54)
+0000: GET /redirect HTTP/1.1
+0018: Host: 0.0.0.0:2010
+002c: User-Agent: curl/7.81.0
+0045: Accept: */*
+0052: 
+== Info: Mark bundle as not supporting multiuse
+<= Recv header, 32 bytes (0x20)
+0000: HTTP/1.1 302 Moved Temporarily
+<= Recv header, 31 bytes (0x1f)
+0000: Server: nginx/1.18.0 (Ubuntu)
+<= Recv header, 37 bytes (0x25)
+0000: Date: Thu, 01 Jan 2026 14:59:35 GMT
+<= Recv header, 25 bytes (0x19)
+0000: Content-Type: text/html
+<= Recv header, 21 bytes (0x15)
+0000: Content-Length: 154
+<= Recv header, 32 bytes (0x20)
+0000: Location: http://0.0.0.0:2010/
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 154 bytes (0x9a)
+0000: <html>
+0008: <head><title>302 Found</title></head>
+002f: <body>
+0037: <center><h1>302 Found</h1></center>
+005c: <hr><center>nginx/1.18.0 (Ubuntu)</center>
+0088: </body>
+0091: </html>
+== Info: Connection #0 to host 0.0.0.0 left intact

@@ -1,4 +1,3 @@
-DELETE /redirect-me HTTP/1.0
-host: something
+GET /redirect-me HTTP/1.0
 Content-Type: text/html
 

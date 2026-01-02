@@ -12,12 +12,6 @@ using std::string;
 class URIParser
 {
 public:
-	bool	isURI(string);
-
-	inline bool isAbsoluteURI(string);
-	inline bool isRelativeURI(string);
-
-	inline bool isNetPath(string);
 	inline bool isAbsPath(string);
 	inline bool isRelPath(string);
 
@@ -28,12 +22,9 @@ public:
 	inline bool isParams(string);
 	inline bool isParam(string);
 
-	inline bool isScheme(string);
-	inline bool isNetLoc(string);
 	inline bool isQuery(string);
-	inline bool isFragment(string);
 
-	inline bool isPchar(char);
+	inline bool isPchar(string);
 	inline bool isUchar(string);
 	inline bool isUnreserved(char);
 
@@ -62,6 +53,7 @@ public:
 	void	rootingPath(string, string, string);
 	void	removeDupSl();
 	void	removeDotSegments();
+	void	URIEncoding();
 	string	getMethod() const;
 	string	getURI() const;
 	string	getQuery() const;
