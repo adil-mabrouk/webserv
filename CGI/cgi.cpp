@@ -100,7 +100,6 @@ std::map<std::string, std::string> CGI::setupEnvironment()
 	env["QUERY_STRING"] = _queryString;
 	env["SERVER_PROTOCOL"] = "HTTP/1.0";
 	env["GATEWAY_INTERFACE"] = "CGI/1.0";
-	env["REDIRECT_STATUS"] = "200";
 	// std::ostringstream oss;
 	// oss << _body.length();
 	// env["CONTENT_LENGTH"] = oss.str();
