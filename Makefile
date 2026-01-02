@@ -1,5 +1,5 @@
 NAME = webserv
-CC = c++
+CC = g++
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 SRC = Server/Server.cpp Server/Client.cpp Configuration/config.cpp main.cpp Request/Request.cpp Request/RequestLine.cpp Request/RequestHeader.cpp \
 		Response/Response.cpp CGI/cgi.cpp

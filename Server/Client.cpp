@@ -318,24 +318,43 @@ bool	Client::writeCGIResponse()
 	ssize_t	bytesSent;
 	char	buffer[4096];
 
-	if (getState() == CGI_HEADERS_WRITING)
-	{
-		std::ifstream is;
-		is.open(fileName.c_str(), std::ios::binary);
-		is.seekg(0, std::ios::end);
-		_outputLength = is.tellg();
-		is.close();
-		std::ostringstream oss;
-		oss << _outputLength;
-		string response("HTTP/1.1 200 OK\r\nContent-Length: " + oss.str() + "\r\n\r\n");
-	
-		if (send(_fd, response.c_str(), response.size(), 0) < 0)
+	    if (getState() == CGI_HEADERS_WRITING)
+    {
+        RequestHeader    response_header;
+        size_t            crlf_index;
+        setState(CGI_WRITING);
+		
+        bytesSent = read(fileFd, buffer, sizeof(buffer) - 1);
+        string    cgi_body(buffer);
+    
+        crlf_index = cgi_body.find("\r\n\r\n", 0);
+        if (crlf_index != string::npos)
+        {
+			response_header.parse(string(cgi_body.begin(), cgi_body.begin() + crlf_index + 2));
+            send(_fd, "HTTP/1.0 200 OK\r\n", 17, 0);
+            send(_fd, buffer, bytesSent, 0);
+            cout << "<-<-<- HTTP/1.0 200 OK\r\n";
+            cout << buffer;
+        }
+		else
 		{
-			// std::cout << "send() error: 2" << strerror(errno) << "\n";
-			return false;
+			std::ifstream is;
+			is.open(fileName.c_str(), std::ios::binary);
+			is.seekg(0, std::ios::end);
+			_outputLength = is.tellg();
+			is.close();
+			std::ostringstream oss;
+			oss << _outputLength;
+			string response("HTTP/1.1 200 OK\r\nContent-Length: " + oss.str() + "\r\n\r\n");
+		
+			if (send(_fd, response.c_str(), response.size(), 0) < 0)
+			{
+				// std::cout << "send() error: 2" << strerror(errno) << "\n";
+				return false;
+			}
+			bytesSent = send(_fd, buffer, bytesSent, 0);
 		}
-		setState(CGI_WRITING);
-	}
+    }
 	bytesSent = read(fileFd, buffer, sizeof(buffer) -1);
 	if (bytesSent == -1)
 		throw 500;
