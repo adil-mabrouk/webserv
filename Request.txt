@@ -1,3 +1,110 @@
-GET /redirect-me HTTP/1.0
-Content-Type: text/html
+
+POST /Test/upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 7deded6f-cc72-4216-8098-a6f4ba7be536
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 6
+
+uploadPOST /upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: af6a9801-9991-4ab9-a612-abb9656c2377
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 6
+
+uploadPOST /Test/upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: caddc10a-d2ae-4af9-a8ae-c2e12cc29a03
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 6
+
+uploadPOST /Test/upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: e236ffe4-c30d-45af-8f67-63be8be514b9
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 6
+
+uploadPOST /Test/upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: f4138c73-cd45-4a1b-b86a-188cea40af20
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 6
+
+uploadPOST /test/upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: c7c237bd-6059-48c0-a3c8-87232baaa48d
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 6
+
+uploadPOST /test/upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 3916537d-d7ec-410a-b9c0-78768b1a897c
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 1774
+
+{"query":"\n    query IntrospectionQuery {\n      __schema {\n        \n        queryType { name }\n        mutationType { name }\n        subscriptionType { name }\n        types {\n          ...FullType\n        }\n        directives {\n          name\n          description\n          \n          locations\n          args {\n            ...InputValue\n          }\n        }\n      }\n    }\n\n    fragment FullType on __Type {\n      kind\n      name\n      description\n      \n      fields(includeDeprecated: true) {\n        name\n        description\n        args {\n          ...InputValue\n        }\n        type {\n          ...TypeRef\n        }\n        isDeprecated\n        deprecationReason\n      }\n      inputFields {\n        ...InputValue\n      }\n      interfaces {\n        ...TypeRef\n      }\n      enumValues(includeDeprecated: true) {\n        name\n        description\n        isDeprecated\n        deprecationReason\n      }\n      possibleTypes {\n        ...TypeRef\n      }\n    }\n\n    fragment InputValue on __InputValue {\n      name\n      description\n      type { ...TypeRef }\n      defaultValue\n      \n      \n    }\n\n    fragment TypeRef on __Type {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  "}POST /upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 59aa1020-8cec-4a12-87b3-bf62af959206
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 1774
+
+{"query":"\n    query IntrospectionQuery {\n      __schema {\n        \n        queryType { name }\n        mutationType { name }\n        subscriptionType { name }\n        types {\n          ...FullType\n        }\n        directives {\n          name\n          description\n          \n          locations\n          args {\n            ...InputValue\n          }\n        }\n      }\n    }\n\n    fragment FullType on __Type {\n      kind\n      name\n      description\n      \n      fields(includeDeprecated: true) {\n        name\n        description\n        args {\n          ...InputValue\n        }\n        type {\n          ...TypeRef\n        }\n        isDeprecated\n        deprecationReason\n      }\n      inputFields {\n        ...InputValue\n      }\n      interfaces {\n        ...TypeRef\n      }\n      enumValues(includeDeprecated: true) {\n        name\n        description\n        isDeprecated\n        deprecationReason\n      }\n      possibleTypes {\n        ...TypeRef\n      }\n    }\n\n    fragment InputValue on __InputValue {\n      name\n      description\n      type { ...TypeRef }\n      defaultValue\n      \n      \n    }\n\n    fragment TypeRef on __Type {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  "}POST /upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 04b4c8a7-06e1-4daf-ac69-8d56e401181b
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 31
+
+{"query":"dsf","variables":asf}POST /upload HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 59e892b9-cc13-4ffa-b148-6a1ff584ad70
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 31
+
+{"query":"dsf","variables":asf}POST /upload HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 8352f5b5-5d83-4bd3-8c9e-9609bb0f9854
+Host: 10.12.6.3:3987
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 0
 

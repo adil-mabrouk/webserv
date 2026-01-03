@@ -359,7 +359,6 @@ void	Response::GETFile(string path, int fd, struct stat *st)
 		try
 		{
 			size_t	index;
-			string	extension;
 
 			status_code = 200, reason_phrase.assign("OK");
 			headers.push_back(make_pair("Server: ", "webserv"));

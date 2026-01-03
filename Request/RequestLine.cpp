@@ -19,21 +19,18 @@ inline bool URIParser::isRelPath(string str)
 		it = find(str.begin(), str.end(), '?');
 		if (it == str.end())
 		{
-			cout << "ispath1: " << str << '\n';
 			if (str.size())
 				if (!isPath(str))
-					return (cout << "not path\n", 0);
+					return (0);
 		}
 		else
 		{
-			cout << "ispath2: " << string(str.begin(), it) << '\n';
 			if (distance(str.begin(), it))
 				if (!isPath(string(str.begin(), it)))
-					return (cout << "not path\n", 0);
+					return (0);
 			it++;
-			cout << "isquery: " << string(it + 1, str.end()) << '\n';
 			if (!isQuery(string(it + 1, str.end())))
-				return (cout << "not query\n", 0);
+				return (0);
 		}
 		return (1);
 	}
@@ -43,40 +40,34 @@ inline bool URIParser::isRelPath(string str)
 		it = find(str.begin(), str.end(), '?');
 		if (it == str.end())
 		{
-			cout << "ispath1: " << str << '\n';
 			if (str.size())
 				if (!isPath(str))
-					return (cout << "not path\n", 0);
+					return (0);
 		}
 		else
 		{
-			cout << "ispath2: " << string(str.begin(), it) << '\n';
 			if (distance(str.begin(), it))
 				if (!isPath(string(str.begin(), it)))
-					return (cout << "not path\n", 0);
+					return (0);
 			it++;
-			cout << "isquery: " << string(it + 1, str.end()) << '\n';
 			if (!isQuery(string(it + 1, str.end())))
-				return (cout << "not query\n", 0);
+				return (0);
 		}
 	}
 	else
 	{
-		cout << "ispath3: " << string(str.begin(), it) << '\n';
 		if (distance(str.begin(), it))
 			if (!isPath(string(str.begin(), it)))
-				return (cout << "not path\n", 0);
+				return (0);
 		it++;
 		it2 = find(it, str.end(), '?');
-		cout << "isparams: " << string(it, it2) << '\n';
 		if (!isParams(string(it, it2)))
-			return (cout << "not params\n", 0);
+			return (0);
 		if (it2 != str.end())
 		{
 			it2++;
-			cout << "isquery: " << string(it2, str.end()) << '\n';
 			if (!isQuery(string(it2, str.end())))
-				return (cout << "not query\n", 0);
+				return (0);
 		}
 	}
 	return (1);
