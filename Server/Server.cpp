@@ -305,8 +305,6 @@ void Server::run()
 						}
 						_clients.find(fd)->second->_resRes = res.getResponse();
 					}
-					// cout << "+ + + writing\n";
-					handleClientWrite(fd);
 				}
 			}
 		}

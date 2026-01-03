@@ -176,7 +176,7 @@ bool	Client::readRequest()
 			setState(READ_HEADER);
 		}
 		else
-			return (false);
+			throw 400;
 	}
 	if (getState() == READ_HEADER)
 	{
@@ -204,7 +204,7 @@ bool	Client::readRequest()
 			cout << "- - - request headers parsing done\n";
 		}
 		else
-			return (false);
+			throw 400;
 	}
 	if (getState() == READ_BODY && upload_file)
 	{
@@ -269,7 +269,13 @@ void	Client::processRequest()
 		_resRes += response.getResponse();
 	}
 	else if (requestHandle.request_line.getMethod() == "POST")
-		_resRes = "HTTP/1.0 201 Created\r\n\r\n";
+	{
+		if (requestHandle.request_header.getHeaderData()
+			.find("Content-Length")->second == "0")
+			_resRes = "HTTP/1.0 204 No Content\r\n\r\n";
+		else
+			_resRes = "HTTP/1.0 201 Created\r\n\r\n";
+	}
 	_byteSent = 0;
  	setState(WRITING);
 }
