@@ -155,8 +155,7 @@ void Server::handleClientWrite(int clientFd)
 	if (client->getState() == Client::CGI_WRITING
 		|| client->getState() == Client::CGI_HEADERS_WRITING)
 		complete = client->writeCGIResponse();
-	else if (client->getState() == Client::ERROR_HEADERS_WRITING ||
-		client->getState() == Client::ERROR_WRITING )
+	else if (client->getState() == Client::ERROR_WRITING)
 		complete = client->writeErrorResponse();
 	else
 		complete = client->writeResponse();
@@ -217,77 +216,81 @@ void Server::run()
 
 		for (size_t i = 0; i < pollFds.size(); i++)
 		{
-			int fd = pollFds[i].fd;
-			short revents = pollFds[i].revents;
-			
-			if (pollFds[i].revents == 0)
+			int		fd = pollFds[i].fd;
+			short	revents = pollFds[i].revents;
+			Client*	client;
+
+			cout << "test " << pollFds.size() << '\n';
+			if (pollFds[i].revents == 0 || _clients.find(fd) == _clients.end())
 				continue;
+			client = _clients.find(fd)->second;
 			if (isListeningSocket(fd))
 			{
 				if (revents & POLLIN)
+					cout << "new connection\n",
 					handleNewConnection(fd);
 			}
 			else
 			{
-				if (revents & POLLIN)
+				try
 				{
-					try
-					{
+					if (revents & POLLIN)
+						cout << "- - - reading\n",
 						handleClientRead(fd);
-					}
-					catch (int &status)
+					if (revents & POLLOUT)
+						cout << "- - - writing\n",
+						handleClientWrite(fd);
+				}
+				catch (int &status)
+				{
+					map<int, std::string>::const_iterator	it;
+					string									root;
+
+					root = client->getServerConfig().root;
+					it = client->getServerConfig().error_pages.find(status);
+					client->setFileFd(-1);
+					if (it != client->getServerConfig().error_pages.end())
 					{
-						// map<int, std::string>::const_iterator	it;
-						// string									root;
+						string	file_name;
 
-						// root = _clients.find(fd)->second->getServerConfig().root;
-						// it = _clients.find(fd)->second->getServerConfig().error_pages.find(status);
-						// if (it != _clients.find(fd)->second->getServerConfig().error_pages.end())
-						// {
-						// 	string	file_name;
+						file_name = root
+							+ ((*root.rbegin() != '/' && *it->second.begin() != '/') ? "/" : "") + it->second;
+						cout << "- - - error status code: " << status << " error page: " << file_name << "\n";
+						client->setState(Client::ERROR_WRITING);
+						client->setFileFd(open(file_name.c_str(), O_RDONLY));
+						client->setFileName(it->second.c_str());
+					}
+					if (client->getFileFd() == -1)
+					{
+						cout << "- - - error status code: " << status << " normal page\n";
+						Response res;
 
-						// 	file_name = root
-						// 		+ ((*root.rbegin() != '/' && *it->second.begin() != '/') ? "/" : "") + it->second;
-						// 	cout << "- - - - - error status code: " << status << " error page: " << file_name << "\n";
-						// 	_clients.find(fd)->second->setState(Client::ERROR_HEADERS_WRITING);
-						// 	_clients.find(fd)->second->setFileFd(open(file_name.c_str(), O_RDONLY));
-						// 	_clients.find(fd)->second->setFileName(it->second.c_str());
-						// 	_clients.find(fd)->second->setErrorStatus(it->first);
-						// }
-						// if (_clients.find(fd)->second->getFileFd() == -1)
-						// {
-							cout << "- - - - - normal pages\n";
-							Response res;
-
-							_clients.find(fd)->second->setState(Client::WRITING);
-							switch (status)
-							{
-								case 400:
-									res.statusCode400();
-									break;
-								case 401:
-									res.statusCode401();
-									break;
-								case 403:
-									res.statusCode403();
-									break;
-								case 404:
-									res.statusCode404();
-									break;
-								case 500:
-									res.statusCode500();
-									break;
-								case 501:
-									res.statusCode501();
-									break;
-							}
-							_clients.find(fd)->second->_resRes = res.getResponse();
-						// }
+						client->setState(Client::WRITING);
+						switch (status)
+						{
+							case 400:
+								res.statusCode400();
+								break;
+							case 401:
+								res.statusCode401();
+								break;
+							case 403:
+								res.statusCode403();
+								break;
+							case 404:
+								res.statusCode404();
+								break;
+							case 500:
+								res.statusCode500();
+								break;
+							case 501:
+								res.statusCode501();
+								break;
+						}
+						client->_resRes = res.getResponse();
 						handleClientWrite(fd);
 					}
 				}
-				if (revents & POLLOUT)
-					handleClientWrite(fd);
 			}
 		}
 

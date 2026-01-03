@@ -125,8 +125,8 @@ void	Client::postInit()
 
 bool	Client::readRequest()
 {
-	char				buffer[200000];
-	size_t				crlf_index;
+	char	buffer[200000];
+	size_t	crlf_index;
 
 	ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
 	if (bytesRead < 0)
@@ -145,7 +145,7 @@ bool	Client::readRequest()
 		{
 			vector <string>::iterator	it;
 
-// the uri must be decoded
+			cout << "- - - request line parsing\n";
 			requestHandle.request_line.parse(string(_resBuff.begin(),
 										   _resBuff.begin() + crlf_index));
 			// cout << "uri 1: " << requestHandle.request_line.getURI() << '\n';
@@ -159,6 +159,7 @@ bool	Client::readRequest()
 			requestHandle.request_line.removeDotSegments();
 			requestHandle.request_line.rootingPath(location_config.path, location_config.root, _serverConfig.root);
 			cout << " => uri after: " << requestHandle.request_line.getURI() << '\n';
+			cout << "- - - request line parsing done\n";
 			setState(READ_HEADER);
 		}
 		else
@@ -171,6 +172,7 @@ bool	Client::readRequest()
 		{
 			map<const string, const string>::const_iterator	it;
 
+			cout << "- - - request headers parsing\n";
 			requestHandle.request_header.parse(string(_resBuff.begin(),
 											 _resBuff.begin() + crlf_index + 2));
 			_resBuff.assign(_resBuff.begin() + crlf_index + 4, 
@@ -178,15 +180,15 @@ bool	Client::readRequest()
 			it = requestHandle.request_header.getHeaderData().find("Content-Length");
 			if (it != requestHandle.request_header.getHeaderData().end())
 				if (std::strtoul(it->second.c_str(), NULL, 0) > _serverConfig.max_body_size)
-					cout << "max body size error\n", throw 400;
+					throw 400;
 			if (location_config.redirectExist)
 				return (true);
 			if (!location_config.cgi.size() && requestHandle.request_line.getMethod() == "POST")
 				setState(READ_BODY), postInit();
-// handle if the CGI must be runned with a request that has a body
 			else if (location_config.cgi.size())
 				if (requestHandle.request_line.getMethod() == "POST")
 					setState(READ_BODY), postInit();
+			cout << "- - - request headers parsing done\n";
 		}
 		else
 			return (false);
@@ -195,11 +197,13 @@ bool	Client::readRequest()
 	{
 		unsigned long	size_tmp;
 
+		cout << "- - - body reading\n";
 		if (string(_resBuff.begin(), _resBuff.end()).size() + contentSize >= content_length)
 		{
 			size_tmp = (string(_resBuff.begin(), _resBuff.end()).size() + contentSize) - content_length; 
 			*upload_file << string(_resBuff.begin(), _resBuff.end() - size_tmp);
 			upload_file->flush(), _resBuff.clear();
+		cout << "- - - body reading done\n";
 		}
 		else
 		{
@@ -208,9 +212,6 @@ bool	Client::readRequest()
 			upload_file->flush(), _resBuff.clear();
 			return (false);
 		}
-		// unsigned long written = static_cast<unsigned long>(upload_file->tellp());
-		// if (written < content_length)
-		// 	return (false);
 	}
 	return (true);
 }
@@ -272,24 +273,12 @@ void	Client::processRequest()
 
 bool	Client::writeResponse()
 {
-	while (_byteSent < _resRes.size())
-	{
-		ssize_t bytesSent = send(_fd, _resRes.c_str() + _byteSent, _resRes.size() - _byteSent, 0);
-		if (bytesSent < 0)
-		{
-			// std::cout << "send() error: 1" << strerror(errno) << "\n";
-			return false;
-		}
-		_byteSent += bytesSent;
-	}
-	setState(DONE);
-	return true;
+	send(_fd, _resRes.c_str(), _resRes.size(), 0);
+	return (setState(DONE), 1);
 }
 
 bool	Client::writeCGIResponse()
 {
-	// std::cout << "\n\nstttttaaaate =>  " << _cgi->getState() << "\n\n";
-	// std::cout << "   CGI state => " << _cgi->getState() << "\n";
 	if (_cgi->getState() == CGI::CGI_RUNNING)
 	{
 		int status;
@@ -328,14 +317,11 @@ bool	Client::writeCGIResponse()
 			// setState(Client::CGI_WRITING);
 		}
 	}
-	// std::cout << "   CGI state => " << _cgi->getState() << "\n";
-
 	ssize_t	bytesSent;
 	char	buffer[4096];
 
 	if (getState() == CGI_HEADERS_WRITING)
 	{
-		RequestHeader	response_header;
 		size_t			crlf_index;
 
 		bytesSent = read(fileFd, buffer, sizeof(buffer) - 1);
@@ -343,74 +329,42 @@ bool	Client::writeCGIResponse()
 		crlf_index = cgi_body.find("\r\n\r\n", 0);
 		send(_fd, "HTTP/1.0 200 OK\r\n", 17, 0);
 		if (crlf_index != string::npos)
-			response_header.parse(string(cgi_body.begin(), cgi_body.begin() + crlf_index + 2));
+		{
+			try
+			{
+				RequestHeader	response_header;
+
+				response_header.parse(string(cgi_body.begin(), cgi_body.begin() + crlf_index + 2));
+			}
+			catch (int& status)
+			{
+				throw 500;
+			}
+		}
 		else
 			send(_fd, "\r\n", 2, 0);
 		send(_fd, buffer, bytesSent, 0);
 		setState(CGI_WRITING);
 	}
 	bytesSent = read(fileFd, buffer, sizeof(buffer) -1);
-	if (bytesSent == -1)
-		throw 500;
-	buffer[bytesSent] = '\0';
 	// close(fd);
-	// cout << "\\\\\\reading " << bytesSent << " from " << fileName << '\n';
-	// cout << '|' << buffer << "|\n";
 	if (!bytesSent)
-	{
-		// cout << "\\\\\\eof reached\n";
 		return (setState(DONE), close(fileFd) ,true);
-	}
 	bytesSent = send(_fd, buffer, bytesSent, 0);
-	if (bytesSent < 0)
-	{
-		// std::cout << "send() error: 3 " << strerror(errno) << "\n";
-		return false;
-	}
 	return false;
 }
 
-// even the normal error files call must be http redirection
-int	Client::writeErrorResponseHeaders()
-{
-	struct stat	st;
-	Response	response;
-	string		file_name;
-
-	file_name = _serverConfig.root
-		+ ((*_serverConfig.root.rbegin() != '/' && *fileName.begin() != '/') ? "/" : "") + fileName;
-// look for the reason
-	if (stat(file_name.c_str(), &st) == -1)
-		throw std::runtime_error("cant get error page stat");
-	response.statusCode301(fileName);
-	if (-1 == send(_fd, response.getResponse().c_str(), response.getResponse().size(), 0))
-		throw std::runtime_error("send fail");
-	return (setState(DONE), 1);
-}
-
-// make this buffer larger
 bool	Client::writeErrorResponse()
 {
-	char	buffer[4096];
-	ssize_t	bytesSent;
+	Response	response;
 
-	if (getState() == ERROR_HEADERS_WRITING)
-		if (writeErrorResponseHeaders())
-			return (true);
-	bytesSent = read(fileFd, buffer, 4095);
-	// cout << "<+ <+ reading " << bytesSent << " of error page bytes " << fileFd << "\n";
-// throw an exception that result to printing error in terminal
-	if (bytesSent == -1)
-		(void)buffer;
-	if (!bytesSent)
-	{
-		// cout << "<+ <+ done\n";
-		setState(DONE);
-		close(fileFd);
-		return (true);
-	}
-	bytesSent = send(_fd, buffer, bytesSent, 0);
-	return (false);
+	response.statusCode301(_serverConfig.root
+						+ ((*_serverConfig.root.rbegin() != '/'
+						&& *fileName.begin() != '/') ? "/" : "")
+						+ fileName);
+	send(_fd, response.getResponse().c_str(),
+	  response.getResponse().size(), 0);
+	return (setState(DONE), 1);
 }
 
 // this function must be modified the way it checks for CGI
