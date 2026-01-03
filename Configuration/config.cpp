@@ -80,6 +80,11 @@ static bool isValidMethod(const std::string& method)
 	return method == "GET" || method == "POST" || method == "DELETE";
 }
 
+static bool	isValidCgiExtension(const std::string &ext, const std::string &path)
+{
+	return ((ext == ".py" && path == "/usr/bin/python3") || (ext == ".sh" && path == "/usr/bin/bash"));
+}
+
 LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& tokens, size_t& index)
 {
 	++index; // Skip "location"
@@ -197,6 +202,8 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 				throw std::runtime_error("Expected value after cgi_extension directive");
 			std::string extension = tokens[index++];
 			std::string path = tokens[index++];
+			if (!isValidCgiExtension(extension, path))
+				throw std::runtime_error("Invalid cgi_extension");
 			CGIConfig cgiConfig;
 			cgiConfig.extension = extension;
 			cgiConfig.path = path;
@@ -204,7 +211,6 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after cgi_extension directive");
 			++index; // Skip ";"
-			locConfig.hasCGI = true;
 		}
 		else
 			throw std::runtime_error("Unknown directive inside location block: " + tokens[index]);

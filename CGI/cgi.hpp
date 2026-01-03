@@ -17,7 +17,6 @@ class CGI
 		void	setState(CGIState state) { _state = state; }
 
 		pid_t	getPid() const;
-		int		getOutFile() const;
 		time_t	getStartTime() const;
 		CGIState		getState() { return _state; }
 
@@ -30,7 +29,6 @@ class CGI
 		std::string							_queryString;
 		std::map<std::string, std::string>	_headers;
 		pid_t								_pid;
-		int									_outFile;
 		time_t								_startTime;
 		std::string							_inputFile;
 		std::string							_outputFile;

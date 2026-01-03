@@ -30,8 +30,7 @@ struct LocationConfig {
 	std::string									upload_store;
 	bool										allow_upload;
 	std::vector<CGIConfig>						cgi;
-	bool										hasCGI;
-	LocationConfig() : autoindex(false), redirectExist(false), allow_upload(false), hasCGI(false) {}
+	LocationConfig() : autoindex(false), redirectExist(false), allow_upload(false) {}
 };
 
 struct ServerConfig {

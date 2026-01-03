@@ -303,7 +303,6 @@ bool	Client::writeCGIResponse()
 			std::cerr << "waitpid error: " << strerror(errno) << std::endl;
 			kill(_cgi->getPid(), SIGKILL);
 			waitpid(_cgi->getPid(), NULL, WNOHANG);
-			close(_cgi->getOutFile());
 			return false;
 		}
 		else if (result == 0)
@@ -326,7 +325,6 @@ bool	Client::writeCGIResponse()
 					// Could send 500 error here
 				}
 			}
-			close(_cgi->getOutFile());
 			_cgi->setState(CGI::CGI_DONE);
 			// setState(Client::CGI_WRITING);
 		}
@@ -394,7 +392,6 @@ bool	Client::writeCGIResponse()
 	if (!bytesSent)
 	{
 		// cout << "\\\\\\eof reached\n";
-		close(_cgi->getOutFile());
 		return (setState(DONE), close(fileFd) ,true);
 	}
 

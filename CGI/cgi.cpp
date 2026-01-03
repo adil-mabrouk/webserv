@@ -4,17 +4,17 @@
 #include <cstdlib>
 
 CGI::CGI() 
-	: _pid(-1), _outFile(-1), _startTime(0), _state(CGI_RUNNING)
+	: _pid(-1), _startTime(0), _state(CGI_RUNNING)
 {
 }
 
 CGI::~CGI()
 {
-	if (_outFile != -1)
-	{
-		close(_outFile);
-		_outFile = -1;
-	}
+	// if (_outFile != -1)
+	// {
+	// 	close(_outFile);
+	// 	_outFile = -1;
+	// }
 	if (!_inputFile.empty())
 	{
 		unlink(_inputFile.c_str());
@@ -56,11 +56,6 @@ void CGI::setHeader(const std::string& key, const std::string& value)
 pid_t CGI::getPid() const
 {
 	return _pid;
-}
-
-int CGI::getOutFile() const
-{
-	return _outFile;
 }
 
 time_t CGI::getStartTime() const

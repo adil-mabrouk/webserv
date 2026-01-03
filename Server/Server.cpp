@@ -30,7 +30,6 @@ static void throwError(int fd, std::string error)
 void Server::initSocket(std::string host, int port, size_t configIndex)
 {
 	int listenFd = socket(AF_INET, SOCK_STREAM, 0);
-	std::cout << "socket Server =>" << listenFd << "\n";
 	if (listenFd < 0)
 		throw std::runtime_error("socket() failed: " + std::string(strerror(errno)));
 	int opt = 1;
@@ -208,22 +207,11 @@ void Server::run()
 		}
 		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) // Add all client sockets
 		{
-			if (it->second->getState() == Client::CGI_RUNNING && it->second->getCGI())
-			{
-				struct pollfd pfd;
-				pfd.fd = it->second->getCGI()->getOutFile();
-				pfd.events = POLLIN;
-				pfd.revents = 0;
-				pollFds.push_back(pfd);
-			}
-			else
-			{
-				struct pollfd pfd;
-				pfd.fd = it->first;
-				pfd.events = determineClientEvents(it->second); // Determine if we want to read or write
-				pfd.revents = 0;
-				pollFds.push_back(pfd);
-			}
+			struct pollfd pfd;
+			pfd.fd = it->first;
+			pfd.events = determineClientEvents(it->second); // Determine if we want to read or write
+			pfd.revents = 0;
+			pollFds.push_back(pfd);
 		}
 		activity = poll(&pollFds[0], pollFds.size(), 1000); // waits for one of a set of file descriptors to become ready to perform I/O.
 		if (activity < 0)
@@ -332,21 +320,6 @@ void Server::run()
 	std::cout << "Cleanup completed" << "\n";
 }
 
-Client *Server::findClientByCGIInFile(int fileFd)
-{
-	for (std::map<int, Client *>::iterator it = _clients.begin();
-		 it != _clients.end(); it++)
-	{
-		if (it->second->getState() == Client::CGI_RUNNING &&
-			it->second->getCGI() &&
-			it->second->getCGI()->getOutFile() == fileFd)
-		{
-			return it->second;
-		}
-	}
-	return NULL;
-}
-
 void Server::checkCGITimeouts()
 {
 	time_t now = time(NULL);
@@ -360,7 +333,6 @@ void Server::checkCGITimeouts()
 			if (now - it->second->getCGI()->getStartTime() > 3)
 			{
 				std::cout << "CGI timeout\n";
-				close(it->second->getCGI()->getOutFile());
 				killCGI(it->second);
 
 				std::cerr << "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
@@ -378,5 +350,4 @@ void Server::killCGI(Client *client)
 
 	kill(cgi->getPid(), SIGKILL);
 	waitpid(cgi->getPid(), NULL, WNOHANG);
-	// close(cgi->getOutFile());
 }
