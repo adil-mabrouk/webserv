@@ -26,3 +26,5 @@ returned from the CGI, EOF will mark the end of the returned data.
 ∗ The CGI should be run in the correct directory for relative path file access.
 ∗ Your server should support at least one CGI (php-CGI, Python, and so
 forth).
+
+

@@ -68,6 +68,7 @@ short Server::determineClientEvents(Client *clt)
 			|| clt->getState() == Client::CGI_WRITING
 			|| clt->getState() == Client::CGI_RUNNING
 			|| clt->getState() == Client::CGI_HEADERS_WRITING
+			|| clt->getState() == Client::ERROR_HEADERS_WRITING
 			|| clt->getState() == Client::ERROR_WRITING)
 		events |= POLLOUT;
 	else

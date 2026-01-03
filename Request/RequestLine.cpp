@@ -29,7 +29,7 @@ inline bool URIParser::isRelPath(string str)
 				if (!isPath(string(str.begin(), it)))
 					return (0);
 			it++;
-			if (!isQuery(string(it + 1, str.end())))
+			if (!isQuery(string(it, str.end())))
 				return (0);
 		}
 		return (1);
@@ -50,7 +50,7 @@ inline bool URIParser::isRelPath(string str)
 				if (!isPath(string(str.begin(), it)))
 					return (0);
 			it++;
-			if (!isQuery(string(it + 1, str.end())))
+			if (!isQuery(string(it, str.end())))
 				return (0);
 		}
 	}
@@ -90,27 +90,6 @@ inline bool URIParser::isPath(string str)
 	return (1);
 }
 
-// inline bool URIParser::isFsegment(string str)
-// {
-// 	if (!str.size())
-// 		return (0);
-// 	for (string::iterator it = str.begin();
-// 			it != str.end(); it++)
-// 		if (!isPchar(*it))
-// 			return (0);
-// 	return (1);
-// }
-// 
-// inline bool URIParser::isSegment(string str)
-// {
-// 	for (string::iterator it = str.begin();
-// 			it != str.end(); it++)
-// 		if (!isPchar(*it))
-// 			return (0);
-// 	return (1);
-// }
-
-
 inline bool URIParser::isFsegment(string str)
 {
 	if (!str.size())
@@ -125,15 +104,15 @@ inline bool URIParser::isSegment(string str)
 
 inline bool URIParser::isParams(string str)
 {
-	if (!str.size() || str[0] != ';')
-		return (0);
+	if (!str.size())
+		return (1);
 	for (string::iterator it = str.begin() + 1, it_tmp;
 			it != str.end();)
 	{
 		it_tmp = find(it, str.end(), ';');
 		if (!isParam(string(it, it_tmp)))
 			return (0);
-		if (*it_tmp == ';')
+		if (it_tmp != str.end())
 			it = it_tmp + 1;
 		else
 			it = str.end();
@@ -158,13 +137,6 @@ inline bool URIParser::isQuery(string str)
 	return (1);
 }
 
-// inline bool	URIParser::isPchar(char c)
-// {
-// 	return (isUchar(string(1, c)) || c == ':'
-// 		|| c == '@' || c == '&'
-// 		|| c == '=' || c == '+');
-// }
-
 inline bool	URIParser::isPchar(string str)
 {
 	for (string::iterator it = str.begin();
@@ -186,7 +158,6 @@ inline bool	URIParser::isPchar(string str)
 
 inline bool	URIParser::isUchar(string str)
 {
-	cout << "str: |" << str << "|\n";
 	for (string::iterator it = str.begin();
 		it != str.end(); it++)
 		if (!isUnreserved(*it) && !isEscape(string(1, *it)))
@@ -373,10 +344,11 @@ void	RequestLine::parse(string str)
 	// cout << "=> uri after encoding: " << uri << '\n';
 	query_index = uri.find('?', 0);
 	if (query_index != string::npos)
-	{
 		query.assign(uri.begin() + query_index + 1, uri.end());
+	if (uri.find(';', 0) < query_index)
+		uri.erase(uri.begin() + uri.find(';', 0), uri.end());
+	else if (uri.find(';', 0) > query_index)
 		uri.erase(uri.begin() + query_index, uri.end());
-	}
 
 	string http_version(str.begin() + index_2 + 1, str.end());
 	if (http_version.compare("HTTP/1.0")

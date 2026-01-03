@@ -1297,3 +1297,1672 @@ Referer: http://10.12.7.7:9999/CGI/
 Accept-Encoding: gzip, deflate
 If-Modified-Since: Sat, 3 Jan 2026 16:52:38 GMT
 
+GET / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: a4032cc7-634a-41a9-a29f-15ffdc51e6a9
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+GET / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 14ad25bd-440d-4234-ba4e-8d61a0ded31a
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /favicon.ico HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET /.git/ HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/.git/
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET /Test/ HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET /Test/GET/ HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/
+Accept-Encoding: gzip, deflate
+
+GET /Test/GET/loremIpsumFile.txt HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/GET/
+Accept-Encoding: gzip, deflate
+
+GET /Test/GET/fileWithoutPermission.txt HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/GET/
+Accept-Encoding: gzip, deflate
+
+GET /Test/ HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/GET/
+Accept-Encoding: gzip, deflate
+
+GET /Test/upload/ HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/
+Accept-Encoding: gzip, deflate
+
+GET /Test/upload/upload_130079063.txt HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/upload/
+Accept-Encoding: gzip, deflate
+
+GET /Test/ HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/upload/
+Accept-Encoding: gzip, deflate
+
+GET /Test/DELETE/ HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/
+Accept-Encoding: gzip, deflate
+
+GET /Test/DELETE/NONDELETE/ HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/DELETE/
+Accept-Encoding: gzip, deflate
+
+GET /Test/DELETE/NONDELETE/goodLuckToDelete.txt HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/Test/DELETE/NONDELETE/
+Accept-Encoding: gzip, deflate
+
+GET /sdfsdf HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Referer: http://192.168.122.1:6090/
+Accept-Encoding: gzip, deflate
+
+GET /sfdsd HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /sfdsd HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /sfdsd HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /sfdsd HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /sfdsd HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /sfdsd HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /?; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /;? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /;? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET / HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /;? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /?; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /?; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /?; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /?; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /;;;;;;; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /;;;;;;;?????? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /?????? HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+GET /??????;;;;;;;; HTTP/1.1
+Host: 192.168.122.1:6090
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+Sec-GPC: 1
+Accept-Language: en-US,en;q=0.6
+Accept-Encoding: gzip, deflate
+
+
+GET 
+GET  / HTTP/1.1
+GEt / HTTP/1.1
+GET / HTTP/1.1
+
+
+GET / HTTP/1.1
+host:0.0.0.0:6090
+
+GET / HTTP/1.1
+host: 0.0.0.0:6090
+
+GET /home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr><pre><a href="../">../</a>/home/aachalla/webserv/</h1><hr
+GET / HTTP/1.1
+ host: HOST
+
+GET / HTTP/1.1
+host : host-ip
+ufruyuuiueieuiueiui: uyhueuiiueihjeuijeiuidjiue
+yueoofuiuifuiufr: uifruiuyb iefui frjcn iv vnvj dc9j r mvif kkdjn k
+gygu3dbevvif3fvivf3iuvuyuuod3: y3udy4f8uh5guj3di24hf58u3u3d4hf5u3u
+r4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf555
+host: host
+host: host
+dv2u3u: uiuiiuiuiu555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf55555555555555555555555555555555555555555555555555555555555555555555gr4hf555555555555555555
+
+POST / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 0088f330-31fb-4e7c-845a-571fa3f88103
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 4541
+Content-Type: text/plain
+
+    1  clear
+    2  nginx -t
+    3  systemctl status nginx
+    4  systemctl restart nginx
+    5  systemctl status nginx
+    6  cat /etc/nginx/nginx.conf 
+    7  ls /var/www/html/
+    8  curl --http1.0 -v -F "/var/www/html/index.nginx-debian.html" http://localhost:2010
+    9  man curl
+   10  curl --http1.0 -v -X POST http://localhost:2010
+   11  man curl
+   12  curl --http1.0 -v -X POST --data "post data" http://localhost:2010
+   13  curl --http1.0 -v --data "post data" http://localhost:2010
+   14  curl --http1.0 -v -H "Content-Type=text/plain" --data "post data" http://localhost:2010
+   15  curl --http1.0 -v -H "Content-Type: text/plain" --data "post data" http://localhost:2010
+   16  curl --http1.0 -v -H "Content-Type: text/plain" http://localhost:2010
+   17  curl --http1.0 -v http://localhost:2010 -d "key=value"
+   18  curl --http1.0 -v -F "dsfsdf" http://localhost:2010 -d "key=value"
+   19  curl -v --http1.0 -X POST      -H "Content-Type: application/json"      -d '{"hello":"world"}'      http://localhost:2010
+   20  curl -v --http1.0 -H "Content-Type: application/json" -d '{"hello":"world"}' http://localhost:2010
+   21  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   22  echo "123" file
+   23  echo "123" > file
+   24  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   25  echo "1234" > file
+   26  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   27  curl -v --http1.0 -d @file http://localhost:2010
+   28  curl -v --http1.0 -H "Content-Type: text/plain" -d @file http://localhost:2010
+   29  clear
+   30  curl -v --http1.0 -d @file http://localhost:2010
+   31  curl -v --http1.0 -d @file --data-binary @file http://localhost:2010
+   32  ls
+   33  ls -l file
+   34  cat file
+   35  mv file file.txt
+   36  curl -v --http1.0 -d @file.txt http://localhost:2010
+   37  curl -v --http1.0 -d @file.txt --trace-ascii http://localhost:2010
+   38  curl --help
+   39  curl -v --http1.0 -T file.txt http://localhost:2010
+   40  clear
+   41  ld
+   42  ls
+   43  vim debug.txt 
+   44  ls -a
+   45  ls -aR | grep history
+   46  find / --name ".bash_history"
+   47  find / -name ".bash_history"
+   48  ;d
+   49  ls
+   50  vim root/.bash_history 
+   51  curl --http1.0 -v -F "file=@file.json" --trace-ascii debug.txt 
+   52  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   53  systemctl status nginx
+   54  systemctl start nginx
+   55  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   56  vim debug.txt 
+   57  curl --http1.0 -v -F "file=@file.json" -X POST http://localhost:2010  --trace-ascii debug.txt
+   58  vim debug.txt 
+   59  vim /etc/nginx/mime.types 
+   60  curl --http1.0 -v -F "file=@file.json" -H "Content-Type: application/json" http://localhost:2010 --trace-ascii debug.txt
+   61  vim /etc/nginx/mime.types 
+   62  vim debug.txt 
+   63  curl --http1.0 -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   64  vim debug.txt 
+   65  curl --http1.0 -v -X POST --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   66  vim debug.txt 
+   67  curl -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   68  vim debug.txt 
+   69  curl -v --data-binary @file.json http://localhost:2010
+   70  mv file.json file.txt
+   71  curl -v --data-binary @file.json http://localhost:2010
+   72  curl -v --data-binary @file.txt http://localhost:2010
+   73  ls -l file.txt 
+   74  curl --trace - -v --data-binary @file.txt http://localhost:2010
+   75  cat file.txt 
+   76  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt 
+   77  vim debug.txt 
+   78  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   79  curl -v -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   80  curl -v -X POST -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   81  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   82  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   83  ls
+   84  curl -v --data @52.png http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   85  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   86  vim root/.bash_history 
+   87  echo $0
+   88  history 
+   89  history > nginx_container_commands.txt
+
+POST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: d12677c8-651e-4a73-ae1d-c118950f2ca7
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 4541
+Content-Type: text/plain
+
+    1  clear
+    2  nginx -t
+    3  systemctl status nginx
+    4  systemctl restart nginx
+    5  systemctl status nginx
+    6  cat /etc/nginx/nginx.conf 
+    7  ls /var/www/html/
+    8  curl --http1.0 -v -F "/var/www/html/index.nginx-debian.html" http://localhost:2010
+    9  man curl
+   10  curl --http1.0 -v -X POST http://localhost:2010
+   11  man curl
+   12  curl --http1.0 -v -X POST --data "post data" http://localhost:2010
+   13  curl --http1.0 -v --data "post data" http://localhost:2010
+   14  curl --http1.0 -v -H "Content-Type=text/plain" --data "post data" http://localhost:2010
+   15  curl --http1.0 -v -H "Content-Type: text/plain" --data "post data" http://localhost:2010
+   16  curl --http1.0 -v -H "Content-Type: text/plain" http://localhost:2010
+   17  curl --http1.0 -v http://localhost:2010 -d "key=value"
+   18  curl --http1.0 -v -F "dsfsdf" http://localhost:2010 -d "key=value"
+   19  curl -v --http1.0 -X POST      -H "Content-Type: application/json"      -d '{"hello":"world"}'      http://localhost:2010
+   20  curl -v --http1.0 -H "Content-Type: application/json" -d '{"hello":"world"}' http://localhost:2010
+   21  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   22  echo "123" file
+   23  echo "123" > file
+   24  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   25  echo "1234" > file
+   26  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   27  curl -v --http1.0 -d @file http://localhost:2010
+   28  curl -v --http1.0 -H "Content-Type: text/plain" -d @file http://localhost:2010
+   29  clear
+   30  curl -v --http1.0 -d @file http://localhost:2010
+   31  curl -v --http1.0 -d @file --data-binary @file http://localhost:2010
+   32  ls
+   33  ls -l file
+   34  cat file
+   35  mv file file.txt
+   36  curl -v --http1.0 -d @file.txt http://localhost:2010
+   37  curl -v --http1.0 -d @file.txt --trace-ascii http://localhost:2010
+   38  curl --help
+   39  curl -v --http1.0 -T file.txt http://localhost:2010
+   40  clear
+   41  ld
+   42  ls
+   43  vim debug.txt 
+   44  ls -a
+   45  ls -aR | grep history
+   46  find / --name ".bash_history"
+   47  find / -name ".bash_history"
+   48  ;d
+   49  ls
+   50  vim root/.bash_history 
+   51  curl --http1.0 -v -F "file=@file.json" --trace-ascii debug.txt 
+   52  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   53  systemctl status nginx
+   54  systemctl start nginx
+   55  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   56  vim debug.txt 
+   57  curl --http1.0 -v -F "file=@file.json" -X POST http://localhost:2010  --trace-ascii debug.txt
+   58  vim debug.txt 
+   59  vim /etc/nginx/mime.types 
+   60  curl --http1.0 -v -F "file=@file.json" -H "Content-Type: application/json" http://localhost:2010 --trace-ascii debug.txt
+   61  vim /etc/nginx/mime.types 
+   62  vim debug.txt 
+   63  curl --http1.0 -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   64  vim debug.txt 
+   65  curl --http1.0 -v -X POST --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   66  vim debug.txt 
+   67  curl -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   68  vim debug.txt 
+   69  curl -v --data-binary @file.json http://localhost:2010
+   70  mv file.json file.txt
+   71  curl -v --data-binary @file.json http://localhost:2010
+   72  curl -v --data-binary @file.txt http://localhost:2010
+   73  ls -l file.txt 
+   74  curl --trace - -v --data-binary @file.txt http://localhost:2010
+   75  cat file.txt 
+   76  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt 
+   77  vim debug.txt 
+   78  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   79  curl -v -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   80  curl -v -X POST -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   81  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   82  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   83  ls
+   84  curl -v --data @52.png http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   85  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   86  vim root/.bash_history 
+   87  echo $0
+   88  history 
+   89  history > nginx_container_commands.txt
+POST /upload HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 349c6f34-f653-4f5e-a8a4-4686a31bea49
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 4541
+Content-Type: text/plain
+
+    1  clear
+    2  nginx -t
+    3  systemctl status nginx
+    4  systemctl restart nginx
+    5  systemctl status nginx
+    6  cat /etc/nginx/nginx.conf 
+    7  ls /var/www/html/
+    8  curl --http1.0 -v -F "/var/www/html/index.nginx-debian.html" http://localhost:2010
+    9  man curl
+   10  curl --http1.0 -v -X POST http://localhost:2010
+   11  man curl
+   12  curl --http1.0 -v -X POST --data "post data" http://localhost:2010
+   13  curl --http1.0 -v --data "post data" http://localhost:2010
+   14  curl --http1.0 -v -H "Content-Type=text/plain" --data "post data" http://localhost:2010
+   15  curl --http1.0 -v -H "Content-Type: text/plain" --data "post data" http://localhost:2010
+   16  curl --http1.0 -v -H "Content-Type: text/plain" http://localhost:2010
+   17  curl --http1.0 -v http://localhost:2010 -d "key=value"
+   18  curl --http1.0 -v -F "dsfsdf" http://localhost:2010 -d "key=value"
+   19  curl -v --http1.0 -X POST      -H "Content-Type: application/json"      -d '{"hello":"world"}'      http://localhost:2010
+   20  curl -v --http1.0 -H "Content-Type: application/json" -d '{"hello":"world"}' http://localhost:2010
+   21  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   22  echo "123" file
+   23  echo "123" > file
+   24  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   25  echo "1234" > file
+   26  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   27  curl -v --http1.0 -d @file http://localhost:2010
+   28  curl -v --http1.0 -H "Content-Type: text/plain" -d @file http://localhost:2010
+   29  clear
+   30  curl -v --http1.0 -d @file http://localhost:2010
+   31  curl -v --http1.0 -d @file --data-binary @file http://localhost:2010
+   32  ls
+   33  ls -l file
+   34  cat file
+   35  mv file file.txt
+   36  curl -v --http1.0 -d @file.txt http://localhost:2010
+   37  curl -v --http1.0 -d @file.txt --trace-ascii http://localhost:2010
+   38  curl --help
+   39  curl -v --http1.0 -T file.txt http://localhost:2010
+   40  clear
+   41  ld
+   42  ls
+   43  vim debug.txt 
+   44  ls -a
+   45  ls -aR | grep history
+   46  find / --name ".bash_history"
+   47  find / -name ".bash_history"
+   48  ;d
+   49  ls
+   50  vim root/.bash_history 
+   51  curl --http1.0 -v -F "file=@file.json" --trace-ascii debug.txt 
+   52  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   53  systemctl status nginx
+   54  systemctl start nginx
+   55  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   56  vim debug.txt 
+   57  curl --http1.0 -v -F "file=@file.json" -X POST http://localhost:2010  --trace-ascii debug.txt
+   58  vim debug.txt 
+   59  vim /etc/nginx/mime.types 
+   60  curl --http1.0 -v -F "file=@file.json" -H "Content-Type: application/json" http://localhost:2010 --trace-ascii debug.txt
+   61  vim /etc/nginx/mime.types 
+   62  vim debug.txt 
+   63  curl --http1.0 -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   64  vim debug.txt 
+   65  curl --http1.0 -v -X POST --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   66  vim debug.txt 
+   67  curl -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   68  vim debug.txt 
+   69  curl -v --data-binary @file.json http://localhost:2010
+   70  mv file.json file.txt
+   71  curl -v --data-binary @file.json http://localhost:2010
+   72  curl -v --data-binary @file.txt http://localhost:2010
+   73  ls -l file.txt 
+   74  curl --trace - -v --data-binary @file.txt http://localhost:2010
+   75  cat file.txt 
+   76  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt 
+   77  vim debug.txt 
+   78  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   79  curl -v -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   80  curl -v -X POST -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   81  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   82  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   83  ls
+   84  curl -v --data @52.png http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   85  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   86  vim root/.bash_history 
+   87  echo $0
+   88  history 
+   89  history > nginx_container_commands.txt
+POST / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 66a4360e-81a3-4edd-af3a-ad1c6ef016d4
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 4541
+Content-Type: text/plain
+
+    1  clear
+    2  nginx -t
+    3  systemctl status nginx
+    4  systemctl restart nginx
+    5  systemctl status nginx
+    6  cat /etc/nginx/nginx.conf 
+    7  ls /var/www/html/
+    8  curl --http1.0 -v -F "/var/www/html/index.nginx-debian.html" http://localhost:2010
+    9  man curl
+   10  curl --http1.0 -v -X POST http://localhost:2010
+   11  man curl
+   12  curl --http1.0 -v -X POST --data "post data" http://localhost:2010
+   13  curl --http1.0 -v --data "post data" http://localhost:2010
+   14  curl --http1.0 -v -H "Content-Type=text/plain" --data "post data" http://localhost:2010
+   15  curl --http1.0 -v -H "Content-Type: text/plain" --data "post data" http://localhost:2010
+   16  curl --http1.0 -v -H "Content-Type: text/plain" http://localhost:2010
+   17  curl --http1.0 -v http://localhost:2010 -d "key=value"
+   18  curl --http1.0 -v -F "dsfsdf" http://localhost:2010 -d "key=value"
+   19  curl -v --http1.0 -X POST      -H "Content-Type: application/json"      -d '{"hello":"world"}'      http://localhost:2010
+   20  curl -v --http1.0 -H "Content-Type: application/json" -d '{"hello":"world"}' http://localhost:2010
+   21  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   22  echo "123" file
+   23  echo "123" > file
+   24  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   25  echo "1234" > file
+   26  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   27  curl -v --http1.0 -d @file http://localhost:2010
+   28  curl -v --http1.0 -H "Content-Type: text/plain" -d @file http://localhost:2010
+   29  clear
+   30  curl -v --http1.0 -d @file http://localhost:2010
+   31  curl -v --http1.0 -d @file --data-binary @file http://localhost:2010
+   32  ls
+   33  ls -l file
+   34  cat file
+   35  mv file file.txt
+   36  curl -v --http1.0 -d @file.txt http://localhost:2010
+   37  curl -v --http1.0 -d @file.txt --trace-ascii http://localhost:2010
+   38  curl --help
+   39  curl -v --http1.0 -T file.txt http://localhost:2010
+   40  clear
+   41  ld
+   42  ls
+   43  vim debug.txt 
+   44  ls -a
+   45  ls -aR | grep history
+   46  find / --name ".bash_history"
+   47  find / -name ".bash_history"
+   48  ;d
+   49  ls
+   50  vim root/.bash_history 
+   51  curl --http1.0 -v -F "file=@file.json" --trace-ascii debug.txt 
+   52  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   53  systemctl status nginx
+   54  systemctl start nginx
+   55  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   56  vim debug.txt 
+   57  curl --http1.0 -v -F "file=@file.json" -X POST http://localhost:2010  --trace-ascii debug.txt
+   58  vim debug.txt 
+   59  vim /etc/nginx/mime.types 
+   60  curl --http1.0 -v -F "file=@file.json" -H "Content-Type: application/json" http://localhost:2010 --trace-ascii debug.txt
+   61  vim /etc/nginx/mime.types 
+   62  vim debug.txt 
+   63  curl --http1.0 -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   64  vim debug.txt 
+   65  curl --http1.0 -v -X POST --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   66  vim debug.txt 
+   67  curl -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   68  vim debug.txt 
+   69  curl -v --data-binary @file.json http://localhost:2010
+   70  mv file.json file.txt
+   71  curl -v --data-binary @file.json http://localhost:2010
+   72  curl -v --data-binary @file.txt http://localhost:2010
+   73  ls -l file.txt 
+   74  curl --trace - -v --data-binary @file.txt http://localhost:2010
+   75  cat file.txt 
+   76  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt 
+   77  vim debug.txt 
+   78  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   79  curl -v -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   80  curl -v -X POST -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   81  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   82  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   83  ls
+   84  curl -v --data @52.png http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   85  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   86  vim root/.bash_history 
+   87  echo $0
+   88  history 
+   89  history > nginx_container_commands.txt
+POST / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: eda0f22e-30b7-4afe-ae9b-6764b39f0981
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 4541
+Content-Type: text/plain
+
+    1  clear
+    2  nginx -t
+    3  systemctl status nginx
+    4  systemctl restart nginx
+    5  systemctl status nginx
+    6  cat /etc/nginx/nginx.conf 
+    7  ls /var/www/html/
+    8  curl --http1.0 -v -F "/var/www/html/index.nginx-debian.html" http://localhost:2010
+    9  man curl
+   10  curl --http1.0 -v -X POST http://localhost:2010
+   11  man curl
+   12  curl --http1.0 -v -X POST --data "post data" http://localhost:2010
+   13  curl --http1.0 -v --data "post data" http://localhost:2010
+   14  curl --http1.0 -v -H "Content-Type=text/plain" --data "post data" http://localhost:2010
+   15  curl --http1.0 -v -H "Content-Type: text/plain" --data "post data" http://localhost:2010
+   16  curl --http1.0 -v -H "Content-Type: text/plain" http://localhost:2010
+   17  curl --http1.0 -v http://localhost:2010 -d "key=value"
+   18  curl --http1.0 -v -F "dsfsdf" http://localhost:2010 -d "key=value"
+   19  curl -v --http1.0 -X POST      -H "Content-Type: application/json"      -d '{"hello":"world"}'      http://localhost:2010
+   20  curl -v --http1.0 -H "Content-Type: application/json" -d '{"hello":"world"}' http://localhost:2010
+   21  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   22  echo "123" file
+   23  echo "123" > file
+   24  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   25  echo "1234" > file
+   26  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   27  curl -v --http1.0 -d @file http://localhost:2010
+   28  curl -v --http1.0 -H "Content-Type: text/plain" -d @file http://localhost:2010
+   29  clear
+   30  curl -v --http1.0 -d @file http://localhost:2010
+   31  curl -v --http1.0 -d @file --data-binary @file http://localhost:2010
+   32  ls
+   33  ls -l file
+   34  cat file
+   35  mv file file.txt
+   36  curl -v --http1.0 -d @file.txt http://localhost:2010
+   37  curl -v --http1.0 -d @file.txt --trace-ascii http://localhost:2010
+   38  curl --help
+   39  curl -v --http1.0 -T file.txt http://localhost:2010
+   40  clear
+   41  ld
+   42  ls
+   43  vim debug.txt 
+   44  ls -a
+   45  ls -aR | grep history
+   46  find / --name ".bash_history"
+   47  find / -name ".bash_history"
+   48  ;d
+   49  ls
+   50  vim root/.bash_history 
+   51  curl --http1.0 -v -F "file=@file.json" --trace-ascii debug.txt 
+   52  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   53  systemctl status nginx
+   54  systemctl start nginx
+   55  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   56  vim debug.txt 
+   57  curl --http1.0 -v -F "file=@file.json" -X POST http://localhost:2010  --trace-ascii debug.txt
+   58  vim debug.txt 
+   59  vim /etc/nginx/mime.types 
+   60  curl --http1.0 -v -F "file=@file.json" -H "Content-Type: application/json" http://localhost:2010 --trace-ascii debug.txt
+   61  vim /etc/nginx/mime.types 
+   62  vim debug.txt 
+   63  curl --http1.0 -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   64  vim debug.txt 
+   65  curl --http1.0 -v -X POST --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   66  vim debug.txt 
+   67  curl -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   68  vim debug.txt 
+   69  curl -v --data-binary @file.json http://localhost:2010
+   70  mv file.json file.txt
+   71  curl -v --data-binary @file.json http://localhost:2010
+   72  curl -v --data-binary @file.txt http://localhost:2010
+   73  ls -l file.txt 
+   74  curl --trace - -v --data-binary @file.txt http://localhost:2010
+   75  cat file.txt 
+   76  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt 
+   77  vim debug.txt 
+   78  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   79  curl -v -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   80  curl -v -X POST -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   81  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   82  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   83  ls
+   84  curl -v --data @52.png http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   85  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   86  vim root/.bash_history 
+   87  echo $0
+   88  history 
+   89  history > nginx_container_commands.txt
+POST / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: ec518ba5-09e1-422c-950e-adabcf1eb27a
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 4541
+Content-Type: text/plain
+
+    1  clear
+    2  nginx -t
+    3  systemctl status nginx
+    4  systemctl restart nginx
+    5  systemctl status nginx
+    6  cat /etc/nginx/nginx.conf 
+    7  ls /var/www/html/
+    8  curl --http1.0 -v -F "/var/www/html/index.nginx-debian.html" http://localhost:2010
+    9  man curl
+   10  curl --http1.0 -v -X POST http://localhost:2010
+   11  man curl
+   12  curl --http1.0 -v -X POST --data "post data" http://localhost:2010
+   13  curl --http1.0 -v --data "post data" http://localhost:2010
+   14  curl --http1.0 -v -H "Content-Type=text/plain" --data "post data" http://localhost:2010
+   15  curl --http1.0 -v -H "Content-Type: text/plain" --data "post data" http://localhost:2010
+   16  curl --http1.0 -v -H "Content-Type: text/plain" http://localhost:2010
+   17  curl --http1.0 -v http://localhost:2010 -d "key=value"
+   18  curl --http1.0 -v -F "dsfsdf" http://localhost:2010 -d "key=value"
+   19  curl -v --http1.0 -X POST      -H "Content-Type: application/json"      -d '{"hello":"world"}'      http://localhost:2010
+   20  curl -v --http1.0 -H "Content-Type: application/json" -d '{"hello":"world"}' http://localhost:2010
+   21  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   22  echo "123" file
+   23  echo "123" > file
+   24  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   25  echo "1234" > file
+   26  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   27  curl -v --http1.0 -d @file http://localhost:2010
+   28  curl -v --http1.0 -H "Content-Type: text/plain" -d @file http://localhost:2010
+   29  clear
+   30  curl -v --http1.0 -d @file http://localhost:2010
+   31  curl -v --http1.0 -d @file --data-binary @file http://localhost:2010
+   32  ls
+   33  ls -l file
+   34  cat file
+   35  mv file file.txt
+   36  curl -v --http1.0 -d @file.txt http://localhost:2010
+   37  curl -v --http1.0 -d @file.txt --trace-ascii http://localhost:2010
+   38  curl --help
+   39  curl -v --http1.0 -T file.txt http://localhost:2010
+   40  clear
+   41  ld
+   42  ls
+   43  vim debug.txt 
+   44  ls -a
+   45  ls -aR | grep history
+   46  find / --name ".bash_history"
+   47  find / -name ".bash_history"
+   48  ;d
+   49  ls
+   50  vim root/.bash_history 
+   51  curl --http1.0 -v -F "file=@file.json" --trace-ascii debug.txt 
+   52  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   53  systemctl status nginx
+   54  systemctl start nginx
+   55  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   56  vim debug.txt 
+   57  curl --http1.0 -v -F "file=@file.json" -X POST http://localhost:2010  --trace-ascii debug.txt
+   58  vim debug.txt 
+   59  vim /etc/nginx/mime.types 
+   60  curl --http1.0 -v -F "file=@file.json" -H "Content-Type: application/json" http://localhost:2010 --trace-ascii debug.txt
+   61  vim /etc/nginx/mime.types 
+   62  vim debug.txt 
+   63  curl --http1.0 -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   64  vim debug.txt 
+   65  curl --http1.0 -v -X POST --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   66  vim debug.txt 
+   67  curl -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   68  vim debug.txt 
+   69  curl -v --data-binary @file.json http://localhost:2010
+   70  mv file.json file.txt
+   71  curl -v --data-binary @file.json http://localhost:2010
+   72  curl -v --data-binary @file.txt http://localhost:2010
+   73  ls -l file.txt 
+   74  curl --trace - -v --data-binary @file.txt http://localhost:2010
+   75  cat file.txt 
+   76  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt 
+   77  vim debug.txt 
+   78  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   79  curl -v -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   80  curl -v -X POST -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   81  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   82  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   83  ls
+   84  curl -v --data @52.png http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   85  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   86  vim root/.bash_history 
+   87  echo $0
+   88  history 
+   89  history > nginx_container_commands.txt
+POST / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 10e37ec2-811a-4a2f-a436-2b5c07f5f65c
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 4541
+Content-Type: text/plain
+
+    1  clear
+    2  nginx -t
+    3  systemctl status nginx
+    4  systemctl restart nginx
+    5  systemctl status nginx
+    6  cat /etc/nginx/nginx.conf 
+    7  ls /var/www/html/
+    8  curl --http1.0 -v -F "/var/www/html/index.nginx-debian.html" http://localhost:2010
+    9  man curl
+   10  curl --http1.0 -v -X POST http://localhost:2010
+   11  man curl
+   12  curl --http1.0 -v -X POST --data "post data" http://localhost:2010
+   13  curl --http1.0 -v --data "post data" http://localhost:2010
+   14  curl --http1.0 -v -H "Content-Type=text/plain" --data "post data" http://localhost:2010
+   15  curl --http1.0 -v -H "Content-Type: text/plain" --data "post data" http://localhost:2010
+   16  curl --http1.0 -v -H "Content-Type: text/plain" http://localhost:2010
+   17  curl --http1.0 -v http://localhost:2010 -d "key=value"
+   18  curl --http1.0 -v -F "dsfsdf" http://localhost:2010 -d "key=value"
+   19  curl -v --http1.0 -X POST      -H "Content-Type: application/json"      -d '{"hello":"world"}'      http://localhost:2010
+   20  curl -v --http1.0 -H "Content-Type: application/json" -d '{"hello":"world"}' http://localhost:2010
+   21  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   22  echo "123" file
+   23  echo "123" > file
+   24  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   25  echo "1234" > file
+   26  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   27  curl -v --http1.0 -d @file http://localhost:2010
+   28  curl -v --http1.0 -H "Content-Type: text/plain" -d @file http://localhost:2010
+   29  clear
+   30  curl -v --http1.0 -d @file http://localhost:2010
+   31  curl -v --http1.0 -d @file --data-binary @file http://localhost:2010
+   32  ls
+   33  ls -l file
+   34  cat file
+   35  mv file file.txt
+   36  curl -v --http1.0 -d @file.txt http://localhost:2010
+   37  curl -v --http1.0 -d @file.txt --trace-ascii http://localhost:2010
+   38  curl --help
+   39  curl -v --http1.0 -T file.txt http://localhost:2010
+   40  clear
+   41  ld
+   42  ls
+   43  vim debug.txt 
+   44  ls -a
+   45  ls -aR | grep history
+   46  find / --name ".bash_history"
+   47  find / -name ".bash_history"
+   48  ;d
+   49  ls
+   50  vim root/.bash_history 
+   51  curl --http1.0 -v -F "file=@file.json" --trace-ascii debug.txt 
+   52  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   53  systemctl status nginx
+   54  systemctl start nginx
+   55  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   56  vim debug.txt 
+   57  curl --http1.0 -v -F "file=@file.json" -X POST http://localhost:2010  --trace-ascii debug.txt
+   58  vim debug.txt 
+   59  vim /etc/nginx/mime.types 
+   60  curl --http1.0 -v -F "file=@file.json" -H "Content-Type: application/json" http://localhost:2010 --trace-ascii debug.txt
+   61  vim /etc/nginx/mime.types 
+   62  vim debug.txt 
+   63  curl --http1.0 -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   64  vim debug.txt 
+   65  curl --http1.0 -v -X POST --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   66  vim debug.txt 
+   67  curl -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   68  vim debug.txt 
+   69  curl -v --data-binary @file.json http://localhost:2010
+   70  mv file.json file.txt
+   71  curl -v --data-binary @file.json http://localhost:2010
+   72  curl -v --data-binary @file.txt http://localhost:2010
+   73  ls -l file.txt 
+   74  curl --trace - -v --data-binary @file.txt http://localhost:2010
+   75  cat file.txt 
+   76  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt 
+   77  vim debug.txt 
+   78  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   79  curl -v -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   80  curl -v -X POST -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   81  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   82  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   83  ls
+   84  curl -v --data @52.png http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   85  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   86  vim root/.bash_history 
+   87  echo $0
+   88  history 
+   89  history > nginx_container_commands.txt
+POST / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: f51ca263-695f-4b4f-a325-e0e582d140df
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 4541
+Content-Type: text/plain
+
+    1  clear
+    2  nginx -t
+    3  systemctl status nginx
+    4  systemctl restart nginx
+    5  systemctl status nginx
+    6  cat /etc/nginx/nginx.conf 
+    7  ls /var/www/html/
+    8  curl --http1.0 -v -F "/var/www/html/index.nginx-debian.html" http://localhost:2010
+    9  man curl
+   10  curl --http1.0 -v -X POST http://localhost:2010
+   11  man curl
+   12  curl --http1.0 -v -X POST --data "post data" http://localhost:2010
+   13  curl --http1.0 -v --data "post data" http://localhost:2010
+   14  curl --http1.0 -v -H "Content-Type=text/plain" --data "post data" http://localhost:2010
+   15  curl --http1.0 -v -H "Content-Type: text/plain" --data "post data" http://localhost:2010
+   16  curl --http1.0 -v -H "Content-Type: text/plain" http://localhost:2010
+   17  curl --http1.0 -v http://localhost:2010 -d "key=value"
+   18  curl --http1.0 -v -F "dsfsdf" http://localhost:2010 -d "key=value"
+   19  curl -v --http1.0 -X POST      -H "Content-Type: application/json"      -d '{"hello":"world"}'      http://localhost:2010
+   20  curl -v --http1.0 -H "Content-Type: application/json" -d '{"hello":"world"}' http://localhost:2010
+   21  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   22  echo "123" file
+   23  echo "123" > file
+   24  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   25  echo "1234" > file
+   26  curl -v --http1.0 -H "Content-Type: application/json" -d @file http://localhost:2010
+   27  curl -v --http1.0 -d @file http://localhost:2010
+   28  curl -v --http1.0 -H "Content-Type: text/plain" -d @file http://localhost:2010
+   29  clear
+   30  curl -v --http1.0 -d @file http://localhost:2010
+   31  curl -v --http1.0 -d @file --data-binary @file http://localhost:2010
+   32  ls
+   33  ls -l file
+   34  cat file
+   35  mv file file.txt
+   36  curl -v --http1.0 -d @file.txt http://localhost:2010
+   37  curl -v --http1.0 -d @file.txt --trace-ascii http://localhost:2010
+   38  curl --help
+   39  curl -v --http1.0 -T file.txt http://localhost:2010
+   40  clear
+   41  ld
+   42  ls
+   43  vim debug.txt 
+   44  ls -a
+   45  ls -aR | grep history
+   46  find / --name ".bash_history"
+   47  find / -name ".bash_history"
+   48  ;d
+   49  ls
+   50  vim root/.bash_history 
+   51  curl --http1.0 -v -F "file=@file.json" --trace-ascii debug.txt 
+   52  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   53  systemctl status nginx
+   54  systemctl start nginx
+   55  curl --http1.0 -v -F "file=@file.json" http://localhost:2010  --trace-ascii debug.txt
+   56  vim debug.txt 
+   57  curl --http1.0 -v -F "file=@file.json" -X POST http://localhost:2010  --trace-ascii debug.txt
+   58  vim debug.txt 
+   59  vim /etc/nginx/mime.types 
+   60  curl --http1.0 -v -F "file=@file.json" -H "Content-Type: application/json" http://localhost:2010 --trace-ascii debug.txt
+   61  vim /etc/nginx/mime.types 
+   62  vim debug.txt 
+   63  curl --http1.0 -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   64  vim debug.txt 
+   65  curl --http1.0 -v -X POST --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   66  vim debug.txt 
+   67  curl -v --data-binary @file.json http://localhost:2010 --trace-ascii debug.txt
+   68  vim debug.txt 
+   69  curl -v --data-binary @file.json http://localhost:2010
+   70  mv file.json file.txt
+   71  curl -v --data-binary @file.json http://localhost:2010
+   72  curl -v --data-binary @file.txt http://localhost:2010
+   73  ls -l file.txt 
+   74  curl --trace - -v --data-binary @file.txt http://localhost:2010
+   75  cat file.txt 
+   76  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt 
+   77  vim debug.txt 
+   78  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   79  curl -v -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   80  curl -v -X POST -T file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   81  curl -v --data-binary @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   82  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   83  ls
+   84  curl -v --data @52.png http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   85  curl -v --data @file.txt http://localhost:2010 --trace-ascii debug.txt && vim debug.txt 
+   86  vim root/.bash_history 
+   87  echo $0
+   88  history 
+   89  history > nginx_container_commands.txt
+POST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+Host: 0.0.0.0:6090
+User-Agent: curl/7.81.0
+Accept: */*
+Content-Type: plain/text
+Content-Length: 62
+
+BODY IS HERE write something shorter or longer than body limitPOST / HTTP/1.1
+POST / HTTP/1.1
+POST / HTTP/1.1
+content-type: text/plain
+content-length: 10
+
+POST / HTTP/1.1
+content-type: text/plain
+content-length: 10
+
+POST / HTTP/1.1
+Content-Lenght: text/plain
+Content-Type: 10
+
+POST / HTTP/1.1
+Content-Length: 10
+Content-Type: text/plain
+
+123456789
+POST / HTTP/1.1
+Content-Length: 10
+Content-Type: text/plain
+
+123
+
+
+
+POST / HTTP/1.1
+Content-Length: 10
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 9c90b931-ec32-4fc8-a3d8-c6a5debc7e1a
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+12345ueydutyr
+GET / HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 9fd7c7aa-6985-4b62-925f-dc5d29f4d3aa
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+GET /Test HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: f0ee148e-dfd5-4dba-a2ca-1d5651aa6a88
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+GET /cgi-bin HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 9b61f03f-51ca-4940-a1aa-5f52b8b33b4a
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+GET /cgi-bin/stdin_test.py HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 8c20de3d-1cc7-47d2-b4b6-3d22641d0ea0
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+GET /cgi-bin/stdin_test.py?var1=val2&val3=val4 HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: ff1071f5-f734-47c7-a20a-903076f459b1
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+GET /cgi-bin/stdin_test.py?var1=val2&val3=val4 HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: e7784bf2-8fdf-4caa-b27e-e703a5bbd49c
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+12345sfGET /cgi-bin/stdin_test.py?var1=val2&val3=val4 HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: a248b3fa-8ddc-44e8-9c53-7467bd35ee51
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+-----------------------------------GET /cgi-bin/stdin_test.py?var1=val2&val3=val4 HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: d2b27f52-3330-42f9-bdf3-57ee1ac8d376
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+-----------------------------------POST /cgi-bin/stdin_test.py?var1=val2&val3=val4 HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: e33896b1-3e53-45e5-bc51-c69d2590bf77
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+-----------------------------------GET /cgi-bin/stdin_test.py?var1=val2&val3=val4 HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 8e9c31b9-cc2c-4cd6-86db-07080f8fde82
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+-----------------------------------POST /cgi-bin/stdin_test.py?var1=val2&val3=val4 HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 0fb6076a-7c40-4ed0-89d8-3b8767d594eb
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+-----------------------------------POST /cgi-bin/stdin_test.py?var1=val2&val3=val4 HTTP/1.1
+Content-Type: application/json
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: e0df0b50-18da-425f-9926-c6e3b6101fba
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Content-Length: 35
+
+-----------------------------------GET /cgi-bin/facts.sh HTTP/1.1
+User-Agent: PostmanRuntime/7.51.0
+Accept: */*
+Postman-Token: 4876ea9a-d84a-4934-b805-3fe5cb8d00cb
+Host: 192.168.122.1:6090
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+

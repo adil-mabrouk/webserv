@@ -29,6 +29,8 @@ std::vector<ServerConfig>	ConfigParser::parser()
 		if (tokens[index] == "server")
 		{
 			ServerConfig server = parseServerBlock(tokens, index);
+			if (server.listenList.size() == 0)
+				throw std::runtime_error("No listen directive provided");
 			servers.push_back(server);
 		}
 		else

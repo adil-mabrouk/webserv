@@ -126,7 +126,7 @@ void	Client::postInit()
 		
 	}
 	if (!upload_file->is_open())
-		cout << "file not opened\n", throw 404;
+		throw 404;
 }
 
 bool	Client::readRequest()
@@ -412,9 +412,34 @@ int	Client::writeErrorResponseHeaders()
 {
 	struct stat	st;
 
-// look for the reason
 	if (stat(fileName.c_str(), &st) == -1)
-		throw std::runtime_error("cant get error page stat");
+	{
+		Response	response;
+
+		if (errorStatus == 400)
+			response.statusCode400();
+		else if (errorStatus == 401)
+			response.statusCode401();
+		else if (errorStatus == 403)
+			response.statusCode403();
+		else if (errorStatus == 404)
+			response.statusCode404();
+		else if (errorStatus == 500)
+			response.statusCode500();
+		else
+			response.statusCode501();
+		send(_fd, response.getResponse().c_str(),
+	   response.getResponse().size(), 0);
+
+		{
+			int fd = open("Response.txt", O_WRONLY | O_APPEND);
+			write(fd, response.getResponse().c_str(),
+				response.getResponse().size());
+			close(fd);
+		}
+
+		return (setState(DONE), 1);
+	}
 	if (S_ISREG(st.st_mode))
 	{
 		std::stringstream	ss;
@@ -475,7 +500,6 @@ bool	Client::writeErrorResponse()
 		if (writeErrorResponseHeaders())
 			return (true);
 	bytesSent = read(fileFd, buffer, 4095);
-// throw an exception that result to printing error in terminal
 	if (bytesSent == -1)
 		(void)buffer;
 	if (!bytesSent)
@@ -495,25 +519,6 @@ bool	Client::writeErrorResponse()
 	return (false);
 }
 
-// bool	Client::writeErrorResponse()
-// {
-// 	Response	response;
-// 
-// 	response.statusCode301(fileName);
-// 	cout << "+ + + redirect to: " << fileName << '\n';
-// 
-// 	{
-// 		int fd = open("Response.txt", O_WRONLY | O_APPEND);
-// 		write(fd, response.getResponse().c_str(), response.getResponse().size());
-// 		close(fd);
-// 	}
-// 
-// 	send(_fd, response.getResponse().c_str(),
-// 	  response.getResponse().size(), 0);
-// 	return (setState(DONE), 1);
-// }
-
-// this function must be modified the way it checks for CGI
 bool	Client::isCGIRequest(const std::string &path)
 {
 	size_t	extension_index;
