@@ -18,12 +18,17 @@ Client::Client(int fd, ServerConfig config)
 	  _cgi(NULL)
 {
 	_serverConfig = config;
+	// setState(READING);
+	std::cout << "\n\nconstructor called ++++\n\n";
 }
 
 Client::~Client()
 {
+	std::cout << "\n\ndestructor called ----\n\n";
+	close(_fd);
 	delete upload_file;
 	delete _cgi;
+	_cgi = NULL;
 }
 
 int	Client::getState() const
@@ -230,7 +235,7 @@ void	Client::processRequest()
 	{
 		cout << "+ + + running cgi\n";
 		fileName = startCGI();
-		fileFd = open(fileName.c_str(), O_RDONLY);
+		fileFd = open(fileName.c_str(), O_RDONLY); // to do close
 		if (-1 == fileFd)
 			throw 500;
 		setState(CGI_HEADERS_WRITING);
@@ -278,7 +283,11 @@ bool	Client::writeResponse()
 		close(fd);
 	}
 
-	send(_fd, _resRes.c_str(), _resRes.size(), 0);
+	if (send(_fd, _resRes.c_str(), _resRes.size(), 0) < 0)
+	{
+		// std::cout << "send() error: 1" << strerror(errno) << "\n";
+		return false;
+	}
 	return (setState(DONE), 1);
 }
 
@@ -346,7 +355,7 @@ bool	Client::writeCGIResponse()
 			{
 				RequestHeader	response_header;
 
-				response_header.parse(string(cgi_body.begin(), cgi_body.begin() + crlf_index + 2));
+			response_header.parse(string(cgi_body.begin(), cgi_body.begin() + crlf_index + 2));
 			}
 			catch (int& status)
 			{
@@ -376,9 +385,18 @@ bool	Client::writeCGIResponse()
 		setState(CGI_WRITING);
 	}
 	bytesSent = read(fileFd, buffer, sizeof(buffer) -1);
+	if (bytesSent == -1)
+		throw 500;
+	buffer[bytesSent] = '\0';
 	// close(fd);
+	// cout << "\\\\\\reading " << bytesSent << " from " << fileName << '\n';
+	// cout << '|' << buffer << "|\n";
 	if (!bytesSent)
+	{
+		// cout << "\\\\\\eof reached\n";
+		close(_cgi->getOutFile());
 		return (setState(DONE), close(fileFd) ,true);
+	}
 
 	{
 		int fd = open("Response.txt", O_WRONLY | O_APPEND);
@@ -516,17 +534,8 @@ std::string	Client::startCGI()
 	if (access(scriptPath.c_str(), F_OK) != 0)
 		throw 404;
 	_cgi = new CGI();
-
-	std::map<std::string, LocationConfig> lc = getServerConfig().locations;
-	for (std::map<std::string, LocationConfig>::iterator it = lc.begin(); 
-			it != lc.end(); it++)
-	{
-		LocationConfig lc_it = it->second;
-		if (lc_it.hasCGI)
-		{
-			_cgi->cgi_c = lc_it.cgi;
-		}
-	}
+	// protect
+	_cgi->cgi_c = location_config.cgi;
 	_cgi->setScriptPath(scriptPath);
 	_cgi->setMethod(requestHandle.request_line.getMethod());
 	_cgi->setQueryString(requestHandle.request_line.getQuery());
@@ -547,16 +556,10 @@ std::string	Client::startCGI()
 	}
 	catch(int& status)
 	{
-		delete _cgi;
-		_cgi = NULL;
+		// delete _cgi;
+		// _cgi = NULL;
 		throw 500;
 	}
-}
-
-void	Client::setServerInfo(const std::string &host, int port)
-{
-	_serverHost = host;
-	_serverPort = port;
 }
 
 void	Client::setFileFd(int fd)

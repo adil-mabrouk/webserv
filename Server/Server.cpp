@@ -10,9 +10,6 @@ static void signalHandler(int signo)
 
 Server::Server(const std::vector<ServerConfig> &configs) : _serverConfigs(configs)
 {
-	// std::cout << "Server max body size exist: " << (_serverConfigs[0].maxBodySizeExist ? "true" : "false") << '\n';
-	// std::cout << "Server max body size: " << _serverConfigs[0].max_body_size << '\n';
-	// std::cout << "\n|||||||||||||||||\n";
 	for (size_t i = 0; i < _serverConfigs.size(); i++)
 	{
 		for (size_t j = 0; j < _serverConfigs[i].listenList.size(); j++)
@@ -33,6 +30,7 @@ static void throwError(int fd, std::string error)
 void Server::initSocket(std::string host, int port, size_t configIndex)
 {
 	int listenFd = socket(AF_INET, SOCK_STREAM, 0);
+	std::cout << "socket Server =>" << listenFd << "\n";
 	if (listenFd < 0)
 		throw std::runtime_error("socket() failed: " + std::string(strerror(errno)));
 	int opt = 1;
@@ -41,7 +39,8 @@ void Server::initSocket(std::string host, int port, size_t configIndex)
 
 	if (fcntl(listenFd, F_SETFL, O_NONBLOCK) < 0)
 		throwError(listenFd, "fcntl(F_SETFL) failed: ");
-	fcntl(listenFd, F_SETFL, FD_CLOEXEC);
+	if (fcntl(listenFd, F_SETFD, FD_CLOEXEC) < 0)
+		throwError(listenFd, "fcntl(F_SETFD) failed: ");
 
 	struct sockaddr_in address;
 	std::memset(&address, 0, sizeof(address));
@@ -67,6 +66,7 @@ short Server::determineClientEvents(Client *clt)
 	short events = 0;
 	if (clt->getState() == Client::WRITING
 			|| clt->getState() == Client::CGI_WRITING
+			|| clt->getState() == Client::CGI_RUNNING
 			|| clt->getState() == Client::CGI_HEADERS_WRITING
 			|| clt->getState() == Client::ERROR_WRITING)
 		events |= POLLOUT;
@@ -99,27 +99,24 @@ void Server::handleNewConnection(int fd)
 	socklen_t addrLen = sizeof(clientAddr);
 
 	int clientFd = accept(fd, (struct sockaddr *)&clientAddr, &addrLen);
+	std::cout << "fd server = " << fd << "\n";
+	std::cout << "fd accepted = " << clientFd << "\n";
 	if (clientFd < 0)
 	{
 		std::cerr << "accept() error: " << strerror(errno) << std::endl;
 		return;
 	}
 
-	struct sockaddr_in serverAddr;
-	socklen_t serverAddrLen = sizeof(serverAddr);
-	getsockname(fd, (struct sockaddr *)&serverAddr, &serverAddrLen);
-
-	std::string serverHost = inet_ntoa(serverAddr.sin_addr);
-	int serverPort = ntohs(serverAddr.sin_port);
-
 	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0)
 		throwError(clientFd, "Failed to set non-blocking: ");
-	fcntl(clientFd, F_SETFL, FD_CLOEXEC);
+	if (fcntl(clientFd, F_SETFD, FD_CLOEXEC) < 0)
+		throwError(clientFd, "fcntl(F_SETFD) failed: ");
+
 	ServerConfig config = getConfigForListenFd(fd);
 	Client *client = new Client(clientFd, config);
+	// protect
 	_clients[clientFd] = client;
-	client->setServerInfo(serverHost, serverPort);
-	// std::cout << "New client connected fd = " << clientFd << ")\n";
+	std::cout << "New client connected fd = " << clientFd << ")\n";
 }
 
 void Server::closeClient(int fd)
@@ -127,10 +124,10 @@ void Server::closeClient(int fd)
 	std::map<int, Client *>::iterator it = _clients.find(fd);
 	if (it == _clients.end())
 		return;
-	// std::cout << "closing client fd = " << fd << "\n";
+	std::cout << "closing client fd => " << fd << "\n";
+	close(fd);
 	delete it->second;
 	_clients.erase(it);
-	close(fd);
 }
 
 void Server::handleClientRead(int clientFd)
@@ -158,7 +155,7 @@ void Server::handleClientWrite(int clientFd)
 		return;
 	if (client->getState() == Client::CGI_WRITING
 		|| client->getState() == Client::CGI_HEADERS_WRITING)
-		cout << "+ + + writing cgi response\n",
+		// cout << "+ + + writing cgi response\n",
 		complete = client->writeCGIResponse();
 	else if (client->getState() == Client::ERROR_WRITING
 			|| client->getState() == Client::ERROR_HEADERS_WRITING)
@@ -168,7 +165,19 @@ void Server::handleClientWrite(int clientFd)
 		cout << "+ + + writing response\n",
 		complete = client->writeResponse();
 	if (complete)
-		closeClient(clientFd);
+	{
+		if (client->getCGI())
+		{
+			std::cout << "CGI\n";
+			closeClient(clientFd);
+		}
+		else
+		{
+			std::cout << "Client\n";
+			closeClient(clientFd);
+		}
+		
+	}
 }
 
 /*
@@ -243,7 +252,7 @@ void Server::run()
 						cout << "- - - reading\n",
 						handleClientRead(fd);
 					if (revents & POLLOUT)
-						cout << "+ + + writing\n",
+						// cout << "+ + + writing\n",
 						handleClientWrite(fd);
 				}
 				catch (int &status)
@@ -295,7 +304,7 @@ void Server::run()
 						}
 						_clients.find(fd)->second->_resRes = res.getResponse();
 					}
-					cout << "+ + + writing\n";
+					// cout << "+ + + writing\n";
 					handleClientWrite(fd);
 				}
 			}
@@ -303,14 +312,6 @@ void Server::run()
 
 		checkCGITimeouts();
 
-		std::vector<int> clientsToClose; // Collect clients to close after iteration
-		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
-		{
-			if (it->second->getState() == Client::DONE)
-				clientsToClose.push_back(it->first);
-		}
-		for (size_t i = 0; i < clientsToClose.size(); i++)
-			closeClient(clientsToClose[i]);
 	}
 	// cleanup on shutdown and close all connections
 	std::cout << "\n\nCleaning up ...";
@@ -361,8 +362,8 @@ void Server::checkCGITimeouts()
 				close(it->second->getCGI()->getOutFile());
 				killCGI(it->second);
 
-				it->second->_resRes = "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
-				it->second->setState(Client::WRITING);
+				std::cerr << "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
+				// it->second->setState(Client::WRITING);
 			}
 		}
 	}
@@ -376,5 +377,5 @@ void Server::killCGI(Client *client)
 
 	kill(cgi->getPid(), SIGKILL);
 	waitpid(cgi->getPid(), NULL, WNOHANG);
-	close(cgi->getOutFile());
+	// close(cgi->getOutFile());
 }

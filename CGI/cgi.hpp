@@ -19,7 +19,6 @@ class CGI
 		pid_t	getPid() const;
 		int		getOutFile() const;
 		time_t	getStartTime() const;
-		const	std::string	&getOutput() const;
 		CGIState		getState() { return _state; }
 
 		std::string	start();
@@ -29,7 +28,6 @@ class CGI
 		std::string							_scriptPath;
 		std::string							_method;
 		std::string							_queryString;
-		// std::string							_body;
 		std::map<std::string, std::string>	_headers;
 		pid_t								_pid;
 		int									_outFile;

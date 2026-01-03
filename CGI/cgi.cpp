@@ -4,21 +4,21 @@
 #include <cstdlib>
 
 CGI::CGI() 
-	: _pid(-1), _startTime(0), _state(CGI_RUNNING)
+	: _pid(-1), _outFile(-1), _startTime(0), _state(CGI_RUNNING)
 {
 }
 
 CGI::~CGI()
 {
-	// if (_outFile != -1)
-	// {
-	// 	close(_outFile);
-	// 	_outFile = -1;
-	// }
+	if (_outFile != -1)
+	{
+		close(_outFile);
+		_outFile = -1;
+	}
 	if (!_inputFile.empty())
 	{
-		// unlink(_inputFile.c_str());
-		// _inputFile.clear();
+		unlink(_inputFile.c_str());
+		_inputFile.clear();
 	}
 	if (_pid > 0)
 	{
@@ -68,11 +68,6 @@ time_t CGI::getStartTime() const
 	return _startTime;
 }
 
-// const std::string& CGI::getOutput() const
-// {
-// 	return _output;
-// }
-
 std::string CGI::getCGIInterpreter(const std::string& path)
 {
 	size_t	dotPos = path.rfind('.');
@@ -100,15 +95,6 @@ std::map<std::string, std::string> CGI::setupEnvironment()
     env["QUERY_STRING"] = _queryString;
     env["SERVER_PROTOCOL"] = "HTTP/1.0";
     env["GATEWAY_INTERFACE"] = "CGI/1.0";
-    std::ifstream is;
-    is.open(_inputFile.c_str(), std::ios::binary);
-    is.seekg(0, std::ios::end);
-    unsigned long bodyLength = is.tellg();
-    is.close();
-    std::ostringstream oss;
-    oss << bodyLength;
-    std::cerr << "CGI body => " << oss.str() << "\n";
-    env["CONTENT_LENGTH"] = oss.str();
     std::map<std::string, std::string>::iterator it = _headers.find("Content-Type");
     if (it != _headers.end())
         env["CONTENT_TYPE"] = it->second;
@@ -183,7 +169,7 @@ std::string CGI::start()
 	{
 		if (!_inputFile.empty())
 		{
-			int inFd = open(_inputFile.c_str(), O_RDONLY);
+			int inFd = open(_inputFile.c_str(), O_RDONLY | O_CLOEXEC);
 			if (inFd < 0)
 			{
 				std::cerr << "Child: Failed to open input file: " << _inputFile << "\n";
@@ -194,13 +180,12 @@ std::string CGI::start()
 		}
 		else
 		{
-			close(STDIN_FILENO);
 			int nullFd = open("/dev/null", O_RDONLY);
 			dup2(nullFd, STDIN_FILENO);
 			close(nullFd);
 		}
 		
-		int outFd = open(_outputFile.c_str(), O_WRONLY | O_TRUNC);
+		int outFd = open(_outputFile.c_str(), O_WRONLY | O_TRUNC | O_CLOEXEC);
 		if (outFd < 0)
 		{
 			std::cerr << "Child: failed to open output file\n";
@@ -223,7 +208,6 @@ std::string CGI::start()
 			argv[2] = NULL;
 			execve(interpreter.c_str(), argv, envp);
 			std::cerr << "execve failed: " << strerror(errno) << "\n";
-			exit(12);
 		}
 		else
 		{
@@ -237,22 +221,5 @@ std::string CGI::start()
 		exit(1);
 	}
 	else
-	{
-		// _outFile = open(_outputFile.c_str(), O_RDONLY | O_NONBLOCK);
-		// waitpid(_pid, NULL, WNOHANG);
-		// if (_outFile < 0)
-		// {
-		// 	std::cerr << "Parent: Failed to open output File\n";
-		// 	waitpid(_pid, NULL, 0);
-		// 	unlink(_outputFile.c_str());
-		// 	throw 500;
-		// }
-		// _startTime = time(NULL);
-
-		// std::cout << "CGI started (PID " << _pid << ")" << std::endl;
-		// std::cout << "  Input:  " << (_inputFile.empty() ? "(none)" : _inputFile) << std::endl;
-		// std::cout << "  Output: " << _outputFile << std::endl;
-
 		return _outputFile;
-	}
 }

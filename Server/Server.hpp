@@ -44,5 +44,5 @@ class Server {
 		Client*			findClientByCGIInFile(int fileFd);
 		void			checkCGITimeouts();
 		void			killCGI(Client* client);
-
+		~Server(){}
 };

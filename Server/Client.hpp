@@ -28,7 +28,6 @@ class Client {
 		void		postInit();
 		~Client();
 		const ServerConfig	&getServerConfig() const;
-		void		setServerInfo(const std::string &host, int port);
 
 		std::string		_resRes;
 		
@@ -38,8 +37,6 @@ class Client {
 		Request			requestHandle;
 		ServerConfig	_serverConfig;
 		LocationConfig	location_config;
-		std::string		_serverHost;
-		int				_serverPort;
 		int				_fd;
 		State			_state;
 		std::string		_resBuff;
@@ -47,7 +44,6 @@ class Client {
 		std::ofstream*	upload_file;
 		unsigned long		content_length;
 		LocationConfig	findLocation();
-		long long		_outputLength;
 		std::string		fileName;
 		int				fileFd;
 		int				errorStatus;
