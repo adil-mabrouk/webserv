@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="/assets/css/accstyle.css"> -->
-    <title>Register Form</title>
+    <title>Register</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -12,15 +11,13 @@
             --background: #f3f4f6;
             --text: #1f2937;
             --card: #ffffff;
-            --error: #dc2626;
-            --success: #16a34a;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: system-ui, sans-serif;
         }
 
         body {
@@ -29,96 +26,80 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 1rem;
         }
 
         .register-container {
             background: var(--card);
             padding: 2rem;
             border-radius: 1rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
-            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .register-title {
-            font-size: 1.75rem;
-            color: var(--text);
+        h1 {
+            text-align: center;
             margin-bottom: 1rem;
+            color: var(--text);
         }
 
         .form-group {
-            text-align: left;
             margin-bottom: 1rem;
         }
 
-        .form-group label {
+        label {
             display: block;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            color: var(--text);
+            margin-bottom: 0.3rem;
         }
 
-        .form-group input {
+        input {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
+            padding: 0.7rem;
             border-radius: 0.5rem;
-            font-size: 1rem;
+            border: 1px solid #d1d5db;
         }
 
-        .register-button {
+        button {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.7rem;
             background: var(--primary);
             color: white;
-            font-size: 1rem;
-            font-weight: bold;
             border: none;
             border-radius: 0.5rem;
             cursor: pointer;
-            transition: background 0.3s;
         }
 
-        .register-button:hover {
+        button:hover {
             background: var(--primary-hover);
         }
 
         .login-link {
             margin-top: 1rem;
-            font-size: 0.9rem;
-        }
-
-        .login-link a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .login-link a:hover {
-            text-decoration: underline;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <main class="register-container">
-        <h1 class="register-title">Register Form</h1>
-        <form action="login.py" method="get">
+        <h1>Register</h1>
+        <form action="/cgi-bin/login.py" method="POST">
             <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" placeholder="Enter Username" name="username" required>
+                <label>Username</label>
+                <input type="text" name="username" required>
             </div>
             <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" placeholder="Enter Password" name="password" required>
+                <label>Password</label>
+                <input type="password" name="password" required>
             </div>
             <div class="form-group">
-                <label for="firstname">First Name:</label>
-                <input type="text" id="firstname" placeholder="Enter First Name" name="firstname" required>
+                <label>First name</label>
+                <input type="text" name="firstname" required>
             </div>
-            <button type="submit" class="register-button">Register</button>
-            <p class="login-link">Already have an account? <a href="login.py">Login</a></p>
+            <button type="submit">Register</button>
+            <p class="login-link">
+                Already have an account?
+                <a href="/cgi-bin/login.py">Login</a>
+            </p>
         </form>
     </main>
 </body>

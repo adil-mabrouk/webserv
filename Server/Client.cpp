@@ -317,7 +317,7 @@ bool	Client::writeCGIResponse()
 				if (exitCode != 0)
 				{
 					std::cerr << "  CGI exited with error code " << exitCode << std::endl;
-					// Could send 500 error here
+					throw 500;
 				}
 			}
 			_cgi->setState(CGI::CGI_DONE);

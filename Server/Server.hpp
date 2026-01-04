@@ -41,7 +41,8 @@ class Server {
 		void							handleClientWrite(int clientFd); // Handle writing to client
 		void							closeClient(int clientFd); // Close and clean up client connection
 
-		void			checkCGITimeouts();
+		void			checkCGITimeouts(Client* ctl, int fd);
+		void			handleClientError(Client* client, int status);
 		void			killCGI(Client* client);
 		~Server(){}
 };

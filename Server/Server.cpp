@@ -190,6 +190,58 @@ This function implements a non-blocking, single-threaded event loop that:
 - Cleans up finished connections
 */
 
+void	Server::handleClientError(Client* client, int status)
+{
+	map<int, std::string>::const_iterator	it;
+	string									root;
+
+	root = client->getServerConfig().root;
+	it = client->getServerConfig().error_pages.find(status);
+	client->setFileFd(-1);
+	if (it != client->getServerConfig().error_pages.end())
+	{
+		string	file_name;
+
+		file_name = root
+			+ ((*root.rbegin() != '/' && *it->second.begin() != '/') ? "/" : "") + it->second;
+		cout << "+ + + error page: " << file_name << "\n";
+		client->setState(Client::ERROR_HEADERS_WRITING);
+		client->setFileFd(open(file_name.c_str(), O_RDONLY));
+		client->setFileName(it->second.c_str());
+		client->setErrorStatus(status);
+	}
+	if (client->getFileFd() == -1)
+	{
+		cout << "+ + + normal pages\n";
+		Response res;
+
+		client->setState(Client::WRITING);
+		switch (status)
+		{
+			case 400:
+				res.statusCode400();
+				break;
+			case 401:
+				res.statusCode401();
+				break;
+			case 403:
+				res.statusCode403();
+				break;
+			case 404:
+				res.statusCode404();
+				break;
+			case 500:
+				res.statusCode500();
+				break;
+			case 501:
+				res.statusCode501();
+				break;
+		}
+		client->_resRes = res.getResponse();
+	}
+
+}
+
 void Server::run()
 {
 	int activity;
@@ -242,60 +294,15 @@ void Server::run()
 					if (revents & POLLOUT)
 						// cout << "+ + + writing\n",
 						handleClientWrite(fd);
+					if (_clients.find(fd) != _clients.end())
+						checkCGITimeouts(_clients.find(fd)->second, fd);
 				}
 				catch (int &status)
 				{
-					map<int, std::string>::const_iterator	it;
-					string									root;
-
-					root = _clients.find(fd)->second->getServerConfig().root;
-					it = _clients.find(fd)->second->getServerConfig().error_pages.find(status);
-					_clients.find(fd)->second->setFileFd(-1);
-					if (it != _clients.find(fd)->second->getServerConfig().error_pages.end())
-					{
-						string	file_name;
-
-						file_name = root
-							+ ((*root.rbegin() != '/' && *it->second.begin() != '/') ? "/" : "") + it->second;
-						cout << "+ + + error page: " << file_name << "\n";
-						_clients.find(fd)->second->setState(Client::ERROR_HEADERS_WRITING);
-						_clients.find(fd)->second->setFileFd(open(file_name.c_str(), O_RDONLY));
-						_clients.find(fd)->second->setFileName(it->second.c_str());
-						_clients.find(fd)->second->setErrorStatus(status);
-					}
-					if (_clients.find(fd)->second->getFileFd() == -1)
-					{
-						cout << "+ + + normal pages\n";
-						Response res;
-
-						_clients.find(fd)->second->setState(Client::WRITING);
-						switch (status)
-						{
-							case 400:
-								res.statusCode400();
-								break;
-							case 401:
-								res.statusCode401();
-								break;
-							case 403:
-								res.statusCode403();
-								break;
-							case 404:
-								res.statusCode404();
-								break;
-							case 500:
-								res.statusCode500();
-								break;
-							case 501:
-								res.statusCode501();
-								break;
-						}
-						_clients.find(fd)->second->_resRes = res.getResponse();
-					}
+					handleClientError(_clients.find(fd)->second, status);
 				}
 			}
 		}
-		checkCGITimeouts();
 	}
 	// cleanup on shutdown and close all connections
 	std::cout << "\n\nCleaning up ...";
@@ -315,26 +322,19 @@ void Server::run()
 	std::cout << "Cleanup completed" << "\n";
 }
 
-void Server::checkCGITimeouts()
+void Server::checkCGITimeouts(Client* ctl, int fd)
 {
 	time_t now = std::time(NULL);
-
-	for (std::map<int, Client *>::iterator it = _clients.begin();
-		 it != _clients.end(); it++)
+(void)fd;
+	if (ctl->getCGI() && now - ctl->getCGI()->getStartTime() > 3)
 	{
-		if (it->second->getCGI())
-		{
-			// std::cout << "state timeout => " << it->second->getState() << "\n";
-			if (now - it->second->getCGI()->getStartTime() > 3)
-			{
-				std::cout << "CGI timeout\n";
-				// it->second->_resRes = "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
-				it->second->setState(Client::ERROR_HEADERS_WRITING);
-				killCGI(it->second);
+		std::cout << "CGI timeout\n";
+		// it->second->_resRes = "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
+		// it->second->setState(Client::ERROR_HEADERS_WRITING);
+		killCGI(ctl);
+		// handleClientError(ctl, fd);
 
-				// throw 500;
-			}
-		}
+		throw 500;
 	}
 }
 
