@@ -17,7 +17,7 @@ void	Response::statusCode301(const string& location_header)
 	pair<string, string>	tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
-	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[1] = make_pair("Date: ", fillDate(std::time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
 	tmp_headers[3] = make_pair("Content-Length: ", "156");
 	tmp_headers[3] = make_pair("Location: ", location_header);
@@ -37,7 +37,7 @@ void	Response::statusCode302(const string& location_header)
 	pair<string, string>	tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
-	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[1] = make_pair("Date: ", fillDate(std::time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
 	tmp_headers[3] = make_pair("Content-Length: ", "132");
 	tmp_headers[3] = make_pair("Location: ", location_header);
@@ -56,7 +56,7 @@ void	Response::statusCode400()
 	pair<string, string>	tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
-	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[1] = make_pair("Date: ", fillDate(std::time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
 	tmp_headers[3] = make_pair("Content-Length: ", "144");
 	status_code = 400, reason_phrase.assign("Bad Request");
@@ -75,7 +75,7 @@ void	Response::statusCode401()
 	pair<string, string>	tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
-	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[1] = make_pair("Date: ", fillDate(std::time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
 	tmp_headers[3] = make_pair("Content-Length: ", "166");
 	status_code = 401, reason_phrase.assign("Unauthorized");
@@ -94,7 +94,7 @@ void	Response::statusCode403()
 	pair<string, string>	tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
-	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[1] = make_pair("Date: ", fillDate(std::time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
 	tmp_headers[3] = make_pair("Content-Length: ", "140");
 	status_code = 403, reason_phrase.assign("Forbidden");
@@ -113,7 +113,7 @@ void	Response::statusCode404()
 	pair<string, string>	tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
-	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[1] = make_pair("Date: ", fillDate(std::time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
 	tmp_headers[3] = make_pair("Content-Length: ", "140");
 	status_code = 404, reason_phrase.assign("Not Found");
@@ -132,7 +132,7 @@ void	Response::statusCode500()
 	pair<string, string>			tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
-	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[1] = make_pair("Date: ", fillDate(std::time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
 	tmp_headers[3] = make_pair("Content-Length: ", "182");
 	status_code = 500, reason_phrase.assign("Internal Server Error");
@@ -151,7 +151,7 @@ void	Response::statusCode501()
 	pair<string, string>			tmp_headers[4];
 
 	tmp_headers[0] = make_pair("Server: ", "webserv");
-	tmp_headers[1] = make_pair("Date: ", fillDate(time(NULL)));
+	tmp_headers[1] = make_pair("Date: ", fillDate(std::time(NULL)));
 	tmp_headers[2] = make_pair("Content-Type: ", "text/html");
 	tmp_headers[3] = make_pair("Content-Length: ", "152");
 	status_code = 501, reason_phrase.assign("Not Implemented");
@@ -306,7 +306,7 @@ void	Response::GETDir(string path)
 
 						status_code = 200, reason_phrase.assign("OK");
 						headers.push_back(make_pair("Server: ", "webserv"));
-						headers.push_back(make_pair("Date: ", fillDate(time(NULL))));
+						headers.push_back(make_pair("Date: ", fillDate(std::time(NULL))));
 						headers.push_back(make_pair("Content-Type: ", "text/html"));
 						fillDirBody(path, dir);
 						// ss << body.size();
@@ -362,7 +362,7 @@ void	Response::GETFile(string path, int fd, struct stat *st)
 
 			status_code = 200, reason_phrase.assign("OK");
 			headers.push_back(make_pair("Server: ", "webserv"));
-			headers.push_back(make_pair("Date: ", fillDate(time(NULL))));
+			headers.push_back(make_pair("Date: ", fillDate(std::time(NULL))));
 			index = path.find(".");
 			if (index == string::npos)
 				headers.push_back(make_pair("Content-Type: ", "text/plain"));
@@ -377,9 +377,11 @@ void	Response::GETFile(string path, int fd, struct stat *st)
 		catch (std::exception &e)
 		{
 			close(fd);
+			fd = -1;
 			throw;
 		}
 		close(fd);
+		fd = -1;
 	}
 }
 

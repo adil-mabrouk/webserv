@@ -18,6 +18,7 @@
 #include "../Configuration/config.hpp"
 #include <sys/wait.h>
 #include "../CGI/cgi.hpp"
+#include <netdb.h>
 
 class Client;
 

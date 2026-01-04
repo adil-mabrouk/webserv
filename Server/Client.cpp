@@ -18,7 +18,6 @@ Client::Client(int fd, ServerConfig config)
 	  _cgi(NULL)
 {
 	_serverConfig = config;
-	// setState(READING);
 	std::cout << "\n\nconstructor called ++++\n\n";
 }
 
@@ -26,7 +25,9 @@ Client::~Client()
 {
 	std::cout << "\n\ndestructor called ----\n\n";
 	close(_fd);
+	_fd = -1;
 	delete upload_file;
+	upload_file = NULL;
 	delete _cgi;
 	_cgi = NULL;
 }
@@ -136,17 +137,14 @@ bool	Client::readRequest()
 
 	ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
 	if (bytesRead < 0)
-	{
-		std::cout << "recv() error: " << strerror(errno) << "\n";
 		return false;
-	}
 	if (bytesRead == 0)
-		return true; // was false
-
+		return true;
 	{
 		int fd = open("Request.txt", O_WRONLY | O_APPEND);
 		write(fd, buffer, bytesRead);
 		close(fd);
+		fd = -1;
 	}
 
 	_resBuff.append(buffer, bytesRead);
@@ -287,13 +285,11 @@ bool	Client::writeResponse()
 		int fd = open("Response.txt", O_WRONLY | O_APPEND);
 		write(fd, _resRes.c_str(), _resRes.size());
 		close(fd);
+		fd = -1;
 	}
 
 	if (send(_fd, _resRes.c_str(), _resRes.size(), 0) < 0)
-	{
-		// std::cout << "send() error: 1" << strerror(errno) << "\n";
 		return false;
-	}
 	return (setState(DONE), 1);
 }
 
@@ -312,19 +308,12 @@ bool	Client::writeCGIResponse()
 			return false;
 		}
 		else if (result == 0)
-		{
-			// Process still running but no data
-			// This is OK, just wait
 			return false;
-		}
-		else // result == pid (process finished)
+		else
 		{
-			// std::cout << "CGI process finished (PID " << result << ")" << std::endl;
 			if (WIFEXITED(status))
 			{
-				// Normal exit
 				int exitCode = WEXITSTATUS(status);
-				std::cout << "  Exit code: " << exitCode << std::endl;
 				if (exitCode != 0)
 				{
 					std::cerr << "  CGI exited with error code " << exitCode << std::endl;
@@ -351,6 +340,7 @@ bool	Client::writeCGIResponse()
 			int fd = open("Response.txt", O_WRONLY | O_APPEND);
 			write(fd, "HTTP/1.0 200 OK\r\n", 17);
 			close(fd);
+			fd = -1;
 		}
 
 		if (crlf_index != string::npos)
@@ -374,6 +364,7 @@ bool	Client::writeCGIResponse()
 				int fd = open("Response.txt", O_WRONLY | O_APPEND);
 				write(fd, "\r\n", 2);
 				close(fd);
+				fd = -1;
 			}
 
 			send(_fd, "\r\n", 2, 0);
@@ -398,13 +389,14 @@ bool	Client::writeCGIResponse()
 	if (!bytesSent)
 	{
 		// cout << "\\\\\\eof reached\n";
-		return (setState(DONE), close(fileFd) ,true);
+		return (setState(DONE), close(fileFd), fileFd = -1, true);
 	}
 
 	{
 		int fd = open("Response.txt", O_WRONLY | O_APPEND);
 		write(fd, buffer, bytesSent);
 		close(fd);
+		fd = -1;
 	}
 
 	bytesSent = send(_fd, buffer, bytesSent, 0);
@@ -439,6 +431,7 @@ int	Client::writeErrorResponseHeaders()
 			write(fd, response.getResponse().c_str(),
 				response.getResponse().size());
 			close(fd);
+			fd = -1;
 		}
 
 		return (setState(DONE), 1);
@@ -471,6 +464,7 @@ int	Client::writeErrorResponseHeaders()
 			int fd = open("Response.txt", O_WRONLY | O_APPEND);
 			write(fd, response.c_str(), response.size());
 			close(fd);
+			fd = -1;
 		}
 
 		return (setState(ERROR_WRITING), 0);
@@ -485,6 +479,7 @@ int	Client::writeErrorResponseHeaders()
 			int fd = open("Response.txt", O_WRONLY | O_APPEND);
 			write(fd, res.getResponse().c_str(), res.getResponse().size());
 			close(fd);
+			fd = -1;
 		}
 
 		send(_fd, res.getResponse().c_str(), res.getResponse().size(), 0);
@@ -509,6 +504,7 @@ bool	Client::writeErrorResponse()
 	{
 		setState(DONE);
 		close(fileFd);
+		fileFd = -1;
 		return (true);
 	}
 
@@ -516,6 +512,7 @@ bool	Client::writeErrorResponse()
 		int fd = open("Response.txt", O_WRONLY | O_APPEND);
 		write(fd, buffer, bytesSent);
 		close(fd);
+		fd = -1;
 	}
 
 	bytesSent = send(_fd, buffer, bytesSent, 0);
@@ -542,7 +539,8 @@ std::string	Client::startCGI()
 	if (access(scriptPath.c_str(), F_OK) != 0)
 		throw 404;
 	_cgi = new CGI();
-	// protect
+	if (!_cgi)
+		throw std::runtime_error("Failed allocation");
 	_cgi->cgi_c = location_config.cgi;
 	_cgi->setScriptPath(scriptPath);
 	_cgi->setMethod(requestHandle.request_line.getMethod());
@@ -552,8 +550,7 @@ std::string	Client::startCGI()
 		_cgi->setInputFile(_inputFileName);
 	const std::map<const std::string, const std::string> &headers = 
 		requestHandle.request_header.getHeaderData();
-
-	for (std::map<const std::string, const std::string>::const_iterator it = headers.begin(); 
+	for (std::map<const std::string, const std::string>::const_iterator it = headers.begin();
 		it != headers.end(); it++)
 		_cgi->setHeader(it->first, it->second);
 	try
@@ -564,8 +561,6 @@ std::string	Client::startCGI()
 	}
 	catch(int& status)
 	{
-		// delete _cgi;
-		// _cgi = NULL;
 		throw 500;
 	}
 }

@@ -24,38 +24,41 @@ Server::Server(const std::vector<ServerConfig> &configs) : _serverConfigs(config
 static void throwError(int fd, std::string error)
 {
 	close(fd);
+	fd = -1;
 	throw std::runtime_error(error + strerror(errno));
 }
 
 void Server::initSocket(std::string host, int port, size_t configIndex)
 {
-	int listenFd = socket(AF_INET, SOCK_STREAM, 0);
+	struct addrinfo hints, *res;
+	int listenFd = -1;
+	int status;
+
+	std::memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	std::ostringstream portStr;
+	portStr << port;
+
+	status = getaddrinfo(host.c_str(), portStr.str().c_str(), &hints, &res);
+	if (status != 0)
+		throw std::runtime_error("getaddrinfo() failed");
+	listenFd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (listenFd < 0)
 		throw std::runtime_error("socket() failed: " + std::string(strerror(errno)));
 	int opt = 1;
 	if (setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 		throwError(listenFd, "setsockopt() failed: ");
-
 	if (fcntl(listenFd, F_SETFL, O_NONBLOCK) < 0)
 		throwError(listenFd, "fcntl(F_SETFL) failed: ");
 	if (fcntl(listenFd, F_SETFD, FD_CLOEXEC) < 0)
 		throwError(listenFd, "fcntl(F_SETFD) failed: ");
-
-	struct sockaddr_in address;
-	std::memset(&address, 0, sizeof(address));
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(host.c_str());
-	address.sin_port = htons(port);
-
-	if (bind(listenFd, (struct sockaddr *)&address, sizeof(address)) < 0)
+	if (bind(listenFd, res->ai_addr, res->ai_addrlen) < 0)
 		throwError(listenFd, "bind() failed: ");
-
+	freeaddrinfo(res);
 	if (listen(listenFd, SOMAXCONN) < 0)
 		throwError(listenFd, "listen() failed: ");
-
 	_listenFds.push_back(listenFd);
-	// std::cout << "Server listening on port " << port << std::endl;
-
 	_fdToConfigIndex[listenFd] = configIndex;
 	std::cout << "Server listening on " << host << ":" << port << std::endl;
 }
@@ -102,11 +105,7 @@ void Server::handleNewConnection(int fd)
 	std::cout << "fd server = " << fd << "\n";
 	std::cout << "fd accepted = " << clientFd << "\n";
 	if (clientFd < 0)
-	{
-		std::cerr << "accept() error: " << strerror(errno) << std::endl;
 		return;
-	}
-
 	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0)
 		throwError(clientFd, "Failed to set non-blocking: ");
 	if (fcntl(clientFd, F_SETFD, FD_CLOEXEC) < 0)
@@ -114,7 +113,8 @@ void Server::handleNewConnection(int fd)
 
 	ServerConfig config = getConfigForListenFd(fd);
 	Client *client = new Client(clientFd, config);
-	// protect
+	if (!client)
+		throwError(clientFd, "Failed to allocate memory for new client");
 	_clients[clientFd] = client;
 	std::cout << "New client connected fd = " << clientFd << ")\n";
 }
@@ -126,6 +126,7 @@ void Server::closeClient(int fd)
 		return;
 	std::cout << "closing client fd => " << fd << "\n";
 	close(fd);
+	fd = -1;
 	delete it->second;
 	_clients.erase(it);
 }
@@ -138,7 +139,8 @@ void Server::handleClientRead(int clientFd)
 	bool complete = client->readRequest();
 	if (client->getState() == Client::DONE)
 	{
-		cout << "# # # client done\n";
+		// Never going throug there
+		cout << "# # # client done------------------------------------------------------------------------------------------------------\n";
 		return;
 	}
 	if (complete)
@@ -215,10 +217,7 @@ void Server::run()
 		}
 		activity = poll(&pollFds[0], pollFds.size(), 1000); // waits for one of a set of file descriptors to become ready to perform I/O.
 		if (activity < 0)
-		{
-			std::cerr << "poll() error: " << strerror(errno) << "\n";
 			continue;
-		}
 
 		for (size_t i = 0; i < pollFds.size(); i++)
 		{
@@ -296,16 +295,13 @@ void Server::run()
 				}
 			}
 		}
-
 		checkCGITimeouts();
-
 	}
 	// cleanup on shutdown and close all connections
 	std::cout << "\n\nCleaning up ...";
 	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
 	{
 		std::cout << "Closing client fd = " << it->first << "\n";
-		close(it->first);
 		delete it->second;
 	}
 	_clients.clear();
@@ -313,6 +309,7 @@ void Server::run()
 	{
 		std::cout << "Closing listening socket fd = " << _listenFds[i] << "\n";
 		close(_listenFds[i]);
+		_listenFds[i] = -1;
 	}
 	_listenFds.clear();
 	std::cout << "Cleanup completed" << "\n";
@@ -320,7 +317,7 @@ void Server::run()
 
 void Server::checkCGITimeouts()
 {
-	time_t now = time(NULL);
+	time_t now = std::time(NULL);
 
 	for (std::map<int, Client *>::iterator it = _clients.begin();
 		 it != _clients.end(); it++)
@@ -331,10 +328,11 @@ void Server::checkCGITimeouts()
 			if (now - it->second->getCGI()->getStartTime() > 3)
 			{
 				std::cout << "CGI timeout\n";
+				// it->second->_resRes = "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
+				it->second->setState(Client::ERROR_HEADERS_WRITING);
 				killCGI(it->second);
 
-				std::cerr << "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
-				// it->second->setState(Client::WRITING);
+				// throw 500;
 			}
 		}
 	}

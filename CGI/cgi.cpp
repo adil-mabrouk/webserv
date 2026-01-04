@@ -17,7 +17,7 @@ CGI::~CGI()
 	// }
 	if (!_inputFile.empty())
 	{
-		unlink(_inputFile.c_str());
+		std::remove(_inputFile.c_str());
 		_inputFile.clear();
 	}
 	if (_pid > 0)
@@ -139,7 +139,7 @@ void CGI::freeEnvArray(char** envp)
 std::string CGI::start()
 {
 	std::ostringstream outputPath;
-	outputPath << "/tmp/cgi_output_" << time(NULL);
+	outputPath << "/tmp/cgi_output_" << std::time(NULL);
 	_outputFile = outputPath.str();
 
 	int outputFd = open(_outputFile.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0600);
@@ -149,15 +149,16 @@ std::string CGI::start()
 		throw 500;
     }
 	close(outputFd);
+	outputFd = -1;
 
-	_startTime = time(NULL);
+	_startTime = std::time(NULL);
 
 	_pid = fork();
 
 	if (_pid < 0)
 	{
 		std::cerr << "Fork failed\n";
-		unlink(_outputFile.c_str());
+		std::remove(_outputFile.c_str());
 		throw 500;
 	}
 	if (_pid == 0)
@@ -168,27 +169,42 @@ std::string CGI::start()
 			if (inFd < 0)
 			{
 				std::cerr << "Child: Failed to open input file: " << _inputFile << "\n";
-				exit(10);
+				std::exit(EXIT_FAILURE);
 			}
-			dup2(inFd, STDIN_FILENO);
+			if (dup2(inFd, STDIN_FILENO) < 0)
+			{
+				perror("dup2 failed");
+				std::exit(EXIT_FAILURE);
+			}
 			close(inFd);
+			inFd = -1;
 		}
 		else
 		{
 			int nullFd = open("/dev/null", O_RDONLY);
-			dup2(nullFd, STDIN_FILENO);
+			if (dup2(nullFd, STDIN_FILENO) < 0)
+			{
+				perror("dup2 failed");
+				std::exit(EXIT_FAILURE);
+			}
 			close(nullFd);
+			nullFd = -1;
 		}
 		
 		int outFd = open(_outputFile.c_str(), O_WRONLY | O_TRUNC | O_CLOEXEC);
 		if (outFd < 0)
 		{
 			std::cerr << "Child: failed to open output file\n";
-			exit(11);
+			std::exit(EXIT_FAILURE);
 		}
 		
-		dup2(outFd, STDOUT_FILENO);
+		if (dup2(outFd, STDOUT_FILENO) < 0)
+		{
+			perror("dup2 failed");
+			std::exit(EXIT_FAILURE);
+		}
 		close(outFd);
+		outFd = -1;
 		std::map<std::string, std::string> envMap = setupEnvironment();
 		char **envp = mapToEnvArray(envMap);
 		std::string interpreter = getCGIInterpreter(_scriptPath);
@@ -213,7 +229,7 @@ std::string CGI::start()
 		}
 		freeEnvArray(envp);
 		std::cerr << "execve failed: " << strerror(errno) << "\n";
-		exit(1);
+		std::exit(EXIT_FAILURE);
 	}
 	else
 		return _outputFile;
