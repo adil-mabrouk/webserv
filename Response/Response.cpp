@@ -246,27 +246,38 @@ void	Response::fillDirBody(string path, DIR* dir)
 		headers.push_back(make_pair("Content-Length: ", ss.str()));
 }
 
-void	Response::fillFileBody(int fd)
-{
-	char	*end;
-	char	*buff;
-	size_t	file_size;
+// #include <fstream>
+// void	Response::fillFileBody(int fd)
+// {
+// 	(void)fd;
+// 	std::ifstream file(request.request_line.getURI(), std::ios::binary);
+// 	char* buff;
+// 
+//     // Get file size
+//     file.seekg(0, std::ios::end);
+//     std::streamsize size = file.tellg();
+//     file.seekg(0, std::ios::beg);
+// 	buff = new char[size + 1];
+// 	file.read(buff, size);
+// 	buff[size] = '\0';
+// 	body.assign(buff);
+// }
 
-	file_size = std::strtol((headers.end() - 2)->second.c_str(), &end, 0);
-	buff = new char[file_size + 1];
-	try
-	{
-		if (read(fd, buff, file_size) == -1)
-			throw std::runtime_error("");
-		buff[file_size] = '\0';
-		body.assign(buff);
-	}
-	catch (std::exception &e)
-	{
-		delete[] buff;
-		throw;
-	}
-	delete[] buff;
+void Response::fillFileBody(int fd)
+{
+	(void)fd;
+    std::ifstream file(request.request_line.getURI(), std::ios::in | std::ios::binary);
+
+
+    file.seekg(0, std::ios::end);
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    if (size > 0)
+    {
+        body.resize(size);
+        file.read(&body[0], size);
+    }
 }
 
 void	Response::GETDir(string path)
@@ -403,6 +414,7 @@ void	Response::GETResource()
 	}
 	else
 		throw 404;//statusCode404();
+	cout << body.size() << '\n';
 }
 
 // must verify if the program has the right to delete the resource?

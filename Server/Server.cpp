@@ -42,19 +42,20 @@ void Server::initSocket(std::string host, int port, size_t configIndex)
 
 	status = getaddrinfo(host.c_str(), portStr.str().c_str(), &hints, &res);
 	if (status != 0)
-		throw std::runtime_error("getaddrinfo() failed");
+		freeaddrinfo(res), throw std::runtime_error("getaddrinfo() failed");
 	listenFd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (listenFd < 0)
-		throw std::runtime_error("socket() failed: " + std::string(strerror(errno)));
+		freeaddrinfo(res), throw std::runtime_error("socket() failed: "
+											  + std::string(strerror(errno)));
 	int opt = 1;
 	if (setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-		throwError(listenFd, "setsockopt() failed: ");
+		freeaddrinfo(res), throwError(listenFd, "setsockopt() failed: ");
 	if (fcntl(listenFd, F_SETFL, O_NONBLOCK) < 0)
-		throwError(listenFd, "fcntl(F_SETFL) failed: ");
+		freeaddrinfo(res), throwError(listenFd, "fcntl(F_SETFL) failed: ");
 	if (fcntl(listenFd, F_SETFD, FD_CLOEXEC) < 0)
-		throwError(listenFd, "fcntl(F_SETFD) failed: ");
+		freeaddrinfo(res), throwError(listenFd, "fcntl(F_SETFD) failed: ");
 	if (bind(listenFd, res->ai_addr, res->ai_addrlen) < 0)
-		throwError(listenFd, "bind() failed: ");
+		freeaddrinfo(res), throwError(listenFd, "bind() failed: "); // freeaddrinfo(res);
 	freeaddrinfo(res);
 	if (listen(listenFd, SOMAXCONN) < 0)
 		throwError(listenFd, "listen() failed: ");
@@ -182,14 +183,6 @@ void Server::handleClientWrite(int clientFd)
 	}
 }
 
-/*
-This function implements a non-blocking, single-threaded event loop that:
-- Manages multiple listening sockets (ports)
-- Accepts new client connections
-- Handles client read/write operations
-- Cleans up finished connections
-*/
-
 void	Server::handleClientError(Client* client, int status)
 {
 	map<int, std::string>::const_iterator	it;
@@ -212,7 +205,7 @@ void	Server::handleClientError(Client* client, int status)
 	}
 	if (client->getFileFd() == -1)
 	{
-		cout << "+ + + normal pages\n";
+		cout << "+ + + normal pages " << status << '\n';
 		Response res;
 
 		client->setState(Client::WRITING);
@@ -295,7 +288,7 @@ void Server::run()
 						// cout << "+ + + writing\n",
 						handleClientWrite(fd);
 					if (_clients.find(fd) != _clients.end())
-						checkCGITimeouts(_clients.find(fd)->second, fd);
+						checkCGITimeouts(_clients.find(fd)->second);
 				}
 				catch (int &status)
 				{
@@ -322,17 +315,14 @@ void Server::run()
 	std::cout << "Cleanup completed" << "\n";
 }
 
-void Server::checkCGITimeouts(Client* ctl, int fd)
+void Server::checkCGITimeouts(Client* ctl)
 {
 	time_t now = std::time(NULL);
-(void)fd;
+
 	if (ctl->getCGI() && now - ctl->getCGI()->getStartTime() > 3)
 	{
 		std::cout << "CGI timeout\n";
-		// it->second->_resRes = "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
-		// it->second->setState(Client::ERROR_HEADERS_WRITING);
 		killCGI(ctl);
-		// handleClientError(ctl, fd);
 
 		throw 500;
 	}

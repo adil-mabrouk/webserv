@@ -91,7 +91,7 @@ void	Client::postInit()
 	oss << std::rand();
 	if (it_content_type == requestHandle.request_header.getHeaderData().end())
 	{
-		if (location_config.cgi.size())
+		if (isCGIRequest(requestHandle.request_line.getURI()))
 		{
 			upload_file	= new std::ofstream(("/tmp/upload_" + oss.str() + "."
 								   + Response::fillContentType("x-www-form-urlencoded", 1)).c_str());
@@ -109,7 +109,7 @@ void	Client::postInit()
 	}
 	else
 	{
-		if (location_config.cgi.size())
+		if (isCGIRequest(requestHandle.request_line.getURI()))
 		{
 			upload_file	= new std::ofstream(("/tmp/upload_" + oss.str() + "."
 								   + Response::fillContentType(it_content_type->second, 1)).c_str());
@@ -136,17 +136,8 @@ bool	Client::readRequest()
 	size_t	crlf_index;
 
 	ssize_t bytesRead = recv(_fd, buffer, sizeof(buffer), 0);
-	if (bytesRead < 0)
-		return false;
-	if (bytesRead == 0)
-		return true;
-	{
-		int fd = open("Request.txt", O_WRONLY | O_APPEND);
-		write(fd, buffer, bytesRead);
-		close(fd);
-		fd = -1;
-	}
-
+	if (bytesRead <= 0)
+		return (setState(DONE), true);
 	_resBuff.append(buffer, bytesRead);
 	if (getState() == READING)
 	{
@@ -194,11 +185,11 @@ bool	Client::readRequest()
 					cout << "body size too large\n", throw 400;
 			if (location_config.redirectExist)
 				return (true);
-			if (!location_config.cgi.size() && requestHandle.request_line.getMethod() == "POST")
+			if (requestHandle.request_line.getMethod() == "POST")
 				cout << "+ + + running POST\n", setState(READ_BODY), postInit();
-			else if (location_config.cgi.size())
-				if (requestHandle.request_line.getMethod() == "POST")
-					cout << "+ + + running POST\n", setState(READ_BODY), postInit();
+			// else if (location_config.cgi.size())
+			// 	if (requestHandle.request_line.getMethod() == "POST")
+			// 		cout << "+ + + running POST\n", setState(READ_BODY), postInit();
 			cout << "- - - request headers parsing done\n";
 		}
 		else
@@ -274,22 +265,12 @@ void	Client::processRequest()
 		else
 			_resRes = "HTTP/1.0 201 Created\r\n\r\n";
 	}
-	_byteSent = 0;
  	setState(WRITING);
 }
 
 bool	Client::writeResponse()
 {
-
-	{
-		int fd = open("Response.txt", O_WRONLY | O_APPEND);
-		write(fd, _resRes.c_str(), _resRes.size());
-		close(fd);
-		fd = -1;
-	}
-
-	if (send(_fd, _resRes.c_str(), _resRes.size(), 0) < 0)
-		return false;
+	send(_fd, _resRes.c_str(), _resRes.size(), 0);
 	return (setState(DONE), 1);
 }
 
@@ -332,24 +313,20 @@ bool	Client::writeCGIResponse()
 		size_t			crlf_index;
 
 		bytesSent = read(fileFd, buffer, sizeof(buffer) - 1);
+		if (bytesSent == -1)
+			throw 500;
 		string	cgi_body(buffer);
 		crlf_index = cgi_body.find("\r\n\r\n", 0);
-		send(_fd, "HTTP/1.0 200 OK\r\n", 17, 0);
-
-		{
-			int fd = open("Response.txt", O_WRONLY | O_APPEND);
-			write(fd, "HTTP/1.0 200 OK\r\n", 17);
-			close(fd);
-			fd = -1;
-		}
-
+		bytesSent = send(_fd, "HTTP/1.0 200 OK\r\n", 17, 0);
+		if (!bytesSent || bytesSent == -1)
+			return (1);
 		if (crlf_index != string::npos)
 		{
 			try
 			{
 				RequestHeader	response_header;
 
-			response_header.parse(string(cgi_body.begin(), cgi_body.begin() + crlf_index + 2));
+				response_header.parse(string(cgi_body.begin(), cgi_body.begin() + crlf_index + 2));
 			}
 			catch (int& status)
 			{
@@ -359,53 +336,32 @@ bool	Client::writeCGIResponse()
 		}
 		else
 		{
-
-			{
-				int fd = open("Response.txt", O_WRONLY | O_APPEND);
-				write(fd, "\r\n", 2);
-				close(fd);
-				fd = -1;
-			}
-
-			send(_fd, "\r\n", 2, 0);
+			bytesSent = send(_fd, "\r\n", 2, 0);
+			if (!bytesSent || bytesSent == -1)
+				return (1);
 		}
 
-		{
-			int fd = open("Response.txt", O_WRONLY | O_APPEND);
-			write(fd, buffer, bytesSent);
-			close(fd);
-		}
-
-		send(_fd, buffer, bytesSent, 0);
+		bytesSent = send(_fd, buffer, bytesSent, 0);
+		if (!bytesSent || bytesSent == -1)
+			return (1);
 		setState(CGI_WRITING);
 	}
 	bytesSent = read(fileFd, buffer, sizeof(buffer) -1);
 	if (bytesSent == -1)
 		throw 500;
-	buffer[bytesSent] = '\0';
-	// close(fd);
-	// cout << "\\\\\\reading " << bytesSent << " from " << fileName << '\n';
-	// cout << '|' << buffer << "|\n";
 	if (!bytesSent)
-	{
-		// cout << "\\\\\\eof reached\n";
 		return (setState(DONE), close(fileFd), fileFd = -1, true);
-	}
-
-	{
-		int fd = open("Response.txt", O_WRONLY | O_APPEND);
-		write(fd, buffer, bytesSent);
-		close(fd);
-		fd = -1;
-	}
 
 	bytesSent = send(_fd, buffer, bytesSent, 0);
+	if (!bytesSent || bytesSent == -1)
+		return (1);
 	return false;
 }
 
 int	Client::writeErrorResponseHeaders()
 {
 	struct stat	st;
+	int			bytesSent;
 
 	if (stat(fileName.c_str(), &st) == -1)
 	{
@@ -424,16 +380,7 @@ int	Client::writeErrorResponseHeaders()
 		else
 			response.statusCode501();
 		send(_fd, response.getResponse().c_str(),
-	   response.getResponse().size(), 0);
-
-		{
-			int fd = open("Response.txt", O_WRONLY | O_APPEND);
-			write(fd, response.getResponse().c_str(),
-				response.getResponse().size());
-			close(fd);
-			fd = -1;
-		}
-
+				   response.getResponse().size(), 0);
 		return (setState(DONE), 1);
 	}
 	if (S_ISREG(st.st_mode))
@@ -458,35 +405,19 @@ int	Client::writeErrorResponseHeaders()
 			response = "HTTP/1.0 501 Not Implemented\r\n";
 		response += "Content-Length: " + ss.str() + "\r\n\r\n";
 // added the content-Type here using the function that looks for the extension
-		send(_fd, response.c_str(), response.size(), 0);
-
-		{
-			int fd = open("Response.txt", O_WRONLY | O_APPEND);
-			write(fd, response.c_str(), response.size());
-			close(fd);
-			fd = -1;
-		}
-
+		bytesSent = send(_fd, response.c_str(), response.size(), 0);
+		if (!bytesSent || bytesSent == -1)
+			return (1);
 		return (setState(ERROR_WRITING), 0);
 	}
-	else if (S_ISDIR(st.st_mode))
+	else
 	{
 		Response	res;
 
 		res.statusCode403();
-
-		{
-			int fd = open("Response.txt", O_WRONLY | O_APPEND);
-			write(fd, res.getResponse().c_str(), res.getResponse().size());
-			close(fd);
-			fd = -1;
-		}
-
 		send(_fd, res.getResponse().c_str(), res.getResponse().size(), 0);
 		return (setState(DONE), 1);
 	}
-	else
-		throw std::runtime_error("error page type not supported");
 }
 
 bool	Client::writeErrorResponse()
@@ -499,23 +430,12 @@ bool	Client::writeErrorResponse()
 			return (true);
 	bytesSent = read(fileFd, buffer, 4095);
 	if (bytesSent == -1)
-		(void)buffer;
+		return (1);
 	if (!bytesSent)
-	{
-		setState(DONE);
-		close(fileFd);
-		fileFd = -1;
-		return (true);
-	}
-
-	{
-		int fd = open("Response.txt", O_WRONLY | O_APPEND);
-		write(fd, buffer, bytesSent);
-		close(fd);
-		fd = -1;
-	}
-
+		return (setState(DONE), close(fileFd), fileFd = -1, true);
 	bytesSent = send(_fd, buffer, bytesSent, 0);
+	if (!bytesSent || bytesSent == -1)
+		return (true);
 	return (false);
 }
 
@@ -526,7 +446,8 @@ bool	Client::isCGIRequest(const std::string &path)
 	extension_index = path.rfind('.', path.size());
 	if (extension_index == string::npos)
 		return (false);
-	for (vector<CGIConfig>::iterator it = location_config.cgi.begin(); it != location_config.cgi.end(); it++)
+	for (vector<CGIConfig>::iterator it = location_config.cgi.begin();
+		it != location_config.cgi.end(); it++)
 		if (string(path.begin() + extension_index, path.end()) == it->extension)
 			return (true);
 	return (false);
