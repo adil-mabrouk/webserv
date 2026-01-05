@@ -18,6 +18,10 @@ void	ConfigParser::defaultServerParams(ServerConfig& serverConfig)
 	serverConfig.root = "/home/amabrouk/Desktop/webserv";
 }
 
+ServerConfig::ServerConfig() : max_body_size(std::numeric_limits<unsigned long>::max()) {}
+
+LocationConfig::LocationConfig() : autoindex(false), redirectExist(false), allow_upload(false) {}
+
 std::vector<ServerConfig>	ConfigParser::parser()
 {
 	std::vector<std::string>	tokens = tokenize(_content);

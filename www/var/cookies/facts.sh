@@ -1,7 +1,8 @@
 #!/bin/bash
+set -e
 echo "Content-type: text/html"$'\r'
 echo $'\r'
-
+sdf
 FACTS=(
   "Khouribga is known as the phosphate capital of Morocco."
   "Morocco is home to the world's largest solar power plant, Noor Ouarzazate."

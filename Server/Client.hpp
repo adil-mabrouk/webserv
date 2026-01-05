@@ -10,7 +10,7 @@ class CGI;
 
 class Client {
 	public:
-		enum State	{ READING, READ_HEADER, READ_BODY, CGI_RUNNING, CGI_WRITING, CGI_HEADERS_WRITING, WRITING, PROCESSING, ERROR_HEADERS_WRITING, ERROR_WRITING, DONE };
+		enum State	{ READING, READ_HEADER, READ_BODY, CGI_RUNNING, CGI_WRITING, CGI_HEADERS_WRITING, WRITING, ERROR_HEADERS_WRITING, ERROR_WRITING, DONE };
 
 		Client(int fd, ServerConfig config);
 		int			getState() const;
@@ -31,8 +31,7 @@ class Client {
 
 		std::string		_resRes;
 		
-		CGI				*getCGI() const { return _cgi; }
-
+		CGI				*getCGI() const;
 
 	private:
 		Request			requestHandle;

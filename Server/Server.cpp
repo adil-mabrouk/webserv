@@ -139,7 +139,6 @@ void Server::handleClientRead(int clientFd)
 	bool complete = client->readRequest();
 	if (client->getState() == Client::DONE)
 	{
-		 
 		cout << "# # # client done------------------------------------------------------------------------------------------------------\n";
 		return;
 	}
@@ -183,14 +182,6 @@ int Server::handleClientWrite(int clientFd)
 	}
 	return 0;
 }
-
-/*
-This function implements a non-blocking, single-threaded event loop that:
-- Manages multiple listening sockets (ports)
-- Accepts new client connections
-- Handles client read/write operations
-- Cleans up finished connections
-*/
 
 void Server::run()
 {
@@ -330,6 +321,8 @@ void Server::checkCGITimeouts(int fd)
 		{
 			c->setState(Client::ERROR_HEADERS_WRITING);
 			killCGI(c);
+			close(c->getFileFd());
+			c->setFileFd(-1);
 			throw 500;
 		}
 	}

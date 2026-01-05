@@ -26,11 +26,14 @@ Client::~Client()
 	std::cout << "\n\ndestructor called ----\n\n";
 	close(_fd);
 	_fd = -1;
+	// close(this->getFileFd());
 	delete upload_file;
 	upload_file = NULL;
 	delete _cgi;
 	_cgi = NULL;
 }
+
+CGI	*Client::getCGI() const { return _cgi; }
 
 int	Client::getState() const
 {
@@ -227,7 +230,7 @@ void	Client::processRequest()
 	{
 		cout << "+ + + running cgi\n";
 		fileName = startCGI();
-		fileFd = open(fileName.c_str(), O_RDONLY);  
+		fileFd = open(fileName.c_str(), O_RDONLY);
 		if (-1 == fileFd)
 			throw 500;
 		setState(CGI_HEADERS_WRITING);
@@ -299,6 +302,8 @@ bool	Client::writeCGIResponse()
 			std::cerr << "waitpid error: " << strerror(errno) << std::endl;
 			kill(_cgi->getPid(), SIGKILL);
 			waitpid(_cgi->getPid(), NULL, WNOHANG);
+			close(getFileFd());
+			setFileFd(-1);
 			return false;
 		}
 		else if (result == 0)
@@ -311,6 +316,8 @@ bool	Client::writeCGIResponse()
 				if (exitCode != 0)
 				{
 					std::cerr << "  CGI exited with error code " << exitCode << std::endl;
+					close(getFileFd());
+					setFileFd(-1);
 					throw 500;
 				}
 			}

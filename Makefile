@@ -1,7 +1,7 @@
 NAME = webserv
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98
-SRC = Server/Server.cpp Server/Client.cpp Configuration/config.cpp main.cpp Request/Request.cpp Request/RequestLine.cpp Request/RequestHeader.cpp \
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
+SRC = Server/Server.cpp Server/Client.cpp Configuration/config.cpp main.cpp Request/RequestLine.cpp Request/RequestHeader.cpp \
 		Response/Response.cpp CGI/cgi.cpp
 
 OBJ = $(SRC:.cpp=.o)

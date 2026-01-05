@@ -30,7 +30,7 @@ struct LocationConfig {
 	std::string									upload_store;
 	bool										allow_upload;
 	std::vector<CGIConfig>						cgi;
-	LocationConfig() : autoindex(false), redirectExist(false), allow_upload(false) {}
+	LocationConfig();
 };
 
 struct ServerConfig {
@@ -39,7 +39,7 @@ struct ServerConfig {
 	std::map<std::string, LocationConfig>		locations;
 	std::string									root;
 	unsigned long								max_body_size;
-	ServerConfig() : max_body_size(std::numeric_limits<unsigned long>::max()) {}
+	ServerConfig();
 };
 
 class ConfigParser {
