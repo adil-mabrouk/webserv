@@ -22,9 +22,13 @@ CGI::~CGI()
 	}
 }
 
-void		CGI::setState(CGIState state) { _state = state; }
+void		CGI::setState(CGIState state) {
+	_state = state;
+}
 
-CGIState	CGI::getState() { return _state; }
+CGI::CGIState	CGI::getState() {
+	return _state;
+}
 
 void CGI::setScriptPath(const std::string& path)
 {
