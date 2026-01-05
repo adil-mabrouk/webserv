@@ -18,15 +18,12 @@ Client::Client(int fd, ServerConfig config)
 	  _cgi(NULL)
 {
 	_serverConfig = config;
-	std::cout << "\n\nconstructor called ++++\n\n";
 }
 
 Client::~Client()
 {
-	std::cout << "\n\ndestructor called ----\n\n";
 	close(_fd);
 	_fd = -1;
-	// close(this->getFileFd());
 	delete upload_file;
 	upload_file = NULL;
 	delete _cgi;
@@ -84,12 +81,12 @@ void	Client::postInit()
 	it_content_type = requestHandle.request_header.getHeaderData().find("Content-Type");
 	it_content_length = requestHandle.request_header.getHeaderData().find("Content-Length");
 	if (it_content_length == requestHandle.request_header.getHeaderData().end())
-		cout << "content-length not found\n", throw 400;
+		throw 400;
 	content_length = std::strtol(it_content_length->second.c_str(), NULL, 0);
 	if (content_length > _serverConfig.max_body_size)
-		cout << "body size too large 2\n", throw 400;
+		throw 400;
 	if (!location_config.allow_upload)
-		cout << "upload not allowed\n", throw 403;
+		throw 403;
 	std::srand(std::time(NULL));
 	oss << std::rand();
 	if (it_content_type == requestHandle.request_header.getHeaderData().end())
@@ -152,22 +149,18 @@ bool	Client::readRequest()
 		{
 			vector <string>::iterator	it;
 
-			cout << "- - - request line parsing\n";
 			requestHandle.request_line.parse(string(_resBuff.begin(),
 										   _resBuff.begin() + crlf_index));
 			 
 			_resBuff.assign(_resBuff.begin() + crlf_index + 2, _resBuff.end());
 			location_config = findLocation();
-			cout << "- - - location: " << location_config.path << '\n';
 			it = find(location_config.methods.begin(), location_config.methods.end(),
 			 requestHandle.request_line.getMethod());
 			if (!location_config.redirectExist && it == location_config.methods.end())
-				cout << "method not allowed\n", throw 403;
+				throw 403;
 			requestHandle.request_line.removeDupSl();
 			requestHandle.request_line.removeDotSegments();
 			requestHandle.request_line.rootingPath(location_config.path, location_config.root, _serverConfig.root);
-			cout << "- - - uri: " << requestHandle.request_line.getURI() << '\n';
-			cout << "- - - request line parsing done\n";
 			setState(READ_HEADER);
 		}
 		else
@@ -180,7 +173,6 @@ bool	Client::readRequest()
 		{
 			map<const string, const string>::const_iterator	it;
 
-			cout << "- - - request headers parsing\n";
 			requestHandle.request_header.parse(string(_resBuff.begin(),
 											 _resBuff.begin() + crlf_index + 2));
 			_resBuff.assign(_resBuff.begin() + crlf_index + 4, 
@@ -188,15 +180,14 @@ bool	Client::readRequest()
 			it = requestHandle.request_header.getHeaderData().find("Content-Length");
 			if (it != requestHandle.request_header.getHeaderData().end())
 				if (std::strtoul(it->second.c_str(), NULL, 0) > _serverConfig.max_body_size)
-					cout << "body size too large\n", throw 400;
+					throw 400;
 			if (location_config.redirectExist)
 				return (true);
 			if (!location_config.cgi.size() && requestHandle.request_line.getMethod() == "POST")
-				cout << "+ + + running POST\n", setState(READ_BODY), postInit();
+				setState(READ_BODY), postInit();
 			else if (location_config.cgi.size())
 				if (requestHandle.request_line.getMethod() == "POST")
-					cout << "+ + + running POST\n", setState(READ_BODY), postInit();
-			cout << "- - - request headers parsing done\n";
+					setState(READ_BODY), postInit();
 		}
 		else
 			throw 400;
@@ -205,13 +196,11 @@ bool	Client::readRequest()
 	{
 		unsigned long	size_tmp;
 
-		cout << "- - - body reading\n";
 		if (string(_resBuff.begin(), _resBuff.end()).size() + contentSize >= content_length)
 		{
 			size_tmp = (string(_resBuff.begin(), _resBuff.end()).size() + contentSize) - content_length; 
 			*upload_file << string(_resBuff.begin(), _resBuff.end() - size_tmp);
 			upload_file->flush(), _resBuff.clear();
-		cout << "- - - body reading done\n";
 		}
 		else
 		{
@@ -228,7 +217,6 @@ void	Client::processRequest()
 {
 	if (isCGIRequest(requestHandle.request_line.getURI()))
 	{
-		cout << "+ + + running cgi\n";
 		fileName = startCGI();
 		fileFd = open(fileName.c_str(), O_RDONLY);
 		if (-1 == fileFd)
@@ -239,10 +227,8 @@ void	Client::processRequest()
 	}
 	else if (location_config.redirectExist)
 	{
-		cout << "+ + + running http redirection\n";
 		Response			response;
 
-		cout << "http redirection: " << location_config.redirect.url << '\n';
 		if (location_config.redirect.status_code == 301)
 			response.statusCode301(location_config.redirect.url);
 		else if (location_config.redirect.status_code == 302)
@@ -256,10 +242,8 @@ void	Client::processRequest()
 		Response	response(requestHandle, location_config);
 
 		if (!requestHandle.request_line.getMethod().compare("DELETE"))
-			cout << "+ + + running DELETE\n",
 			response.DELETEResource();
 		else if (!requestHandle.request_line.getMethod().compare("GET"))
-			cout << "+ + + running GET\n",
 			response.GETResource();
 		_resRes += response.getResponse();
 	}
@@ -277,15 +261,6 @@ void	Client::processRequest()
 
 bool	Client::writeResponse()
 {
-	std::cout << "Sending Response" << std::endl;
-	// int fd2 = open("test.txt", O_CREAT | O_WRONLY);
-	{
-		int fd = open("Response.txt", O_CREAT | O_WRONLY | O_APPEND);
-		write(fd, _resRes.c_str(), _resRes.size());
-		close(fd);
-		fd = -1;
-	}
-	// write (fd2, _resRes)
 	send(_fd, _resRes.c_str(), _resRes.size(), 0);
 	return (setState(DONE), 1);
 }
@@ -315,7 +290,6 @@ bool	Client::writeCGIResponse()
 				int exitCode = WEXITSTATUS(status);
 				if (exitCode != 0)
 				{
-					std::cerr << "  CGI exited with error code " << exitCode << std::endl;
 					close(getFileFd());
 					setFileFd(-1);
 					throw 500;

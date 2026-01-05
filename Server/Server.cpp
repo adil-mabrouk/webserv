@@ -102,8 +102,6 @@ void Server::handleNewConnection(int fd)
 	socklen_t addrLen = sizeof(clientAddr);
 
 	int clientFd = accept(fd, (struct sockaddr *)&clientAddr, &addrLen);
-	std::cout << "fd server = " << fd << "\n";
-	std::cout << "fd accepted = " << clientFd << "\n";
 	if (clientFd < 0)
 		return;
 	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) < 0)
@@ -116,7 +114,6 @@ void Server::handleNewConnection(int fd)
 	if (!client)
 		throwError(clientFd, "Failed to allocate memory for new client");
 	_clients[clientFd] = client;
-	std::cout << "New client connected fd = " << clientFd << ")\n";
 }
 
 void Server::closeClient(int fd)
@@ -124,7 +121,6 @@ void Server::closeClient(int fd)
 	std::map<int, Client *>::iterator it = _clients.find(fd);
 	if (it == _clients.end())
 		return;
-	std::cout << "closing client fd => " << fd << "\n";
 	close(fd);
 	fd = -1;
 	delete it->second;
@@ -138,12 +134,8 @@ void Server::handleClientRead(int clientFd)
 		return;
 	bool complete = client->readRequest();
 	if (client->getState() == Client::DONE)
-	{
-		cout << "# # # client done------------------------------------------------------------------------------------------------------\n";
 		return;
-	}
 	if (complete)
-		cout << "+ + + processing request\n",
 		client->processRequest();
 }
 
@@ -160,25 +152,13 @@ int Server::handleClientWrite(int clientFd)
 		complete = client->writeCGIResponse();
 	else if (client->getState() == Client::ERROR_WRITING
 			|| client->getState() == Client::ERROR_HEADERS_WRITING)
-		cout << "+ + + writing error response\n",
 		complete = client->writeErrorResponse();
 	else
-		cout << "+ + + writing response\n",
 		complete = client->writeResponse();
 	if (complete)
 	{
-		if (client->getCGI())
-		{
-			std::cout << "CGI\n";
-			closeClient(clientFd);
-			return 1;
-		}
-		else
-		{
-			std::cout << "Client\n";
-			closeClient(clientFd);
-			return 1;
-		}
+		closeClient(clientFd);
+		return 1;
 	}
 	return 0;
 }
@@ -222,7 +202,6 @@ void Server::run()
 			if (isListeningSocket(fd))
 			{
 				if (revents & POLLIN)
-					cout << "\n\nnew connection\n",
 					handleNewConnection(fd);
 			}
 			else
@@ -230,7 +209,6 @@ void Server::run()
 				try
 				{
 					if (revents & POLLIN)
-						cout << "- - - reading\n",
 						handleClientRead(fd);
 					if (revents & POLLOUT)
 					{
@@ -253,7 +231,6 @@ void Server::run()
 
 						file_name = root
 							+ ((*root.rbegin() != '/' && *it->second.begin() != '/') ? "/" : "") + it->second;
-						cout << "+ + + error page: " << file_name << "\n";
 						_clients.find(fd)->second->setState(Client::ERROR_HEADERS_WRITING);
 						_clients.find(fd)->second->setFileFd(open(file_name.c_str(), O_RDONLY));
 						_clients.find(fd)->second->setFileName(it->second.c_str());
@@ -261,7 +238,6 @@ void Server::run()
 					}
 					if (_clients.find(fd)->second->getFileFd() == -1)
 					{
-						cout << "+ + + normal pages\n";
 						Response res;
 
 						_clients.find(fd)->second->setState(Client::WRITING);

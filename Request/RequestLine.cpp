@@ -143,14 +143,14 @@ inline bool	URIParser::isPchar(string str)
 	{
 		if (*it == '%' && (string(it + 1, str.end()).size() < 2
 			|| !isHex(*(it + 1)) || !isHex(*(it + 2))))
-			return (cout << "parse error: " << string(it, it + 2) << '\n', 0);
+			return (0);
 		else if (*it == '%')
 			it += 2;
 		else if (*it != ':' && *it != '@' && *it != '&'
 			&& *it != '=' && *it != '+' && !isAlpha(*it)
 			&& !isDigit(*it) && !isSafe(*it) && !isExtra(*it)
 			&& !isNational(*it))
-			return (cout << "parse error=> " << *it << '\n', 0);
+			return (0);
 	}
 	return (1);
 }
