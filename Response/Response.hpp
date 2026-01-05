@@ -32,7 +32,7 @@ using std::ostringstream;
 
 class	Request;
 
-// 204 status code for post?
+ 
 class	Response
 {
 private:

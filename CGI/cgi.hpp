@@ -14,11 +14,11 @@ class CGI
 		void	setQueryString(const std::string &query);
 		void	setInputFile(const std::string &filePath);
 		void	setHeader(const std::string &key, const std::string &value);
-		void	setState(CGIState state) { _state = state; }
+		void	setState(CGIState state);
 
 		pid_t	getPid() const;
 		time_t	getStartTime() const;
-		CGIState		getState() { return _state; }
+		CGIState		getState();
 
 		std::string	start();
 		std::vector<CGIConfig>						cgi_c;

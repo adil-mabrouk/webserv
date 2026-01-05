@@ -19,9 +19,9 @@ class Client {
 		int			getFileFd();
 		void		setFileName(string);
 		void		setErrorStatus(int);
-		bool		readRequest(); // Returns true if request is complete
-		void		processRequest(); // Process the request and prepare the response
-		bool		writeResponse(); // Returns true if response is fully sent
+		bool		readRequest();  
+		void		processRequest();  
+		bool		writeResponse();  
 		bool		writeCGIResponse();
 		bool		writeErrorResponse();
 		int			writeErrorResponseHeaders();
@@ -32,6 +32,7 @@ class Client {
 		std::string		_resRes;
 		
 		CGI				*getCGI() const { return _cgi; }
+
 
 	private:
 		Request			requestHandle;
@@ -49,15 +50,15 @@ class Client {
 		int				errorStatus;
 		unsigned long	contentSize;
 
-		// ALL CGI needs {
+		 
 
 		std::string		_inputFileName;
 		CGI	*_cgi;
 		
 		bool			isCGIRequest(const std::string &path);
 		std::string		startCGI();
-		// std::string		mapURLToFilePath(const std::string &urlPath);
+		 
 
-	// }
+	 
 
 };

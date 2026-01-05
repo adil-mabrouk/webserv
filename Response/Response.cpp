@@ -236,7 +236,7 @@ void	Response::fillDirBody(string path, DIR* dir)
 		directory = readdir(dir);
 	}
 	if (!directory && errno == EBADF)
-		throw 403;//statusCode403();
+		throw 403;
 	else
 		body.append("</pre><hr></body>\n</html>");
 	ss << body.size();
@@ -251,15 +251,17 @@ void	Response::fillFileBody(int fd)
 	char	*end;
 	char	*buff;
 	size_t	file_size;
+	long	size_read;
 
 	file_size = std::strtol((headers.end() - 2)->second.c_str(), &end, 0);
 	buff = new char[file_size + 1];
 	try
 	{
-		if (read(fd, buff, file_size) == -1)
+		size_read = read(fd, buff, file_size);
+		if (size_read == -1)
 			throw std::runtime_error("");
 		buff[file_size] = '\0';
-		body.assign(buff);
+		body.assign(buff, size_read);
 	}
 	catch (std::exception &e)
 	{
@@ -281,7 +283,6 @@ void	Response::GETDir(string path)
 		if (fd != -1)
 			break ;
 	}
-	// fd = open((path + "/" + index_file).c_str(), O_RDONLY);
 	if (fd == -1)
 	{
 		if (errno == ENOENT)
@@ -294,23 +295,19 @@ void	Response::GETDir(string path)
 				if (!dir)
 				{
 					if (errno == ENOENT)
-						throw 404;//statusCode404();
+						throw 404;
 					else
-						throw 403;//statusCode403();
+						throw 403;
 				}
 				else
 				{
 					try
 					{
-						// stringstream	ss;
-
 						status_code = 200, reason_phrase.assign("OK");
 						headers.push_back(make_pair("Server: ", "webserv"));
 						headers.push_back(make_pair("Date: ", fillDate(std::time(NULL))));
 						headers.push_back(make_pair("Content-Type: ", "text/html"));
 						fillDirBody(path, dir);
-						// ss << body.size();
-						// headers.push_back(make_pair("Content-Length: ", ss.str()));
 					}
 					catch (std::exception& e)
 					{
@@ -321,10 +318,10 @@ void	Response::GETDir(string path)
 				}
 			}
 			else
-				throw 403;//statusCode403();
+				throw 403;
 		}
 		else
-			throw 403;//statusCode403();
+			throw 403;
 	}
 	else
 	{
@@ -338,7 +335,7 @@ void	Response::GETDir(string path)
 			}
 			else
 				if (it + 1 == location_config.index.end())
-				throw 404;//statusCode404();
+				throw 404;
 		}
 	}
 }
@@ -348,9 +345,9 @@ void	Response::GETFile(string path, int fd, struct stat *st)
 	if (fd == -1)
 	{
 		if (errno == ENOENT)
-			throw 404;//statusCode404();
+			throw 404;
 		else
-			throw 403;//statusCode403();
+			throw 403;
 	}
 	else
 	{
@@ -398,27 +395,27 @@ void	Response::GETResource()
 		else if (S_ISDIR(st.st_mode))
 			GETDir(path);
 		else
-// should test nginx behavior for this one
-			throw 403;//statusCode403();
+ 
+			throw 403;
 	}
 	else
-		throw 404;//statusCode404();
+		throw 404;
 }
 
-// must verify if the program has the right to delete the resource?
+ 
 void	Response::DELETEResource()
 {
 	struct stat	st;
 	string		path;
 
-// open the path first
+ 
 	path = request.request_line.getURI();
 	if (stat(path.c_str(), &st))
-		throw 404;//statusCode404();
+		throw 404;
 	else
 	{
 		if (S_ISDIR(st.st_mode))
-			throw 403;//statusCode403();
+			throw 403;
 		else if (S_ISREG(st.st_mode))
 		{
 			string parent;
@@ -430,20 +427,20 @@ void	Response::DELETEResource()
 				parent = "..";
 			else
 				parent.assign(path.begin(), it.base());
-// X_OK?
+ 
 			if (!access(parent.c_str(), W_OK | X_OK))
 			{
 				if (std::remove(path.c_str()))
-					throw 403;//statusCode403();
+					throw 403;
 				else
-// check the headers
+ 
 					status_code = 200, reason_phrase.assign("OK");
 			}
 			else
 				throw 401;//statusCode401();
 		}
 		else
-			throw 403;//statusCode403();
+			throw 403;
 	}
 }
 

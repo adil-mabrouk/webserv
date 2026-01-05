@@ -15,8 +15,7 @@ ConfigParser::ConfigParser(const std::string& path)
 
 void	ConfigParser::defaultServerParams(ServerConfig& serverConfig)
 {
-	serverConfig.root = "/home/amabrouk/Desktop/webserv"; // Default root directory
-	// serverConfig.maxBodySizeExist = false;
+	serverConfig.root = "/home/amabrouk/Desktop/webserv";
 }
 
 std::vector<ServerConfig>	ConfigParser::parser()
@@ -87,7 +86,7 @@ static bool	isValidCgiExtension(const std::string &ext, const std::string &path)
 
 LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& tokens, size_t& index)
 {
-	++index; // Skip "location"
+	++index; 
 	if (index >= tokens.size())
 		throw std::runtime_error("Expected path after location");
 	LocationConfig locConfig;
@@ -97,35 +96,35 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 
 	if (tokens[index] != "{")
 		throw std::runtime_error("Expected '{' after location path");
-	++index; // Skip "{"
+	++index; 
 
 	while (index < tokens.size() && tokens[index] != "}")
 	{
 		if (tokens[index] == "root")
 		{
-			++index; // Skip "root"
+			++index; 
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after root directive");
 			locConfig.root = tokens[index++];
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after root directive");
-			++index; // Skip ";"
+			++index; 
 		}
 		else if (tokens[index] == "index")
 		{
 			locConfig.index.clear();
-			++index; // Skip "index"
+			++index; 
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after index directive");
 			while (index < tokens.size() && tokens[index] != ";")
 				locConfig.index.push_back(tokens[index++]);
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after index directive");
-			++index; // Skip ";"
+			++index; 
 		}
 		else if (tokens[index] == "autoindex")
 		{
-			++index; // Skip "autoindex"
+			++index; 
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after autoindex directive");
 			std::string value = tokens[index++];
@@ -137,11 +136,11 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 				throw std::runtime_error("Invalid value for autoindex directive");
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after autoindex directive");
-			++index; // Skip ";"
+			++index; 
 		}
 		else if (tokens[index] == "methods")
 		{
-			++index; // Skip "methods"
+			++index;
 			while (index < tokens.size() && tokens[index] != ";")
 			{
 				if (isValidMethod(tokens[index]))
@@ -151,11 +150,11 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 			}
 			if (index >= tokens.size() || tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after methods directive");
-			++index; // Skip ";"
+			++index;
 		}
 		else if (tokens[index] == "return")
 		{
-			++index; // Skip "return"
+			++index;
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after return directive");
 			const std::string& token = tokens[index++];
@@ -166,22 +165,22 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 			locConfig.redirect.url = tokens[index++];
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after return directive");
-			++index; // Skip ";"
+			++index;
 			locConfig.redirectExist = true;
 		}
 		else if (tokens[index] == "upload_store")
 		{
-			++index; // Skip "upload_store"
+			++index;
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after upload_store directive");
 			locConfig.upload_store = tokens[index++];
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after upload_store directive");
-			++index; // Skip ";"
+			++index;
 		}
-		else if (tokens[index] == "allow_upload")  // optional
+		else if (tokens[index] == "allow_upload")
 		{
-			++index; // Skip "allow_upload"
+			++index;
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after allow_upload directive");
 			std::string value = tokens[index++];
@@ -193,11 +192,11 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 				throw std::runtime_error("Invalid value for allow_upload directive");
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after allow_upload directive");
-			++index; // Skip ";"
+			++index;
 		}
 		else if (tokens[index] == "cgi_extension")
 		{
-			++index; // Skip "cgi_extension"
+			++index;
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after cgi_extension directive");
 			std::string extension = tokens[index++];
@@ -210,7 +209,7 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 			locConfig.cgi.push_back(cgiConfig);
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after cgi_extension directive");
-			++index; // Skip ";"
+			++index;
 		}
 		else
 			throw std::runtime_error("Unknown directive inside location block: " + tokens[index]);
@@ -218,7 +217,7 @@ LocationConfig	ConfigParser::parseLocationBlock(const std::vector<std::string>& 
 
 	if (index >= tokens.size() || tokens[index] != "}")
 		throw std::runtime_error("Expected '}' at the end of location block");
-	++index; // Skip "}"
+	++index;
 
 	return locConfig;
 }
@@ -238,11 +237,10 @@ static bool	isValidIpAddress(const std::string& ip)
 	int					partCount = 0;
 	while (std::getline(ss, byte, '.'))
 	{
-		// no empty part 192..1    &&    not too long
 		if (byte.empty() || byte.size() > 3)
 			return false;
 		for (size_t i = 0; i < byte.size(); i++)
-			if (!isdigit(byte[i])) return false; // only digits allowed
+			if (!isdigit(byte[i])) return false;
 		int value;
 		std::stringstream	sv(byte);
 		sv >> value;
@@ -255,24 +253,24 @@ static bool	isValidIpAddress(const std::string& ip)
 
 void	ConfigParser::parseListenDirective(const std::vector<std::string>& tokens, size_t& index, ServerConfig& serverConfig)
 {
-	++index; // Skip "listen"
+	++index;
 	if (index >= tokens.size())
 		throw std::runtime_error("Expected value after listen directive");
 	std::string listenValue = tokens[index++];
 	if (tokens[index] != ";")
 		throw std::runtime_error("Expected ';' after listen directive");
 
-	++index; // Skip ";"
+	++index;
 	std::pair<std::string, int> listenPair;
-	listenPair.first = "0.0.0.0"; // Default IP
+	listenPair.first = "0.0.0.0";
 	size_t colonPos = listenValue.find(':');
 	if (colonPos != std::string::npos)
 	{
-		listenPair.first = listenValue.substr(0, colonPos); // first is IP
+		listenPair.first = listenValue.substr(0, colonPos);  
 		if (!isValidIpAddress(listenPair.first))
 			throw std::runtime_error("Invalid ip address in listen directive");
 		std::istringstream	ss(listenValue.substr(colonPos + 1));
-		ss >> listenPair.second; // second is port
+		ss >> listenPair.second;  
 		if (ss.fail() || !ss.eof() || listenPair.second <= 0 || listenPair.second > 65535)
 			throw std::runtime_error("Invalid port in listen directive");
 	}
@@ -317,11 +315,11 @@ static size_t	convertToBytes(std::string &unit)
 
 void ConfigParser::parseClientMaxBody(const std::vector<std::string>& tokens, size_t& index, ServerConfig& serverConfig)
 {
-	++index; // Skip "client_max_body_size"
+	++index;  
 	if (index >= tokens.size())
 		throw std::runtime_error("Expected value after client_max_body_size directive");
 	std::string value = tokens[index++];
-	// Separate number from unit
+	 
 	
 	size_t numEnd = 0;
 	while (numEnd < value.size() && std::isdigit(value[numEnd]))
@@ -337,20 +335,20 @@ void ConfigParser::parseClientMaxBody(const std::vector<std::string>& tokens, si
 		throw std::runtime_error("Invalid number in client_max_body_size");
 	if (maxBodySize == 0)
 		throw std::runtime_error("client_max_body_size cannot be 0");
-	// Parse unit
+	 
 	size_t	toConvert = convertToBytes(unitPart);
-	if (maxBodySize > std::numeric_limits<unsigned long>::max() / toConvert) // Prevent overflow
+	if (maxBodySize > std::numeric_limits<unsigned long>::max() / toConvert)  
 		throw std::runtime_error("client_max_body_size value too large");
 	serverConfig.max_body_size = maxBodySize * toConvert;
 	if (index >= tokens.size() || tokens[index] != ";")
 		throw std::runtime_error("Expected ';' after client_max_body_size directive");
 	++index;
-	// serverConfig.maxBodySizeExist = true;
+	 
 }
 
 void	ConfigParser::parseErrorPage(const std::vector<std::string>& tokens, size_t& index, ServerConfig& serverConfig)
 {
-	++index; // Skip "error_page"
+	++index;  
 	if (index >= tokens.size())
 		throw std::runtime_error("Expected status code and path after error_page directive");
 	std::vector<int>	statusCodes;
@@ -392,20 +390,20 @@ void	ConfigParser::defaultLocationParams(LocationConfig& locConfig)
 {
 	locConfig.index.push_back("index.html");
 	locConfig.autoindex = false;
-	locConfig.redirect.status_code = 0; // no redirect by default
-	// locConfig.upload_store = "";
-	// locConfig.cgi.extension = "";
-	// locConfig.cgi.path = "";
+	locConfig.redirect.status_code = 0;  
+	 
+	 
+	 
 }
 
 ServerConfig	ConfigParser::parseServerBlock(const std::vector<std::string> &tokens, size_t &index)
 {
-	++index; // Skip "server"
+	++index;  
 	if (tokens[index] != "{")
 	{
 		throw std::runtime_error("Expected '{' after server");
 	}
-	++index; // Skip "{"
+	++index;  
 
 	ServerConfig serverConfig;
 	defaultServerParams(serverConfig);
@@ -417,7 +415,7 @@ ServerConfig	ConfigParser::parseServerBlock(const std::vector<std::string> &toke
 			loc = parseLocationBlock(tokens, index);
 			serverConfig.locations[loc.path] = loc;
 			if (serverConfig.locations[loc.path].root.empty())
-				serverConfig.locations[loc.path].root = serverConfig.root; // set server root as default location root
+				serverConfig.locations[loc.path].root = serverConfig.root;  
 		}
 		else if (tokens[index] == "listen")
 			parseListenDirective(tokens, index, serverConfig);
@@ -427,13 +425,13 @@ ServerConfig	ConfigParser::parseServerBlock(const std::vector<std::string> &toke
 			parseErrorPage(tokens, index, serverConfig);
 		else if (tokens[index] == "root")
 		{
-			++index; // Skip "root"
+			++index;  
 			if (index >= tokens.size())
 				throw std::runtime_error("Expected value after root directive");
 			serverConfig.root = tokens[index++];
 			if (tokens[index] != ";")
 				throw std::runtime_error("Expected ';' after root directive");
-			++index; // Skip ";"
+			++index;  
 		}
 		else
 			throw std::runtime_error("Unknown directive inside server block: " + tokens[index]);
@@ -442,10 +440,10 @@ ServerConfig	ConfigParser::parseServerBlock(const std::vector<std::string> &toke
 	{
 		throw std::runtime_error("Expected '}' at the end of server block");
 	}
-	++index; // Skip "}"
+	++index;  
 	if (index < tokens.size() && tokens[index] != "server")
 	throw std::runtime_error("Expected 'server' or end of configuration after server block");
 	
-	// std::cout << "initial adress: " << &serverConfig << '\n';
+	 
 	return serverConfig;
 }

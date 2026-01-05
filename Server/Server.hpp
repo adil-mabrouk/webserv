@@ -24,24 +24,24 @@ class Client;
 
 class Server {
 	private:
-		std::vector<ServerConfig>		_serverConfigs; // All server blocks from config
+		std::vector<ServerConfig>		_serverConfigs;  
 		std::map<int, size_t>			_fdToConfigIndex;
-		std::vector<int>				_listenFds; // List of listening socket file descriptors
-		std::map<int, Client*>			_clients; // key: client socket fd, value: Client object pointer
+		std::vector<int>				_listenFds;  
+		std::map<int, Client*>			_clients;  
 	public:
 		Server(const std::vector<ServerConfig> &configs);
-		// ~Server();
-		void							run(); // Main event loop
-		void							initSocket(std::string host, int port, size_t configIndex); // Initialize a listening socket on the given ports
+		 
+		void							run();  
+		void							initSocket(std::string host, int port, size_t configIndex);  
 		ServerConfig					getConfigForListenFd(int fd);
-		short							determineClientEvents(Client *clt); // Determine if we want to read or write
-		bool							isListeningSocket(int fd) const; // Check if fd is a listening socket
-		void							handleNewConnection(int fd); // Accept new client connection
-		void							handleClientRead(int ClientFd); // Handle reading from client
-		void							handleClientWrite(int clientFd); // Handle writing to client
-		void							closeClient(int clientFd); // Close and clean up client connection
+		short							determineClientEvents(Client *clt);  
+		bool							isListeningSocket(int fd) const;  
+		void							handleNewConnection(int fd);  
+		void							handleClientRead(int ClientFd);  
+		int							handleClientWrite(int clientFd);  
+		void							closeClient(int clientFd);  
 
-		void			checkCGITimeouts();
+		void			checkCGITimeouts(int fd);
 		void			killCGI(Client* client);
 		~Server(){}
 };

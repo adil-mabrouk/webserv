@@ -32,7 +32,6 @@ void	RequestHeader::parse(string str)
 					throw 400;
 		header_data.insert(std::make_pair(field_name, field_body));
 	}
-	//check here for the presence of content length/type if the request method == POST
 }
 
 bool	isCTL(char c)

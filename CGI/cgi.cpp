@@ -10,11 +10,6 @@ CGI::CGI()
 
 CGI::~CGI()
 {
-	// if (_outFile != -1)
-	// {
-	// 	close(_outFile);
-	// 	_outFile = -1;
-	// }
 	if (!_inputFile.empty())
 	{
 		std::remove(_inputFile.c_str());
@@ -22,11 +17,14 @@ CGI::~CGI()
 	}
 	if (_pid > 0)
 	{
-		// kill(_pid, SIGKILL);
 		waitpid(_pid, NULL, WNOHANG);
 		_pid = -1;
 	}
 }
+
+void		CGI::setState(CGIState state) { _state = state; }
+
+CGIState	CGI::getState() { return _state; }
 
 void CGI::setScriptPath(const std::string& path)
 {
@@ -75,7 +73,6 @@ std::string CGI::getCGIInterpreter(const std::string& path)
 		CGIConfig cgi_c_it = *it;
 		if (cgi_c_it.extension == ext)
 		{
-			// std::cerr << cgi_c_it.path;
 			return cgi_c_it.path;
 		}
 	}
@@ -93,7 +90,6 @@ std::map<std::string, std::string> CGI::setupEnvironment()
     std::map<std::string, std::string>::iterator it = _headers.find("Content-Type");
     if (it != _headers.end())
         env["CONTENT_TYPE"] = it->second;
-    // Convert HTTP headers to HTTP_* variables
     for (it = _headers.begin(); it != _headers.end(); ++it)
     {
         std::string key = "HTTP_" + it->first;
@@ -104,7 +100,6 @@ std::map<std::string, std::string> CGI::setupEnvironment()
             else if (key[i] >= 'a' && key[i] <= 'z')
                 key[i] = key[i] - 32;
         }
-        // std::cerr << it->first << ": " << it->second << "\n\n";
         env[key] = it->second;
     }
     return env;
@@ -210,7 +205,6 @@ std::string CGI::start()
 		std::string interpreter = getCGIInterpreter(_scriptPath);
 		std::cerr << "interpreter = " << interpreter << "\n";
 		std::cerr << "script Path = " << _scriptPath << "\n";
-		// std::cerr << "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
 		if (!interpreter.empty())
 		{
 			char *argv[3];

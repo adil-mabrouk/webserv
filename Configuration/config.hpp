@@ -37,9 +37,8 @@ struct ServerConfig {
 	std::vector<std::pair<std::string, int> >	listenList;
 	std::map<int, std::string>					error_pages;
 	std::map<std::string, LocationConfig>		locations;
-	std::string									root; // added for server root directive
-	unsigned long									max_body_size;
-	// bool										maxBodySizeExist;
+	std::string									root;
+	unsigned long								max_body_size;
 	ServerConfig() : max_body_size(std::numeric_limits<unsigned long>::max()) {}
 };
 

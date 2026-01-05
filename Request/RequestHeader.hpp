@@ -10,9 +10,6 @@
 using std::string;
 using std::map;
 
-// look for the role of every header,
-// does it affect the program behavior
-// if a header is missing or has different value (ex: the client is User-Agent)
 class	RequestHeader
 {
 private:

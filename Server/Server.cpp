@@ -42,19 +42,19 @@ void Server::initSocket(std::string host, int port, size_t configIndex)
 
 	status = getaddrinfo(host.c_str(), portStr.str().c_str(), &hints, &res);
 	if (status != 0)
-		throw std::runtime_error("getaddrinfo() failed");
+		freeaddrinfo(res), throw std::runtime_error("getaddrinfo() failed");
 	listenFd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (listenFd < 0)
-		throw std::runtime_error("socket() failed: " + std::string(strerror(errno)));
+		freeaddrinfo(res), throw std::runtime_error("socket() failed: " + std::string(strerror(errno)));
 	int opt = 1;
 	if (setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-		throwError(listenFd, "setsockopt() failed: ");
+		freeaddrinfo(res), throwError(listenFd, "setsockopt() failed: ");
 	if (fcntl(listenFd, F_SETFL, O_NONBLOCK) < 0)
-		throwError(listenFd, "fcntl(F_SETFL) failed: ");
+		freeaddrinfo(res), throwError(listenFd, "fcntl(F_SETFL) failed: ");
 	if (fcntl(listenFd, F_SETFD, FD_CLOEXEC) < 0)
-		throwError(listenFd, "fcntl(F_SETFD) failed: ");
+		freeaddrinfo(res), throwError(listenFd, "fcntl(F_SETFD) failed: ");
 	if (bind(listenFd, res->ai_addr, res->ai_addrlen) < 0)
-		throwError(listenFd, "bind() failed: ");
+		freeaddrinfo(res), throwError(listenFd, "bind() failed: ");
 	freeaddrinfo(res);
 	if (listen(listenFd, SOMAXCONN) < 0)
 		throwError(listenFd, "listen() failed: ");
@@ -139,7 +139,7 @@ void Server::handleClientRead(int clientFd)
 	bool complete = client->readRequest();
 	if (client->getState() == Client::DONE)
 	{
-		// Never going throug there
+		 
 		cout << "# # # client done------------------------------------------------------------------------------------------------------\n";
 		return;
 	}
@@ -148,16 +148,16 @@ void Server::handleClientRead(int clientFd)
 		client->processRequest();
 }
 
-void Server::handleClientWrite(int clientFd)
+int Server::handleClientWrite(int clientFd)
 {
 	bool	complete;
 
 	Client *client = _clients[clientFd];
 	if (!client)
-		return;
+		return 1;
 	if (client->getState() == Client::CGI_WRITING
 		|| client->getState() == Client::CGI_HEADERS_WRITING)
-		// cout << "+ + + writing cgi response\n",
+		 
 		complete = client->writeCGIResponse();
 	else if (client->getState() == Client::ERROR_WRITING
 			|| client->getState() == Client::ERROR_HEADERS_WRITING)
@@ -172,14 +172,16 @@ void Server::handleClientWrite(int clientFd)
 		{
 			std::cout << "CGI\n";
 			closeClient(clientFd);
+			return 1;
 		}
 		else
 		{
 			std::cout << "Client\n";
 			closeClient(clientFd);
+			return 1;
 		}
-		
 	}
+	return 0;
 }
 
 /*
@@ -194,28 +196,28 @@ void Server::run()
 {
 	int activity;
 
-	signal(SIGINT, signalHandler); // Ctrl+C
-	// signal(SIGTERM, signalHandler);  // kill command
-	while (g_running) // main event loop
+	signal(SIGINT, signalHandler);  
+	 
+	while (g_running)  
 	{
-		std::vector<struct pollfd> pollFds;			   // Array of pollfd structures for poll()
-		for (size_t i = 0; i < _listenFds.size(); i++) // Add all listening sockets
+		std::vector<struct pollfd> pollFds;			    
+		for (size_t i = 0; i < _listenFds.size(); i++)  
 		{
-			struct pollfd pfd; // The struct pollfd is a data structure used to monitor file descriptors for I/O events in the poll() system call
+			struct pollfd pfd;  
 			pfd.fd = _listenFds[i];
-			pfd.events = POLLIN; // We are interested in read events (incoming connections)
+			pfd.events = POLLIN;  
 			pfd.revents = 0;
 			pollFds.push_back(pfd);
 		}
-		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) // Add all client sockets
+		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)  
 		{
 			struct pollfd pfd;
 			pfd.fd = it->first;
-			pfd.events = determineClientEvents(it->second); // Determine if we want to read or write
+			pfd.events = determineClientEvents(it->second);  
 			pfd.revents = 0;
 			pollFds.push_back(pfd);
 		}
-		activity = poll(&pollFds[0], pollFds.size(), 1000); // waits for one of a set of file descriptors to become ready to perform I/O.
+		activity = poll(&pollFds[0], pollFds.size(), 1000);  
 		if (activity < 0)
 			continue;
 
@@ -240,8 +242,11 @@ void Server::run()
 						cout << "- - - reading\n",
 						handleClientRead(fd);
 					if (revents & POLLOUT)
-						// cout << "+ + + writing\n",
-						handleClientWrite(fd);
+					{
+						int skip = handleClientWrite(fd);
+						if (!skip)
+							checkCGITimeouts(fd);
+					}
 				}
 				catch (int &status)
 				{
@@ -295,9 +300,8 @@ void Server::run()
 				}
 			}
 		}
-		checkCGITimeouts();
 	}
-	// cleanup on shutdown and close all connections
+	 
 	std::cout << "\n\nCleaning up ...";
 	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
 	{
@@ -315,25 +319,18 @@ void Server::run()
 	std::cout << "Cleanup completed" << "\n";
 }
 
-void Server::checkCGITimeouts()
+void Server::checkCGITimeouts(int fd)
 {
 	time_t now = std::time(NULL);
 
-	for (std::map<int, Client *>::iterator it = _clients.begin();
-		 it != _clients.end(); it++)
+	Client *c = _clients[fd];
+	if (c && c->getCGI())
 	{
-		if (it->second->getCGI())
+		if (now - c->getCGI()->getStartTime() > 3)
 		{
-			// std::cout << "state timeout => " << it->second->getState() << "\n";
-			if (now - it->second->getCGI()->getStartTime() > 3)
-			{
-				std::cout << "CGI timeout\n";
-				// it->second->_resRes = "HTTP/1.0 504 Gateway Timeout\r\n\r\n";
-				it->second->setState(Client::ERROR_HEADERS_WRITING);
-				killCGI(it->second);
-
-				// throw 500;
-			}
+			c->setState(Client::ERROR_HEADERS_WRITING);
+			killCGI(c);
+			throw 500;
 		}
 	}
 }
@@ -345,5 +342,6 @@ void Server::killCGI(Client *client)
 		return;
 
 	kill(cgi->getPid(), SIGKILL);
+
 	waitpid(cgi->getPid(), NULL, WNOHANG);
 }

@@ -7,7 +7,6 @@ inline bool URIParser::isAbsPath(string str)
 			&& isRelPath(string(str.begin() + 1, str.end())));
 }
 
-// rel_path       = [ path ] [ ";" params ] [ "?" query ]
 inline bool URIParser::isRelPath(string str)
 {
 	string::iterator	it;
@@ -248,7 +247,6 @@ void	RequestLine::rootingPath(string path, string location_root, string server_r
 			uri = uri_tmp + "/" + uri;
 			else
 			uri = uri_tmp + uri;
-		// uri = server_root + location_root + uri;
 	}
 	else
 		throw 404;
@@ -339,9 +337,7 @@ void	RequestLine::parse(string str)
 	uri.assign(str.begin() + index + 1, str.begin() + index_2);
 	if(!uri_parser.isAbsPath(uri))
 		throw (400);
-	// cout << "=> uri before encoding: " << uri << '\n';
 	URIEncoding();
-	// cout << "=> uri after encoding: " << uri << '\n';
 	query_index = uri.find('?', 0);
 	if (query_index != string::npos)
 		query.assign(uri.begin() + query_index + 1, uri.end());
