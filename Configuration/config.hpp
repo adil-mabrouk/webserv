@@ -34,7 +34,7 @@ struct LocationConfig {
 };
 
 struct ServerConfig {
-	std::vector<std::pair<std::string, int> >	listenList;
+	std::vector<std::pair<std::string, int> >	listenList; 
 	std::map<int, std::string>					error_pages;
 	std::map<std::string, LocationConfig>		locations;
 	std::string									root;
